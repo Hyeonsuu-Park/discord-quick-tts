@@ -24,6 +24,8 @@ dependencies {
     // 배포 서버는 MySQL, 이 PC 에서 띄우는 서버(개발, exe)는 설치가 필요 없는 H2 파일 DB.
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
+    // bootRun 때만 저장소 루트의 compose.yaml 로 개발용 MySQL 을 띄운다(QUICKTTS_DEV_MYSQL=true). exe 와 이미지에는 들어가지 않는다.
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 

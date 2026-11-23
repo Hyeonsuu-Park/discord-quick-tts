@@ -140,6 +140,7 @@
 | [0053](0053-quick-chat-speed-metrics.md) | 핵심 약속 "빠름" 을 quick chat 지표 두 개로 잰다 | 채택 |
 | [0037](0037-cache-tts-results.md) | 엔진이 만든 음성은 스프링 캐시(Caffeine)로 기억한다 | 채택 |
 | [0055](0055-bot-server-container-image.md) | 봇 서버는 Dockerfile 하나로 컨테이너 이미지를 만든다 | 채택 |
+| [0056](0056-dev-mysql-with-docker-compose.md) | 개발 PC 에서도 Docker Compose 로 MySQL 을 띄워 쓸 수 있게 한다 | 채택 |
 
 ### 데스크톱 클라이언트와 배포
 
