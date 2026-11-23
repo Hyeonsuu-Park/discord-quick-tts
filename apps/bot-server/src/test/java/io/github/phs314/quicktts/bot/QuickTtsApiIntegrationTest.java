@@ -21,8 +21,6 @@ import io.github.phs314.quicktts.bot.identity.application.port.in.command.IssueP
 import io.github.phs314.quicktts.bot.identity.application.port.in.command.UnlinkAllDevicesCommand;
 import io.github.phs314.quicktts.bot.settings.application.port.in.ChangeVoiceUseCase;
 import io.github.phs314.quicktts.bot.settings.application.port.in.command.ChangeVoiceCommand;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import io.github.phs314.quicktts.bot.speech.application.port.in.dto.VoiceChannelDto;
 import io.github.phs314.quicktts.bot.speech.application.port.out.FakeSpeechPlayerPort;
 import io.github.phs314.quicktts.bot.speech.application.port.out.FakeVoiceStatePort;
@@ -30,8 +28,10 @@ import io.github.phs314.quicktts.bot.speech.application.port.out.SpeechPlayerPor
 import io.github.phs314.quicktts.bot.speech.application.port.out.VoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.domain.vo.ChannelId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
-import io.github.phs314.quicktts.bot.synthesis.application.port.out.FakeSpeechSynthesizerPort;
-import io.github.phs314.quicktts.bot.synthesis.application.port.out.SpeechSynthesizerPort;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.synthesis.application.port.out.FakeSpeechSynthesizerPort;
+import io.github.phs314.quicktts.synthesis.application.port.out.SpeechSynthesizerPort;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import net.dv8tion.jda.api.JDA;

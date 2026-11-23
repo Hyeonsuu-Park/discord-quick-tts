@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import io.github.phs314.quicktts.bot.support.TestDatabase;
 import io.github.phs314.quicktts.bot.support.TestJpa;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;

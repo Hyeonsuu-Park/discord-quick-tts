@@ -8,7 +8,7 @@ import io.github.phs314.quicktts.bot.guild.application.port.in.query.GetAllowlis
 import io.github.phs314.quicktts.bot.guild.application.port.out.AllowedGuildPort;
 import io.github.phs314.quicktts.bot.guild.application.port.out.BotOwnerPort;
 import io.github.phs314.quicktts.bot.guild.application.port.out.GuildAllowlistConfigPort;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.phs314.quicktts.bot.identity.domain.Pairing;
 import io.github.phs314.quicktts.bot.identity.domain.vo.PairingCode;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import io.github.phs314.quicktts.bot.support.TestDatabase;
 import io.github.phs314.quicktts.bot.support.TestJpa;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;

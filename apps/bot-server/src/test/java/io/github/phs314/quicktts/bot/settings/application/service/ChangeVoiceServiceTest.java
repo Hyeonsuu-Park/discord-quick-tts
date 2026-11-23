@@ -8,8 +8,8 @@ import io.github.phs314.quicktts.bot.settings.application.port.out.FakeUserSetti
 import io.github.phs314.quicktts.bot.settings.application.port.out.FakeVoiceChoicesPort;
 import io.github.phs314.quicktts.bot.settings.domain.UnknownVoiceException;
 import io.github.phs314.quicktts.bot.settings.domain.UserSettings;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
 import org.junit.jupiter.api.Test;
 
 class ChangeVoiceServiceTest {

@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.identity.application.port.in;
 
 import io.github.phs314.quicktts.bot.identity.application.port.in.query.AuthenticateDeviceQuery;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import java.util.Optional;
 
 /**

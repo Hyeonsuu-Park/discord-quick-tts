@@ -3,8 +3,8 @@ package io.github.phs314.quicktts.bot.speech.domain.normalization;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
 import io.github.phs314.quicktts.bot.speech.domain.vo.QuickChatMessage;
+import io.github.phs314.quicktts.shared.domain.InvalidDomainValueException;
 import org.junit.jupiter.api.Test;
 
 class TextNormalizerTest {

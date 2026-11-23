@@ -1,6 +1,6 @@
 package io.github.phs314.quicktts.bot.guild.domain;
 
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.time.Instant;
 import java.util.Objects;
 

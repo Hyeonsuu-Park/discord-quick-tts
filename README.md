@@ -35,15 +35,17 @@
 
 ## 모듈
 
-저장소 맨 위는 띄우는 프로그램(`apps/`), 앱끼리 나눠 쓰는 코드(`libs/`), 모든 모듈이 같이 쓰는 빌드 설정(`build-logic/`)으로 나뉩니다 ([ADR 0045](docs/adr/0045-apps-libs-build-logic-layout.md)).
+저장소 맨 위는 띄우는 프로그램(`apps/`), 앱에서 떼어 낸 업무 모듈(`contexts/`), 앱끼리 나눠 쓰는 약속(`libs/`), 모든 모듈이 같이 쓰는 빌드 설정(`build-logic/`)으로 나뉩니다 ([ADR 0045](docs/adr/0045-apps-libs-build-logic-layout.md), [ADR 0060](docs/adr/0060-synthesis-as-gradle-module.md)).
 
 | 모듈 | 내용 |
 | --- | --- |
 | `apps/bot-server` | Spring Boot + JDA + LavaPlayer. `/연결` 명령, 기기 등록, quick chat API 를 맡습니다. |
 | `apps/desktop-client` | JavaFX 입력 위젯 + JNativeHook 전역 단축키 + 트레이 아이콘. |
+| `contexts/synthesis` | synthesis 컨텍스트(TTS 엔진, 목소리 목록). 봇 서버가 같은 프로세스 안에서 쓰고, 따로 띄우는 서비스도 같은 코드를 씁니다. 패키지는 `io.github.phs314.quicktts.synthesis` 입니다. |
+| `contexts/shared` | 공유 커널(`DiscordUserId`, `GuildId`, `VoiceId`, 도메인 예외의 공통 부모). 패키지는 `io.github.phs314.quicktts.shared` 입니다. |
 | `libs/api-contract` | 데스크톱 앱과 봇 서버가 함께 쓰는 웹 API 약속(경로, 요청·응답 형식, 오류 코드). 패키지는 `io.github.phs314.quicktts.api` 입니다. |
 | `deploy/k8s` | 쿠버네티스 매니페스트(Kustomize). 서비스마다 `base/<서비스>/`, 환경마다 `overlays/<환경>/`. |
-| `build-logic` | 규칙 플러그인 `quicktts.java`(JDK 25, UTF-8, JUnit 5)와 `quicktts.spring-app`(스프링 부트 앱). 버전은 `gradle/libs.versions.toml` 하나에서 정합니다. |
+| `build-logic` | 규칙 플러그인 `quicktts.java`(JDK 25, UTF-8, JUnit 5), `quicktts.spring-app`(스프링 부트 앱), `quicktts.spring-library`(스프링을 쓰는 `contexts/` 모듈). 버전은 `gradle/libs.versions.toml` 하나에서 정합니다. |
 
 ## 봇 서버 구조 (바운디드 컨텍스트 + 헥사고날)
 
@@ -94,17 +96,7 @@ apps/bot-server/src/main/java/io/github/phs314/quicktts/bot/
 │       ├── in/discord/         /목소리 슬래시 명령
 │       ├── out/persistence/    사용자 설정 저장소 (JPA 엔티티 + 매퍼)
 │       └── out/synthesis/      synthesis 에 목소리 목록 묻기
-├── synthesis/
-│   ├── domain/vo/              Voice, VoiceCatalog, Audio (값 객체)
-│   ├── application/
-│   │   ├── exception/          SpeechSynthesisException
-│   │   ├── port/in/            GetVoices (settings 가 부름), SynthesizeSpeech (speech 가 부름) (...UseCase)
-│   │   ├── port/in/command/    SynthesizeSpeech (...Command)
-│   │   ├── port/in/dto/        VoiceDto, VoiceCatalogDto, AudioDto
-│   │   ├── port/out/           SpeechSynthesizerPort
-│   │   └── service/            입력 포트마다 하나
-│   └── adapter/
-│       └── out/tts/            TTS 엔진 (Edge, Google 번역), 엔진 고르기, 결과 캐시와 지표
+├── synthesis/                  (contexts/synthesis 모듈로 떼어 냄, 아래)
 ├── identity/
 │   ├── domain/                 Pairing, Device (엔티티), InvalidPairingCodeException
 │   │   └── vo/                 PairingCode, DeviceToken, DeviceId, DeviceName (값 객체)
@@ -138,8 +130,25 @@ apps/bot-server/src/main/java/io/github/phs314/quicktts/bot/
 │       ├── out/event/          허용 목록 이벤트 내기 (스프링 이벤트)
 │       ├── out/persistence/    허용 목록 저장소 (JPA 엔티티 + 매퍼)
 │       └── out/config/         허용 목록을 쓸지 설정 값 (GuildAllowlistProperties)
-├── shared/                     공유 커널(domain/vo 의 DiscordUserId, GuildId, VoiceId, 예외 공통 부모 BusinessException)과 웹·디스코드 공통 예외 처리
-└── config/                     디스코드 토큰, ShardManager(디스코드 연결), 시계, 디스코드 리스너와 슬래시 명령 등록, 웹 보안 규칙, API 문서(OpenAPI) 머리말, 디스코드 연결 상태 확인, 캐시 켜기
+├── shared/                     웹·디스코드 공통 예외 처리, 슬래시 명령 묶음 (공유 커널 도메인은 contexts/shared 모듈)
+└── config/                     디스코드 토큰, ShardManager(디스코드 연결), 시계, 디스코드 리스너와 슬래시 명령 등록, 웹 보안 규칙, API 문서(OpenAPI) 머리말, 디스코드 연결 상태 확인, 캐시 켜기, synthesis 모듈 가져오기
+
+contexts/synthesis/src/main/java/io/github/phs314/quicktts/synthesis/
+├── SynthesisConfiguration      이 모듈의 빈을 한 번에 올림 (앱이 @Import)
+├── domain/vo/                  Voice, VoiceCatalog, Audio (값 객체)
+├── application/
+│   ├── exception/              SpeechSynthesisException
+│   ├── port/in/                GetVoices (settings 가 부름), SynthesizeSpeech (speech 가 부름) (...UseCase)
+│   ├── port/in/command/        SynthesizeSpeech (...Command)
+│   ├── port/in/dto/            VoiceDto, VoiceCatalogDto, AudioDto
+│   ├── port/out/               SpeechSynthesizerPort
+│   └── service/                입력 포트마다 하나
+└── adapter/
+    └── out/tts/                TTS 엔진 (Edge, Google 번역), 엔진 고르기, 결과 캐시와 지표
+
+contexts/shared/src/main/java/io/github/phs314/quicktts/shared/
+└── domain/                     예외 공통 부모 BusinessException, ErrorKind, InvalidDomainValueException
+    └── vo/                     DiscordUserId, GuildId, VoiceId
 ```
 
 `ArchitectureTest`(ArchUnit)가 빌드 때마다 다음 의존 규칙을 확인합니다. ArchUnit 은 무엇이 무엇을 알아도 되는지만 봅니다 ([ADR 0032](docs/adr/0032-archunit-checks-dependencies-only.md)).
@@ -171,7 +180,7 @@ apps/bot-server/src/main/java/io/github/phs314/quicktts/bot/
 - 같은 디스코드 서버에서는 먼저 쓰고 있는 음성 채널이 우선이고, 사람이 다 나가면 봇도 나갑니다. 이 판단은 디스코드 서버마다 하나인 봇 음성 상태(`BotVoiceState`)가 하고, 잠금도 디스코드 서버마다 따로입니다 ([ADR 0007](docs/adr/0007-first-come-voice-channel.md), [ADR 0014](docs/adr/0014-bot-seat-aggregate.md)).
 - 한 번에 함께 저장하는 것은 애그리거트 하나입니다. 같은 종류를 한꺼번에 넣거나 지울 때만 포트 메서드 하나(`saveAll`, `deleteAllByUserId`)로 묶고, 다른 애그리거트는 순서대로 따로 저장합니다 ([ADR 0028](docs/adr/0028-one-aggregate-per-write.md)).
 - DB 에 쓰는 유스케이스 메서드에는 `@Transactional` 을 붙이고, 저장소는 그 트랜잭션 안에서 한 줄씩 씁니다. 읽기만 하는 유스케이스에는 붙이지 않습니다. 트랜잭션 안에서는 디스코드 서버 나가기 같은 되돌릴 수 없는 호출을 하지 않고, 쓴 결과로 나가야 하면 도메인 이벤트를 내서 커밋 뒤에 받는 쪽이 나갑니다(`@TransactionalEventListener`) ([ADR 0033](docs/adr/0033-transactional-on-writing-use-cases.md)).
-- TTS 엔진은 `SpeechSynthesizerPort` 뒤에 있습니다. 지금은 무료인 Microsoft Edge "소리 내어 읽기" 목소리(선희, 인준, 현수)와 Google 번역 목소리를 쓰고, Edge 가 실패하면 Google 번역 목소리로 대신 읽습니다. 엔진을 추가하려면 `synthesis/adapter/out/tts` 에 `TtsEngine` 구현을 하나 더 만들면 됩니다. 둘 다 공식 API 가 아니라서 언제든 막힐 수 있습니다. 엔진이 만든 음성은 문장과 목소리를 키로 메모리에 500개까지 기억해서, 같은 문장은 엔진을 다시 부르지 않습니다 ([ADR 0037](docs/adr/0037-cache-tts-results.md)).
+- TTS 엔진은 `SpeechSynthesizerPort` 뒤에 있습니다. 지금은 무료인 Microsoft Edge "소리 내어 읽기" 목소리(선희, 인준, 현수)와 Google 번역 목소리를 쓰고, Edge 가 실패하면 Google 번역 목소리로 대신 읽습니다. 엔진을 추가하려면 `contexts/synthesis` 의 `adapter/out/tts` 에 `TtsEngine` 구현을 하나 더 만들면 됩니다. 둘 다 공식 API 가 아니라서 언제든 막힐 수 있습니다. 엔진이 만든 음성은 문장과 목소리를 키로 메모리에 500개까지 기억해서, 같은 문장은 엔진을 다시 부르지 않습니다 ([ADR 0037](docs/adr/0037-cache-tts-results.md)).
 - 서버 상태는 `GET /actuator/health` 로 봅니다. 디스코드 게이트웨이에 붙어 있지 않은 샤드가 있거나 DB 가 안 되면 503 과 `DOWN` 입니다. 지표는 기기 토큰을 실어 `/actuator/metrics` 로 보고, TTS 는 목소리별 걸린 시간과 성공·실패(`quicktts.tts.synthesis`), Google 번역 목소리로 대신 읽은 횟수(`quicktts.tts.fallback`)를 셉니다 ([ADR 0036](docs/adr/0036-health-and-metrics-with-actuator.md)). 얼마나 빨리 들리는지는 quick chat 을 받고 재생 순서에 넣기까지(`quicktts.quickchat.speak`)와 순서에서 앞 문장을 기다린 시간(`quicktts.speech.queue.wait`)으로 보고, 둘 다 중간값과 95% 값이 `.percentile` 로 나옵니다 ([ADR 0053](docs/adr/0053-quick-chat-speed-metrics.md)).
 - 기기 토큰은 서버에 SHA-256 해시로만 저장합니다. 연결 코드는 5분짜리 일회용이고 DB 에 두어서 서버를 다시 켜도 남습니다 ([ADR 0049](docs/adr/0049-store-pairings-in-database.md)).
 - DB 는 배포 서버가 MySQL, 이 PC 에서 띄우는 서버(개발, exe)가 H2 파일입니다. 스키마는 Flyway 마이그레이션(`apps/bot-server/src/main/resources/db/migration`)으로 관리하고, 저장소 테스트는 H2 와 MySQL 양쪽에서 돕니다 ([ADR 0016](docs/adr/0016-mysql-and-flyway.md)).

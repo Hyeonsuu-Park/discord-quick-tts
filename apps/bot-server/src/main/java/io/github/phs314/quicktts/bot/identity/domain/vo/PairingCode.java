@@ -1,6 +1,6 @@
 package io.github.phs314.quicktts.bot.identity.domain.vo;
 
-import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
+import io.github.phs314.quicktts.shared.domain.InvalidDomainValueException;
 import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.random.RandomGenerator;

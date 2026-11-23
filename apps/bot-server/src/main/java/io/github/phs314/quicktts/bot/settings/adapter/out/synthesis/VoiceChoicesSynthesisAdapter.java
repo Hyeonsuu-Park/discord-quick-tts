@@ -3,8 +3,8 @@ package io.github.phs314.quicktts.bot.settings.adapter.out.synthesis;
 import io.github.phs314.quicktts.bot.settings.application.port.out.VoiceChoicesPort;
 import io.github.phs314.quicktts.bot.settings.domain.vo.VoiceChoice;
 import io.github.phs314.quicktts.bot.settings.domain.vo.VoiceChoices;
-import io.github.phs314.quicktts.bot.synthesis.application.port.in.GetVoicesUseCase;
-import io.github.phs314.quicktts.bot.synthesis.application.port.in.dto.VoiceCatalogDto;
+import io.github.phs314.quicktts.synthesis.application.port.in.GetVoicesUseCase;
+import io.github.phs314.quicktts.synthesis.application.port.in.dto.VoiceCatalogDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -6,7 +6,7 @@ import io.github.phs314.quicktts.bot.identity.application.port.in.query.Authenti
 import io.github.phs314.quicktts.bot.identity.application.port.out.FakeDevicePort;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceName;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceToken;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 

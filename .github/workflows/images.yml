@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - 'apps/bot-server/**'
+      - 'contexts/**'
       - 'libs/**'
       - 'build-logic/**'
       - 'gradle/**'
@@ -20,6 +21,7 @@ on:
     tags: ['v*']
     paths:
       - 'apps/bot-server/**'
+      - 'contexts/**'
       - 'libs/**'
       - 'build-logic/**'
       - 'gradle/**'

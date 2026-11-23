@@ -6,7 +6,7 @@ import io.github.phs314.quicktts.bot.guild.application.port.out.FakeAllowedGuild
 import io.github.phs314.quicktts.bot.guild.application.port.out.FakeGuildAllowlistConfigPort;
 import io.github.phs314.quicktts.bot.guild.application.port.out.FakeJoinedGuildPort;
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 

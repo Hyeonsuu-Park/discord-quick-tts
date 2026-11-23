@@ -9,8 +9,8 @@ import io.github.phs314.quicktts.bot.guild.application.port.out.FakeAllowedGuild
 import io.github.phs314.quicktts.bot.guild.application.port.out.FakeGuildAllowlistEventPort;
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
 import io.github.phs314.quicktts.bot.guild.domain.event.GuildRemovedFromAllowlist;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 

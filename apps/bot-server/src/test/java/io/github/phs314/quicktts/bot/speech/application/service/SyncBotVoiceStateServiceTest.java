@@ -2,12 +2,12 @@ package io.github.phs314.quicktts.bot.speech.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import io.github.phs314.quicktts.bot.speech.application.port.in.command.SyncBotVoiceStateCommand;
 import io.github.phs314.quicktts.bot.speech.application.port.out.FakeBotVoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.application.port.out.FakeSpeechPlayerPort;
 import io.github.phs314.quicktts.bot.speech.domain.vo.ChannelId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

@@ -14,10 +14,10 @@ import io.github.phs314.quicktts.bot.guild.application.port.in.command.RemoveFro
 import io.github.phs314.quicktts.bot.guild.application.port.out.FakeGuildAllowlistConfigPort;
 import io.github.phs314.quicktts.bot.guild.application.port.out.FakeJoinedGuildPort;
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import io.github.phs314.quicktts.bot.support.TestDatabase;
 import io.github.phs314.quicktts.bot.support.TestJpa;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

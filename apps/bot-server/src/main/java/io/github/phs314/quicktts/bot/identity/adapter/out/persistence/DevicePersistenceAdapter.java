@@ -4,7 +4,7 @@ import io.github.phs314.quicktts.bot.identity.application.port.out.DevicePort;
 import io.github.phs314.quicktts.bot.identity.domain.Device;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceId;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceTokenHash;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

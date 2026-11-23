@@ -1,6 +1,7 @@
 # 저장소를 apps, libs, build-logic 으로 나눈다
 
-- 상태: 채택
+- 상태: 일부 대체됨
+  - 따로 띄울 컨텍스트(synthesis)와 공유 커널은 `contexts/` 아래 Gradle 모듈로 → ADR 0060
 - 날짜: 2026-11-01
 
 모듈 셋(`bot-server`, `desktop-client`, `common`)이 저장소 맨 위에 나란히 있었고, 모든 모듈의 공통 설정은 루트 `build.gradle.kts` 의 `subprojects {}` 한 곳에 있었습니다. 지금은 문제가 없지만, 앱이 늘면(웹 화면, 서버를 나눈 두 번째 프로세스) 두 가지가 커집니다.

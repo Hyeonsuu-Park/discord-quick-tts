@@ -2,7 +2,7 @@ package io.github.phs314.quicktts.bot.guild.domain.vo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;

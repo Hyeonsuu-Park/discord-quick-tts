@@ -3,7 +3,7 @@ package io.github.phs314.quicktts.bot.identity.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 

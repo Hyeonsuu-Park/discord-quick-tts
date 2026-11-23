@@ -1,12 +1,12 @@
 package io.github.phs314.quicktts.bot.speech.adapter.out.synthesis;
 
-import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import io.github.phs314.quicktts.bot.speech.application.port.out.TextToSpeechPort;
 import io.github.phs314.quicktts.bot.speech.domain.vo.Audio;
 import io.github.phs314.quicktts.bot.speech.domain.vo.SpokenText;
-import io.github.phs314.quicktts.bot.synthesis.application.port.in.SynthesizeSpeechUseCase;
-import io.github.phs314.quicktts.bot.synthesis.application.port.in.command.SynthesizeSpeechCommand;
-import io.github.phs314.quicktts.bot.synthesis.application.port.in.dto.AudioDto;
+import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.synthesis.application.port.in.SynthesizeSpeechUseCase;
+import io.github.phs314.quicktts.synthesis.application.port.in.command.SynthesizeSpeechCommand;
+import io.github.phs314.quicktts.synthesis.application.port.in.dto.AudioDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
