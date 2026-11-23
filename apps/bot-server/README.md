@@ -21,7 +21,9 @@
 | `QUICKTTS_DB_USERNAME`, `QUICKTTS_DB_PASSWORD` | MySQL 이면 예 | 비밀번호는 비밀값. 쿠버네티스는 `mysql-secrets` 에서 받음 |
 | `MANAGEMENT_SERVER_PORT` | 아니오 | 프로브와 지표를 받을 포트 |
 | `LOGGING_STRUCTURED_FORMAT_CONSOLE` | 아니오 | `ecs` 면 로그를 한 줄에 JSON 하나로 |
-| `QUICKTTS_DEFAULT_VOICE` | 아니오 | 기본 `edge:ko-KR-SunHiNeural` |
+| `QUICKTTS_SYNTHESIS_MODE` | 아니오 | `in-process`(기본, 이 서버 안에서 음성 만들기) 또는 `http`(synthesis 서비스 부르기) |
+| `QUICKTTS_SYNTHESIS_URL` | 아니오 | `http` 일 때 synthesis 서비스 주소. 기본 `http://synthesis-service:8080` |
+| `QUICKTTS_DEFAULT_VOICE` | 아니오 | 기본 `edge:ko-KR-SunHiNeural`. `in-process` 일 때만 |
 | `QUICKTTS_API_DOCS_ENABLED` | 아니오 | 기본 `true`. 공개 서버는 `false` |
 | `QUICKTTS_GUILD_ALLOWLIST_ENABLED` | 아니오 | 기본 `true` |
 

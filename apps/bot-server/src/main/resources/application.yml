@@ -27,6 +27,14 @@ spring:
     cache-names: speech
     caffeine:
       spec: maximumSize=500,expireAfterAccess=1d,recordStats
+  http:
+    serviceclient:
+      # quicktts.synthesis.mode=http 일 때 synthesis 서비스를 부르는 주소와 시간 제한 (ADR 0062).
+      # 엔진이 실패하면 서비스 안에서 다른 엔진으로 한 번 더 만들기 때문에, 같은 프로세스로 부를 때보다 짧게 끊지 않는다.
+      synthesis:
+        base-url: ${QUICKTTS_SYNTHESIS_URL:http://synthesis-service:8080}
+        connect-timeout: 2s
+        read-timeout: 45s
   jpa:
     # 스키마는 Flyway 가 만들고, JPA 는 엔티티가 테이블과 맞는지만 켜질 때 확인한다.
     hibernate:
@@ -80,7 +88,11 @@ springdoc:
 quicktts:
   discord:
     token: ${DISCORD_TOKEN:}
+  synthesis:
+    # 음성을 어디서 만들지. in-process: 이 서버 안의 synthesis 모듈(기본, 개발·exe), http: synthesis 서비스(쿠버네티스).
+    mode: ${QUICKTTS_SYNTHESIS_MODE:in-process}
   tts:
+    # 아래 둘은 synthesis 를 이 서버 안에서 돌릴 때(in-process)만 쓴다. http 면 synthesis 서비스의 같은 설정을 쓴다.
     # 목소리를 고르지 않은 사용자에게 쓰는 목소리. 사람마다 디스코드 /목소리 명령으로 바꿀 수 있다.
     # 고를 수 있는 값: edge:ko-KR-SunHiNeural, edge:ko-KR-InJoonNeural, edge:ko-KR-HyunsuMultilingualNeural, google:ko
     default-voice: ${QUICKTTS_DEFAULT_VOICE:edge:ko-KR-SunHiNeural}
