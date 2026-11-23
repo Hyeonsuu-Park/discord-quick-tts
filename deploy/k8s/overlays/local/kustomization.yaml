@@ -13,8 +13,11 @@ resources:
 # main 에 머지될 때마다 올라가는 이미지. 막 고친 코드를 올리려면
 #   docker build -f apps/bot-server/Dockerfile -t ghcr.io/phs314/quicktts-bot-server:main .
 #   k3d image import ghcr.io/phs314/quicktts-bot-server:main -c quicktts
+# synthesis 서비스도 같은 방법이다(apps/synthesis-service/Dockerfile, quicktts-synthesis-service).
 images:
   - name: ghcr.io/phs314/quicktts-bot-server
+    newTag: main
+  - name: ghcr.io/phs314/quicktts-synthesis-service
     newTag: main
 
 secretGenerator:
@@ -29,7 +32,7 @@ patches:
   # 이미지를 PC 에 직접 넣었을 때 그것을 쓴다. 같은 태그라도 레지스트리 것을 다시 받지 않는다.
   - target:
       kind: Deployment
-      name: bot-server
+      name: (bot-server|synthesis-service)
     patch: |-
       - op: add
         path: /spec/template/spec/containers/0/imagePullPolicy
