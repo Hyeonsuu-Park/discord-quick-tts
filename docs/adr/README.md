@@ -63,6 +63,7 @@
 | [0045](0045-apps-libs-build-logic-layout.md) | 저장소를 apps, libs, build-logic 으로 나눈다 | 일부 대체됨 (ADR 0060) |
 | [0060](0060-synthesis-as-gradle-module.md) | 따로 띄울 synthesis 와 공유 커널은 contexts/ 아래 Gradle 모듈로 뺀다 | 채택 |
 | [0061](0061-synthesis-service.md) | synthesis 를 클러스터 안 웹 API 서비스로도 띄운다 | 채택 |
+| [0062](0062-call-synthesis-over-http-by-config.md) | 봇 서버는 설정으로 synthesis 를 같은 프로세스나 HTTP 로 부른다 | 채택 |
 | [0047](0047-split-settings-and-synthesis-from-speech.md) | speech 에서 사용자 설정(settings)과 음성 만들기(synthesis)를 떼어 낸다 | 채택 |
 | [0048](0048-rename-device-context-to-identity.md) | device 컨텍스트를 identity 로 부른다 | 채택 |
 

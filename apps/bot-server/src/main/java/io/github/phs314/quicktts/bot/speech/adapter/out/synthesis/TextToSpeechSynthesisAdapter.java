@@ -8,12 +8,15 @@ import io.github.phs314.quicktts.synthesis.application.port.in.SynthesizeSpeechU
 import io.github.phs314.quicktts.synthesis.application.port.in.command.SynthesizeSpeechCommand;
 import io.github.phs314.quicktts.synthesis.application.port.in.dto.AudioDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
  * synthesis 에 다듬은 문장을 넘겨 음성을 받아 온다 (ADR 0040).
+ * 같은 프로세스 안의 synthesis 를 부른다. 기본값이고, {@code quicktts.synthesis.mode=http} 면 HTTP 어댑터가 대신한다 (ADR 0062).
  */
 @Component
+@ConditionalOnProperty(name = "quicktts.synthesis.mode", havingValue = "in-process", matchIfMissing = true)
 @RequiredArgsConstructor
 public class TextToSpeechSynthesisAdapter implements TextToSpeechPort {
 

@@ -23,6 +23,7 @@ COPY libs/synthesis-contract/build.gradle.kts libs/synthesis-contract/
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew --no-daemon :apps:bot-server:dependencies --configuration runtimeClasspath > /dev/null
 COPY libs/api-contract/src/ libs/api-contract/src/
+COPY libs/synthesis-contract/src/ libs/synthesis-contract/src/
 COPY contexts/shared/src/main/ contexts/shared/src/main/
 COPY contexts/synthesis/src/main/ contexts/synthesis/src/main/
 COPY apps/bot-server/src/main/ apps/bot-server/src/main/

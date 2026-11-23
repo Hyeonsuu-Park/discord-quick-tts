@@ -131,6 +131,7 @@ class ArchitectureTest {
 
     /**
      * 다른 컨텍스트는 컨텍스트 지도에 있을 때만, 그 공개 입구(application.port.in)로만 부른다.
+     * 따로 띄우는 서비스로 부를 때는 그 서비스의 웹 API 약속(libs/&lt;서비스&gt;-contract 의 패키지 &lt;컨텍스트&gt;.contract)이 공개 입구다 (ADR 0062).
      * 부르는 쪽은 서비스가 내 출력 포트로 부탁한 일을 하는 adapter.out.상대 하나뿐이다 (ADR 0026, ADR 0040).
      * 예외는 상대가 낸 공개 이벤트(application.port.in.event)를 받는 adapter.in.event 하나다. 그 리스너는 이벤트만 알고
      * 상대의 유스케이스는 부르지 않는다. 그 밖의 인바운드 어댑터, 서비스, 도메인은 다른 컨텍스트를 모른다. guild 처럼 지도에 상대가 없는 컨텍스트는 다른 컨텍스트와 서로 모른다 (ADR 0015).
@@ -154,7 +155,8 @@ class ArchitectureTest {
                         String caller = javaClass.getPackageName();
                         String targetPackage = target.getPackageName();
                         boolean callsPublicEntrance = caller.startsWith(contextPackage(from) + ".adapter.out." + to)
-                                && targetPackage.startsWith(contextPackage(to) + ".application.port.in");
+                                && (targetPackage.startsWith(contextPackage(to) + ".application.port.in")
+                                        || targetPackage.startsWith(contextPackage(to) + ".contract"));
                         boolean receivesPublicEvent = caller.startsWith(contextPackage(from) + ".adapter.in.event")
                                 && targetPackage.startsWith(contextPackage(to) + ".application.port.in.event");
                         boolean allowed = CONTEXT_MAP.get(from).contains(to) && (callsPublicEntrance || receivesPublicEvent);

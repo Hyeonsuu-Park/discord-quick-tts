@@ -7,6 +7,9 @@ dependencies {
     // 떼어 낸 컨텍스트. 같은 프로세스 안에서 입력 포트를 바로 부른다 (ADR 0060).
     implementation(project(":contexts:shared"))
     implementation(project(":contexts:synthesis"))
+    // 쿠버네티스에서는 synthesis 를 같은 프로세스 대신 synthesis 서비스로 부른다 (ADR 0062).
+    implementation(project(":libs:synthesis-contract"))
+    implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     // 기기 토큰 인증. 토큰으로 사람을 알아내는 필터만 우리가 쓰고 나머지는 스프링 시큐리티 기본을 따른다.
     implementation("org.springframework.boot:spring-boot-starter-security")
