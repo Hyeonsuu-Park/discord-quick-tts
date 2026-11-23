@@ -12,6 +12,8 @@ dependencies {
     // 상태 확인(쿠버네티스 프로브)과 지표. Prometheus 는 관리 포트로만 연다.
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+    // 분산 추적. 봇 서버가 보낸 추적 머리말(traceparent)을 이어 받는다 (ADR 0063).
+    implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
     // 같은 문장의 음성을 기억해 두는 캐시. 봇 서버와 같은 설정이고, 벌마다 따로 기억한다.
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine")

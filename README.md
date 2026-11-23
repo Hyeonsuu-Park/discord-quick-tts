@@ -47,6 +47,7 @@
 | `libs/api-contract` | 데스크톱 앱과 봇 서버가 함께 쓰는 웹 API 약속(경로, 요청·응답 형식, 오류 코드). 패키지는 `io.github.phs314.quicktts.api` 입니다. |
 | `libs/synthesis-contract` | 봇 서버와 synthesis 서비스 사이의 웹 API 약속(`SynthesisApi` HTTP 인터페이스, 요청·응답 형식). |
 | `deploy/k8s` | 쿠버네티스 매니페스트(Kustomize). 서비스마다 `base/<서비스>/`, 환경마다 `overlays/<환경>/`. |
+| `deploy/monitoring` | 남이 만든 모니터링(kube-prometheus-stack)의 Helm 설치 값. |
 | `build-logic` | 규칙 플러그인 `quicktts.java`(JDK 25, UTF-8, JUnit 5), `quicktts.spring-app`(스프링 부트 앱), `quicktts.spring-library`(스프링을 쓰는 `contexts/` 모듈). 버전은 `gradle/libs.versions.toml` 하나에서 정합니다. |
 
 ## 봇 서버 구조 (바운디드 컨텍스트 + 헥사고날)
@@ -242,6 +243,7 @@ kubectl -n quicktts port-forward svc/bot-server 8080:8080
 - 음성은 synthesis 서비스가 만듭니다. 두 벌로 시작해 CPU 를 보고 네 벌까지 늘고, 봇 서버만 부를 수 있습니다 ([ADR 0061](docs/adr/0061-synthesis-service.md)).
 - 디스코드 토큰은 개발용 봇 것을 씁니다. 같은 토큰으로 `bootRun`, `docker run`, 클러스터를 같이 켜지 마세요.
 - 서비스마다 포트, 환경변수, 이미지 이름은 `apps/<서비스>/README.md` 에 있습니다.
+- 지표 그래프(Prometheus, Grafana)와 추적은 [deploy/monitoring/README.md](deploy/monitoring/README.md) 를 봅니다.
 
 ## 데스크톱 클라이언트 실행
 

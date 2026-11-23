@@ -1,0 +1,17 @@
+# kube-prometheus-stack 을 클러스터에 설치한 뒤에 켠다(deploy/monitoring/README.md). 오버레이의 components 에 이 폴더를 더한다.
+# 설치 전에 켜면 ServiceMonitor 종류를 몰라 적용이 실패한다.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - servicemonitors.yaml
+
+# Grafana 가 이 라벨이 붙은 ConfigMap 을 찾아 대시보드로 올린다.
+configMapGenerator:
+  - name: quicktts-dashboard
+    files:
+      - quicktts.json=dashboards/quicktts.json
+    options:
+      disableNameSuffixHash: true
+      labels:
+        grafana_dashboard: "1"

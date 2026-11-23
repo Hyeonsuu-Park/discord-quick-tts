@@ -22,6 +22,20 @@ management:
     health:
       probes:
         enabled: true
+  metrics:
+    distribution:
+      # 응답 시간 95% 값을 Prometheus 에서 계산할 수 있게 구간별 개수를 낸다.
+      percentiles-histogram:
+        http.server.requests: true
+  otlp:
+    metrics:
+      export:
+        # 지표는 Prometheus 가 긁어 간다(ADR 0057). 추적용 OpenTelemetry 가 함께 들여오는 OTLP 지표 내보내기는 끈다.
+        enabled: false
+  tracing:
+    sampling:
+      # 요청이 적어 모두 남긴다. 많아지면 낮춘다(예: 0.1). 추적은 OTEL_EXPORTER_OTLP_TRACES_ENDPOINT 를 줄 때만 내보낸다 (ADR 0063).
+      probability: ${QUICKTTS_TRACING_SAMPLING:1.0}
 
 quicktts:
   tts:
