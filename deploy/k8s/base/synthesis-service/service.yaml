@@ -1,0 +1,17 @@
+# 봇 서버가 http://synthesis-service:8080 으로 부른다. 벌 사이에 요청을 나눠 준다.
+apiVersion: v1
+kind: Service
+metadata:
+  name: synthesis-service
+  labels:
+    app.kubernetes.io/name: synthesis-service
+spec:
+  selector:
+    app.kubernetes.io/name: synthesis-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+    - name: management
+      port: 8081
+      targetPort: management

@@ -12,4 +12,5 @@ labels:
 resources:
   - namespace.yaml
   - bot-server
+  - synthesis-service
   - mysql

@@ -1,0 +1,94 @@
+# synthesis 서비스. 상태가 없어 여러 벌을 띄우고 CPU 를 보고 늘리고 줄인다 (ADR 0061).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synthesis-service
+  labels:
+    app.kubernetes.io/name: synthesis-service
+    app.kubernetes.io/component: server
+spec:
+  # 벌 수는 HorizontalPodAutoscaler 가 정한다(hpa.yaml). 여기 값은 처음 뜰 때만 쓴다.
+  replicas: 2
+  # 새 파드가 준비된 뒤에 옛 파드를 내린다. 업데이트 중에도 끊기지 않는다.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: synthesis-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: synthesis-service
+        app.kubernetes.io/component: server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      # 노드가 여럿이면 벌을 다른 노드에 나눠 띄운다. 노드가 하나면 같은 노드에 뜬다.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: synthesis-service
+      containers:
+        - name: synthesis-service
+          image: ghcr.io/phs314/quicktts-synthesis-service:main
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: synthesis-service-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 5
+            failureThreshold: 24
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: management
+            periodSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

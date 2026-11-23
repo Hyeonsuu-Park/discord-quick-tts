@@ -1,0 +1,12 @@
+# 노드를 비우는 작업(업그레이드 등) 중에도 한 벌은 남긴다.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: synthesis-service
+  labels:
+    app.kubernetes.io/name: synthesis-service
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: synthesis-service

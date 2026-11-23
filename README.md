@@ -209,7 +209,7 @@ contexts/shared/src/main/java/io/github/phs314/quicktts/shared/
 
 `.env` 에 `QUICKTTS_DEV_MYSQL=true` 를 넣고 평소처럼 `bootRun` 하면, 스프링 부트가 저장소 루트의 `compose.yaml` 로 MySQL 을 띄우고 거기에 붙습니다. Docker Desktop 이 켜져 있어야 합니다. 끄면 다시 H2 파일입니다 ([ADR 0056](docs/adr/0056-dev-mysql-with-docker-compose.md)).
 
-봇 서버 컨테이너와 MySQL 을 함께 띄워 배포와 같은 모양으로 돌려 보려면 `docker compose --profile app up --build` 를 씁니다. 지우려면 `docker compose --profile app down`, 데이터까지 지우려면 `-v` 를 붙입니다.
+봇 서버, synthesis 서비스, MySQL 컨테이너를 함께 띄워 배포와 같은 모양으로 돌려 보려면 `docker compose --profile app up --build` 를 씁니다. 지우려면 `docker compose --profile app down`, 데이터까지 지우려면 `-v` 를 붙입니다.
 
 ### Docker 로 봇 서버 띄우기
 
@@ -239,6 +239,7 @@ kubectl -n quicktts port-forward svc/bot-server 8080:8080
 ```
 
 - 봇 서버는 한 벌만 뜹니다. 업데이트할 때 옛 파드가 내려간 뒤 새 파드가 뜹니다.
+- 음성은 synthesis 서비스가 만듭니다. 두 벌로 시작해 CPU 를 보고 네 벌까지 늘고, 봇 서버만 부를 수 있습니다 ([ADR 0061](docs/adr/0061-synthesis-service.md)).
 - 디스코드 토큰은 개발용 봇 것을 씁니다. 같은 토큰으로 `bootRun`, `docker run`, 클러스터를 같이 켜지 마세요.
 - 서비스마다 포트, 환경변수, 이미지 이름은 `apps/<서비스>/README.md` 에 있습니다.
 
