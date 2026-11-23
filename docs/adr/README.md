@@ -143,6 +143,7 @@
 | [0056](0056-dev-mysql-with-docker-compose.md) | 개발 PC 에서도 Docker Compose 로 MySQL 을 띄워 쓸 수 있게 한다 | 채택 |
 | [0057](0057-probes-and-prometheus-on-management-port.md) | 쿠버네티스 프로브와 Prometheus 지표는 따로 연 관리 포트에서 토큰 없이 본다 | 채택 |
 | [0058](0058-images-on-ghcr.md) | 서버 이미지는 GitHub Actions 가 만들어 ghcr.io 에 올린다 | 채택 |
+| [0059](0059-kustomize-manifests-in-deploy.md) | 쿠버네티스 매니페스트는 deploy/k8s 에 Kustomize 로 두고, 봇 서버는 한 벌만 띄운다 | 채택 |
 
 ### 데스크톱 클라이언트와 배포
 

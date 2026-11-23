@@ -62,3 +62,23 @@ jobs:
             scripts/check-commit-msg.sh /tmp/msg || failed=1
           done
           exit $failed
+
+  k8s-manifests:
+    name: 쿠버네티스 매니페스트 검사
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # 오버레이마다 Kustomize 로 펼친 뒤, 쿠버네티스 스키마에 맞는지 본다. 클러스터는 필요 없다.
+      # 비밀값 파일은 커밋되지 않으므로 예시 파일을 복사해 쓴다.
+      - name: 오버레이 펼치고 스키마 검사
+        run: |
+          for example in deploy/k8s/overlays/*/*.env.example; do
+            cp "$example" "${example%.example}"
+          done
+          for overlay in deploy/k8s/overlays/*/; do
+            echo "::group::$overlay"
+            kubectl kustomize "$overlay" > /tmp/rendered.yaml
+            docker run --rm -i ghcr.io/yannh/kubeconform:v0.8.0 -strict -summary < /tmp/rendered.yaml
+            echo "::endgroup::"
+          done

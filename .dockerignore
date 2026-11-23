@@ -21,3 +21,4 @@ docs/
 scripts/
 apps/desktop-client/src/
 apps/desktop-client/packaging/
+deploy/

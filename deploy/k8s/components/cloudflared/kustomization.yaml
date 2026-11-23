@@ -1,0 +1,8 @@
+# 공인 IP 나 포트 열기 없이 Cloudflare Tunnel 로 웹 API 를 밖에 내보낸다.
+# 터널은 Cloudflare 대시보드에서 만들고, 공개 호스트 이름의 대상은 http://bot-server.quicktts:8080 으로 둔다.
+# 관리 포트(8081)는 내보내지 않는다.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - deployment.yaml

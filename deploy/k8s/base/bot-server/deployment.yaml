@@ -1,0 +1,94 @@
+# 봇 서버. 디스코드 연결과 음성 재생 상태가 파드 메모리에 있어서 한 벌만 띄운다 (ADR 0059).
+# 같은 봇 토큰으로 두 벌이 붙으면 명령이 두 번 처리되고 음성 연결이 서로 끊긴다.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bot-server
+  labels:
+    app.kubernetes.io/name: bot-server
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  # 새 파드를 띄우기 전에 옛 파드를 먼저 내린다. 업데이트 중 잠깐 끊기는 대신 두 벌이 겹치지 않는다.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bot-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: bot-server
+        app.kubernetes.io/component: server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: /actuator/prometheus
+    spec:
+      # 스프링 부트가 받던 요청과 재생 순서를 마무리할 시간 (server.shutdown: graceful).
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: bot-server
+          image: ghcr.io/phs314/quicktts-bot-server:main
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: bot-server-config
+            - secretRef:
+                name: bot-server-secrets
+          env:
+            # DB 비밀번호는 MySQL 과 같은 값을 쓴다. root 비밀번호는 봇 서버에 넣지 않는다.
+            - name: QUICKTTS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secrets
+                  key: MYSQL_PASSWORD
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          # 처음 뜰 때 디스코드 연결과 DB 마이그레이션까지 최대 2분 30초 기다린다.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            periodSeconds: 10
+            failureThreshold: 3
+          # 디스코드가 끊기거나 DB 에 못 닿으면 요청을 받지 않는다(재시작은 안 함).
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: management
+            periodSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            # 루트 파일 시스템은 읽기 전용이라 톰캣 임시 파일과 음성 네이티브 라이브러리는 여기에 풀린다.
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

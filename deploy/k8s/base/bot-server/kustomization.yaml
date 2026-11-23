@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+
+# 비밀이 아닌 설정. 값이 바뀌면 이름 끝 해시가 바뀌어 파드가 새로 뜬다.
+configMapGenerator:
+  - name: bot-server-config
+    literals:
+      # 프로브와 Prometheus 는 관리 포트로만 받는다 (ADR 0057).
+      - MANAGEMENT_SERVER_PORT=8081
+      # 로그를 한 줄에 JSON 하나로 찍어 로그 수집기가 그대로 읽게 한다.
+      - LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs
+      - QUICKTTS_DB_URL=jdbc:mysql://mysql:3306/quicktts?connectionTimeZone=UTC
+      - QUICKTTS_DB_USERNAME=quicktts

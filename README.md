@@ -42,6 +42,7 @@
 | `apps/bot-server` | Spring Boot + JDA + LavaPlayer. `/연결` 명령, 기기 등록, quick chat API 를 맡습니다. |
 | `apps/desktop-client` | JavaFX 입력 위젯 + JNativeHook 전역 단축키 + 트레이 아이콘. |
 | `libs/api-contract` | 데스크톱 앱과 봇 서버가 함께 쓰는 웹 API 약속(경로, 요청·응답 형식, 오류 코드). 패키지는 `io.github.phs314.quicktts.api` 입니다. |
+| `deploy/k8s` | 쿠버네티스 매니페스트(Kustomize). 서비스마다 `base/<서비스>/`, 환경마다 `overlays/<환경>/`. |
 | `build-logic` | 규칙 플러그인 `quicktts.java`(JDK 25, UTF-8, JUnit 5)와 `quicktts.spring-app`(스프링 부트 앱). 버전은 `gradle/libs.versions.toml` 하나에서 정합니다. |
 
 ## 봇 서버 구조 (바운디드 컨텍스트 + 헥사고날)
@@ -213,6 +214,22 @@ docker run --rm -p 8080:8080 --env-file .env -v quicktts-data:/app/data quicktts
 - 같은 디스코드 봇 토큰으로 `bootRun` 과 컨테이너를 같이 켜지 마세요. 봇이 두 번 붙어서 명령이 두 번 처리되고 음성 연결을 서로 빼앗습니다.
 - 쿠버네티스처럼 상태 확인과 지표를 따로 보려면 `MANAGEMENT_SERVER_PORT=8081` 을 줍니다. 그 포트에서 `/actuator/health/liveness`, `/actuator/health/readiness`, `/actuator/prometheus` 를 토큰 없이 봅니다. 이 포트는 바깥에 열지 않습니다 ([ADR 0057](docs/adr/0057-probes-and-prometheus-on-management-port.md)).
 - 이미지는 x86(amd64)과 ARM(arm64) 리눅스에서 돕니다. 다른 CPU 용으로 만들려면 `docker buildx build --platform linux/arm64 ...` 를 씁니다.
+
+### 쿠버네티스에 띄우기
+
+매니페스트는 `deploy/k8s/` 에 있습니다. `base/` 가 뼈대, `overlays/local` 이 PC 의 k3d 클러스터, `overlays/prod` 가 배포 서버입니다 ([ADR 0059](docs/adr/0059-kustomize-manifests-in-deploy.md)).
+
+```bash
+cd deploy/k8s/overlays/local
+cp secrets.env.example secrets.env && cp mysql.env.example mysql.env   # secrets.env 에 개발용 봇 토큰
+cd -
+kubectl apply -k deploy/k8s/overlays/local
+kubectl -n quicktts port-forward svc/bot-server 8080:8080
+```
+
+- 봇 서버는 한 벌만 뜹니다. 업데이트할 때 옛 파드가 내려간 뒤 새 파드가 뜹니다.
+- 디스코드 토큰은 개발용 봇 것을 씁니다. 같은 토큰으로 `bootRun`, `docker run`, 클러스터를 같이 켜지 마세요.
+- 서비스마다 포트, 환경변수, 이미지 이름은 `apps/<서비스>/README.md` 에 있습니다.
 
 ## 데스크톱 클라이언트 실행
 
