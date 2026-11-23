@@ -1,9 +1,9 @@
 package io.github.phs314.quicktts.bot.speech.application.exception;
 
 import io.github.phs314.quicktts.api.ApiErrorCode;
-import io.github.phs314.quicktts.bot.shared.domain.BusinessException;
-import io.github.phs314.quicktts.bot.shared.domain.ErrorKind;
 import io.github.phs314.quicktts.bot.speech.application.port.in.dto.VoiceChannelDto;
+import io.github.phs314.quicktts.shared.domain.BusinessException;
+import io.github.phs314.quicktts.shared.domain.ErrorKind;
 
 /**
  * 봇이 같은 디스코드 서버의 다른 음성 채널에서 쓰이고 있어서 보낸 사람의 채널로 갈 수 없을 때 던진다.

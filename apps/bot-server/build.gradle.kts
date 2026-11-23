@@ -4,6 +4,9 @@ plugins {
 
 dependencies {
     implementation(project(":libs:api-contract"))
+    // 떼어 낸 컨텍스트. 같은 프로세스 안에서 입력 포트를 바로 부른다 (ADR 0060).
+    implementation(project(":contexts:shared"))
+    implementation(project(":contexts:synthesis"))
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     // 기기 토큰 인증. 토큰으로 사람을 알아내는 필터만 우리가 쓰고 나머지는 스프링 시큐리티 기본을 따른다.
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -43,6 +46,8 @@ dependencies {
     // 컨트롤러 테스트(@WebMvcTest)가 MVC, JSON, 보안 필터를 실제 설정 그대로 올린다.
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation(libs.archunit.junit5)
+    // API 통합 테스트가 진짜 TTS 엔진 대신 쓰는 가짜 엔진.
+    testImplementation(testFixtures(project(":contexts:synthesis")))
     // 저장소 테스트를 진짜 MySQL 에서도 돌린다. Docker 가 있어야 한다.
     testImplementation("org.testcontainers:testcontainers-mysql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

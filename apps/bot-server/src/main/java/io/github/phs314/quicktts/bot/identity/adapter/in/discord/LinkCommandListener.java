@@ -4,7 +4,7 @@ import io.github.phs314.quicktts.bot.identity.application.port.in.IssuePairingCo
 import io.github.phs314.quicktts.bot.identity.application.port.in.command.IssuePairingCodeCommand;
 import io.github.phs314.quicktts.bot.identity.application.port.in.dto.IssuedPairingCodeDto;
 import io.github.phs314.quicktts.bot.shared.adapter.in.discord.DiscordSlashCommand;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

@@ -25,11 +25,17 @@ import java.util.Set;
 /**
  * 바운디드 컨텍스트(speech, settings, synthesis, identity, guild) 사이와 각 컨텍스트 안의 헥사고날 의존 방향을 지킨다.
  * 이름과 위치 규칙은 ADR 에 적어 두고 리뷰로 지킨다 (ADR 0032).
+ * synthesis 는 Gradle 모듈(contexts/synthesis)로 떼어 냈다. 그 안의 규칙은 그 모듈의 ArchitectureTest 가 보고,
+ * 여기서는 봇 서버가 synthesis 를 공개 입구로만 부르는지 본다 (ADR 0060).
  */
 @AnalyzeClasses(packages = "io.github.phs314.quicktts.bot", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
 
-    private static final String BOT_PACKAGE = "io.github.phs314.quicktts.bot";
+    private static final String ROOT_PACKAGE = "io.github.phs314.quicktts";
+    private static final String BOT_PACKAGE = ROOT_PACKAGE + ".bot";
+
+    /** 봇 서버 밖 Gradle 모듈(contexts/)로 떼어 낸 컨텍스트. 패키지가 bot 아래가 아니라 io.github.phs314.quicktts 바로 아래다. */
+    private static final Set<String> MODULE_CONTEXTS = Set.of("synthesis");
 
     /**
      * 컨텍스트 지도. 왼쪽 컨텍스트가 오른쪽 컨텍스트의 공개 입구(application.port.in)를 부르거나 공개 이벤트를 받을 수 있다 (ADR 0026, ADR 0040).
@@ -76,16 +82,6 @@ class ArchitectureTest {
             .adapter("discord-command", "..bot.settings.adapter.in.discord..")
             .adapter("persistence", "..bot.settings.adapter.out.persistence..")
             .adapter("synthesis", "..bot.settings.adapter.out.synthesis..")
-            .withOptionalLayers(true)
-            .ignoreDependency(resideInAPackage("..bot.config.."), alwaysTrue())
-            .ignoreDependency(resideInAPackage(OUTBOUND_ADAPTERS), resideInAPackage(PUBLIC_ENTRANCES))
-            .ignoreDependency(resideInAPackage(EVENT_LISTENERS), resideInAPackage(PUBLIC_EVENTS));
-
-    @ArchTest
-    static final ArchRule synthesisIsHexagonal = onionArchitecture()
-            .domainModels("..bot.synthesis.domain..")
-            .applicationServices("..bot.synthesis.application..")
-            .adapter("tts", "..bot.synthesis.adapter.out.tts..")
             .withOptionalLayers(true)
             .ignoreDependency(resideInAPackage("..bot.config.."), alwaysTrue())
             .ignoreDependency(resideInAPackage(OUTBOUND_ADAPTERS), resideInAPackage(PUBLIC_ENTRANCES))
@@ -173,7 +169,8 @@ class ArchitectureTest {
     static final ArchRule sharedKernelDependsOnNoContext = noClasses()
             .that().resideInAPackage("..bot.shared..")
             .should().dependOnClassesThat().resideInAnyPackage(
-                    "..bot.speech..", "..bot.settings..", "..bot.synthesis..", "..bot.identity..", "..bot.guild..");
+                    "..bot.speech..", "..bot.settings..", "..bot.identity..", "..bot.guild..",
+                    ROOT_PACKAGE + ".synthesis..");
 
     /** 인바운드 어댑터는 입력 포트로만 애플리케이션을 부른다. 서비스 구현이나 출력 포트를 직접 쓰지 않는다. */
     @ArchTest
@@ -214,14 +211,14 @@ class ArchitectureTest {
             .should().dependOnClassesThat().resideInAPackage("..bot.*.adapter..");
 
     /**
-     * 도메인은 자바 표준 라이브러리와 도메인, 클라이언트와 함께 쓰는 API 약속(libs/api-contract 의 오류 코드)만 쓴다.
+     * 도메인은 자바 표준 라이브러리와 도메인(공유 커널 contexts/shared 포함), 클라이언트와 함께 쓰는 API 약속(libs/api-contract 의 오류 코드)만 쓴다.
      * 쓰면 안 되는 라이브러리를 적는 대신 써도 되는 것만 적어서, 새 라이브러리를 들여도 이 규칙은 그대로 막는다 (ADR 0035).
      */
     @ArchTest
     static final ArchRule domainDependsOnlyOnJavaAndDomain = classes()
             .that().resideInAPackage("..bot.*.domain..")
             .should().onlyDependOnClassesThat().resideInAnyPackage(
-                    "java..", "..bot.*.domain..", "io.github.phs314.quicktts.api..");
+                    "java..", "..bot.*.domain..", ROOT_PACKAGE + ".shared.domain..", ROOT_PACKAGE + ".api..");
 
     /** 서비스에는 빈 등록(@Service)과 트랜잭션(@Transactional) 애너테이션만 허용한다 (ADR 0009). */
     @ArchTest
@@ -233,18 +230,25 @@ class ArchitectureTest {
                     .and(resideOutsideOfPackages(
                             "org.springframework.stereotype..", "org.springframework.transaction.annotation..")));
 
-    /** bot 바로 아래 패키지 이름. bot 패키지에 바로 있는 클래스는 빈 문자열. */
+    /** bot 바로 아래 패키지 이름, 또는 떼어 낸 모듈 컨텍스트 이름. 어느 쪽도 아니면(bot 패키지에 바로 있는 클래스 등) 빈 문자열. */
     private static String topPackage(JavaClass javaClass) {
         String name = javaClass.getPackageName();
-        if (!name.startsWith(BOT_PACKAGE + ".")) {
-            return "";
+        if (name.startsWith(BOT_PACKAGE + ".")) {
+            return firstSegment(name.substring(BOT_PACKAGE.length() + 1));
         }
-        String rest = name.substring(BOT_PACKAGE.length() + 1);
-        int dot = rest.indexOf('.');
-        return dot < 0 ? rest : rest.substring(0, dot);
+        if (name.startsWith(ROOT_PACKAGE + ".")) {
+            String module = firstSegment(name.substring(ROOT_PACKAGE.length() + 1));
+            return MODULE_CONTEXTS.contains(module) ? module : "";
+        }
+        return "";
+    }
+
+    private static String firstSegment(String packageName) {
+        int dot = packageName.indexOf('.');
+        return dot < 0 ? packageName : packageName.substring(0, dot);
     }
 
     private static String contextPackage(String context) {
-        return BOT_PACKAGE + "." + context;
+        return (MODULE_CONTEXTS.contains(context) ? ROOT_PACKAGE : BOT_PACKAGE) + "." + context;
     }
 }

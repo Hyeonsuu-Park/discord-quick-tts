@@ -6,7 +6,7 @@ import io.github.phs314.quicktts.bot.guild.application.port.out.AllowedGuildPort
 import io.github.phs314.quicktts.bot.guild.application.port.out.GuildAllowlistConfigPort;
 import io.github.phs314.quicktts.bot.guild.application.port.out.JoinedGuildPort;
 import io.github.phs314.quicktts.bot.guild.domain.vo.GuildAllowlist;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

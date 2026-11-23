@@ -1,8 +1,8 @@
 package io.github.phs314.quicktts.bot.speech.application.port.out;
 
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.Audio;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 
 /**
  * 디스코드 음성 채널에 봇을 들이고 내보내며 음성을 재생한다. 어느 채널로 갈지는 부르는 쪽이 정한다.

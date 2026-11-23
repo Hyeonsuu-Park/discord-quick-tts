@@ -10,7 +10,7 @@ import io.github.phs314.quicktts.bot.identity.domain.InvalidPairingCodeException
 import io.github.phs314.quicktts.bot.identity.domain.Pairing;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceName;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceToken;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;

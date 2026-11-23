@@ -1,8 +1,8 @@
 package io.github.phs314.quicktts.bot.speech.domain.normalization;
 
-import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
 import io.github.phs314.quicktts.bot.speech.domain.vo.QuickChatMessage;
 import io.github.phs314.quicktts.bot.speech.domain.vo.SpokenText;
+import io.github.phs314.quicktts.shared.domain.InvalidDomainValueException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

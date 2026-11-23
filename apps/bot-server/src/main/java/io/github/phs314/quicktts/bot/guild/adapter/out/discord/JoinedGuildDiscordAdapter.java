@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.guild.adapter.out.discord;
 
 import io.github.phs314.quicktts.bot.guild.application.port.out.JoinedGuildPort;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;

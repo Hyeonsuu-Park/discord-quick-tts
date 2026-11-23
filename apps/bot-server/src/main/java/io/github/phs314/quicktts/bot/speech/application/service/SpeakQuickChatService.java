@@ -1,6 +1,5 @@
 package io.github.phs314.quicktts.bot.speech.application.service;
 
-import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import io.github.phs314.quicktts.bot.speech.application.exception.AuthorNotInVoiceChannelException;
 import io.github.phs314.quicktts.bot.speech.application.exception.VoiceChannelInUseException;
 import io.github.phs314.quicktts.bot.speech.application.port.in.SpeakQuickChatUseCase;
@@ -16,6 +15,7 @@ import io.github.phs314.quicktts.bot.speech.domain.normalization.TextNormalizer;
 import io.github.phs314.quicktts.bot.speech.domain.vo.Audio;
 import io.github.phs314.quicktts.bot.speech.domain.vo.SpokenText;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
+import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

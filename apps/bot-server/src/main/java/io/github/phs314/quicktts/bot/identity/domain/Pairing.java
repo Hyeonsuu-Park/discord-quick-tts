@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.identity.domain;
 
 import io.github.phs314.quicktts.bot.identity.domain.vo.PairingCode;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;

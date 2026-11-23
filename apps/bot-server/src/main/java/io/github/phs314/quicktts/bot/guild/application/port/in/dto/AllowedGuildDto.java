@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.guild.application.port.in.dto;
 
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.shared.domain.vo.GuildId;
 import java.time.Instant;
 
 /**

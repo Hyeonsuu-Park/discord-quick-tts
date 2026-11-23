@@ -60,7 +60,8 @@
 | [0035](0035-archunit-patterns-and-domain-allowlist.md) | 도메인과 애플리케이션이 어댑터를 모르는지는 폴더 이름과 상관없이 검사하고, 도메인은 써도 되는 것만 적는다 | 채택 |
 | [0040](0040-inbound-adapters-do-not-call-other-contexts.md) | 인바운드 어댑터는 다른 컨텍스트의 유스케이스를 부르지 않고, 다른 컨텍스트 소식은 공개 이벤트로 받는다 | 채택 |
 | [0041](0041-use-cases-directly-in-port-in.md) | 입력 포트(...UseCase)는 port/in 바로 아래에 둔다 | 채택 |
-| [0045](0045-apps-libs-build-logic-layout.md) | 저장소를 apps, libs, build-logic 으로 나눈다 | 채택 |
+| [0045](0045-apps-libs-build-logic-layout.md) | 저장소를 apps, libs, build-logic 으로 나눈다 | 일부 대체됨 (ADR 0060) |
+| [0060](0060-synthesis-as-gradle-module.md) | 따로 띄울 synthesis 와 공유 커널은 contexts/ 아래 Gradle 모듈로 뺀다 | 채택 |
 | [0047](0047-split-settings-and-synthesis-from-speech.md) | speech 에서 사용자 설정(settings)과 음성 만들기(synthesis)를 떼어 낸다 | 채택 |
 | [0048](0048-rename-device-context-to-identity.md) | device 컨텍스트를 identity 로 부른다 | 채택 |
 

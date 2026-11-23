@@ -1,8 +1,8 @@
 package io.github.phs314.quicktts.bot.settings.adapter.out.persistence;
 
 import io.github.phs314.quicktts.bot.settings.domain.UserSettings;
-import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
 
 /**
  * {@link UserSettings} 와 {@link UserSettingsJpaEntity} 를 서로 바꾼다 (ADR 0038).
