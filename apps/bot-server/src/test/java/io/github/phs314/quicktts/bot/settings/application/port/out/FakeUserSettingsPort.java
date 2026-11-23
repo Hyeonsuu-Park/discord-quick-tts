@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.settings.application.port.out;
 
 import io.github.phs314.quicktts.bot.settings.domain.UserSettings;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

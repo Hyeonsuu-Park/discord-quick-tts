@@ -3,7 +3,7 @@ package io.github.phs314.quicktts.bot.identity.adapter.in.web;
 import io.github.phs314.quicktts.api.QuickTtsApi;
 import io.github.phs314.quicktts.bot.identity.application.port.in.AuthenticateDeviceUseCase;
 import io.github.phs314.quicktts.bot.identity.application.port.in.query.AuthenticateDeviceQuery;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -9,8 +9,8 @@ import io.github.phs314.quicktts.bot.speech.application.port.in.SpeakQuickChatUs
 import io.github.phs314.quicktts.bot.speech.application.port.in.command.SpeakQuickChatCommand;
 import io.github.phs314.quicktts.bot.speech.application.port.in.dto.VoiceChannelDto;
 import io.github.phs314.quicktts.bot.speech.application.port.in.query.FindCurrentUserVoiceChannelQuery;
-import io.github.phs314.quicktts.shared.domain.BusinessException;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.BusinessException;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import io.swagger.v3.oas.annotations.Operation;

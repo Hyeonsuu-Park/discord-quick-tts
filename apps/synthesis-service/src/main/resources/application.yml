@@ -1,13 +1,18 @@
 spring:
   application:
     name: quick-tts-synthesis
+  config:
+    # 개발할 때는 저장소 루트의 .env 를 봇 서버와 함께 읽는다(QUICKTTS_DEFAULT_VOICE 등). 컨테이너에서는 환경변수만 쓴다.
+    import: optional:file:.env[.properties]
   cache:
-    # 같은 목소리, 같은 문장의 음성을 기억해 비공식 TTS 를 덜 부른다. 봇 서버와 같은 크기이고 벌마다 따로 기억한다.
+    # 같은 목소리, 같은 문장의 음성을 기억해 비공식 TTS 를 덜 부른다. mp3 한 개가 20KB 안팎이라 500개면 10MB 정도다.
+    # 벌마다 따로 기억한다. 실패한 결과는 기억하지 않는다. 적중률은 /actuator/metrics/cache.gets 로 본다.
     cache-names: speech
     caffeine:
       spec: maximumSize=500,expireAfterAccess=1d,recordStats
 
 server:
+  # 컨테이너에서는 8080. 개발 PC 에서 bootRun 하면 봇 서버와 겹치지 않게 8082 로 뜬다(build.gradle.kts).
   port: ${SYNTHESIS_PORT:8080}
 
 management:
@@ -39,6 +44,8 @@ management:
 
 quicktts:
   tts:
-    # 봇 서버의 같은 설정과 값을 맞춘다. 봇 서버가 이 서비스를 부르면 기본 목소리는 이 값을 쓴다.
+    # 목소리를 고르지 않은 사용자에게 쓰는 목소리. 사람마다 디스코드 /목소리 명령으로 바꿀 수 있다.
+    # 고를 수 있는 값: edge:ko-KR-SunHiNeural, edge:ko-KR-InJoonNeural, edge:ko-KR-HyunsuMultilingualNeural, google:ko
     default-voice: ${QUICKTTS_DEFAULT_VOICE:edge:ko-KR-SunHiNeural}
+    # Edge 목소리 서버가 확인하는 Edge 브라우저 버전. Edge 목소리가 갑자기 안 되면 최신 버전으로 올린다.
     edge-chromium-version: 143.0.3650.75

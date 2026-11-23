@@ -10,9 +10,9 @@ import io.github.phs314.quicktts.bot.guild.application.port.in.dto.AllowedGuildD
 import io.github.phs314.quicktts.bot.guild.application.port.in.dto.GuildAllowlistDto;
 import io.github.phs314.quicktts.bot.guild.application.port.in.query.GetAllowlistQuery;
 import io.github.phs314.quicktts.bot.shared.adapter.in.discord.DiscordSlashCommand;
-import io.github.phs314.quicktts.shared.domain.InvalidDomainValueException;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;

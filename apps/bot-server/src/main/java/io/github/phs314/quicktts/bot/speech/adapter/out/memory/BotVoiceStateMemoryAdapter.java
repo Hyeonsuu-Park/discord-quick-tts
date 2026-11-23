@@ -2,7 +2,7 @@ package io.github.phs314.quicktts.bot.speech.adapter.out.memory;
 
 import io.github.phs314.quicktts.bot.speech.application.port.out.BotVoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.domain.BotVoiceState;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;

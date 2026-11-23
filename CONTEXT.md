@@ -1,6 +1,6 @@
 # discord-quick-tts
 
-디스코드 사용자가 PC 에서 단축키로 띄운 입력창에 문장을 치면, 봇이 그 사용자가 있는 음성 채널에서 읽어 주는 서비스입니다. 봇 서버는 문장을 읽어 주는 **speech**, 사용자가 고른 설정을 기억하는 **settings**, TTS 엔진으로 음성을 만드는 **synthesis**, PC 를 사용자에게 연결하는 **identity**, 봇이 머물 디스코드 서버를 정하는 **guild** 다섯 컨텍스트로 나뉘고, 함께 쓰는 말은 **shared** 에 둡니다.
+디스코드 사용자가 PC 에서 단축키로 띄운 입력창에 문장을 치면, 봇이 그 사용자가 있는 음성 채널에서 읽어 주는 서비스입니다. 문장을 읽어 주는 **speech**, 사용자가 고른 설정을 기억하는 **settings**, TTS 엔진으로 음성을 만드는 **synthesis**, PC 를 사용자에게 연결하는 **identity**, 봇이 머물 디스코드 서버를 정하는 **guild** 다섯 컨텍스트로 나뉩니다. synthesis 는 synthesis 서비스가, 나머지 넷은 봇 서버가 맡고, 봇 서버 안에서 함께 쓰는 말은 **shared** 에 둡니다.
 
 각 용어 옆 괄호는 코드에서 쓰는 이름입니다.
 
@@ -148,8 +148,11 @@ _Avoid_: 가입, 등록 (등록은 identity 의 말)
 ## 프로그램
 
 **봇 서버**:
-디스코드 봇과 quick chat 을 받는 쪽 프로그램. 다섯 컨텍스트와 shared 를 모두 한 프로세스에서 띄웁니다. synthesis 와 shared 의 도메인은 따로 띄울 수 있게 `contexts/` 아래 모듈에 있고, 봇 서버가 가져다 씁니다.
+디스코드 봇과 quick chat 을 받는 쪽 프로그램. speech, settings, identity, guild 와 shared 를 한 프로세스에서 띄우고, 음성은 synthesis 서비스에 HTTP 로 부탁합니다.
 _Avoid_: 그냥 "서버" (디스코드 서버와 헷갈림), 백엔드
+
+**synthesis 서비스**:
+문장과 목소리를 받아 음성을 만들어 주는 프로그램. synthesis 컨텍스트 하나만 맡고 디스코드도 DB 도 모릅니다. 봇 서버만 부릅니다.
 
 **클라이언트**:
 PC 에서 도는 프로그램. 단축키로 입력창을 띄우고 기기 토큰을 붙여 문장을 봇 서버에 보냅니다.
@@ -158,8 +161,8 @@ _Avoid_: 앱, 기기 (기기는 PC 자체)
 ## 관계
 
 - **speech → settings**: 문장을 읽기 전에 보낸 사람이 고른 목소리(없으면 기본 목소리)를 묻습니다.
-- **speech → synthesis**: 다듬은 문장과 목소리를 넘겨 음성을 받습니다. speech 는 엔진을 모릅니다.
-- **settings → synthesis**: 고를 수 있는 목소리와 기본 목소리를 묻습니다. synthesis 는 누가 무엇을 골랐는지 모릅니다.
+- **speech → synthesis**: 다듬은 문장과 목소리를 synthesis 서비스에 넘겨 음성을 받습니다. speech 는 엔진을 모릅니다.
+- **settings → synthesis**: 고를 수 있는 목소리와 기본 목소리를 synthesis 서비스에 묻습니다. synthesis 는 누가 무엇을 골랐는지 모릅니다.
 - **speech → identity**: 없습니다. quick chat 을 보낸 사람은 기기 인증이 끝난 디스코드 사용자로 받고, 기기나 기기 토큰은 모릅니다.
 - **identity → speech**: 없습니다. identity 는 문장이나 목소리를 모릅니다.
 - **guild ↔ speech, identity**: 서로 모릅니다. 봇이 허용 목록 밖 디스코드 서버에서 나가면 speech 는 그곳에서 읽을 일이 없을 뿐입니다.

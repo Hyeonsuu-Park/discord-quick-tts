@@ -3,8 +3,8 @@ package io.github.phs314.quicktts.bot.speech.adapter.out.settings;
 import io.github.phs314.quicktts.bot.settings.application.port.in.GetUserSettingsUseCase;
 import io.github.phs314.quicktts.bot.settings.application.port.in.query.GetUserSettingsQuery;
 import io.github.phs314.quicktts.bot.speech.application.port.out.UserVoicePort;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

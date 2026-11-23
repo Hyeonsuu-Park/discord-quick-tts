@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import io.github.phs314.quicktts.bot.speech.application.port.in.ClearBotVoiceStateUseCase;
 import io.github.phs314.quicktts.bot.speech.application.port.in.command.ClearBotVoiceStateCommand;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import org.junit.jupiter.api.Test;
 

@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.guild.application.port.out;
 
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

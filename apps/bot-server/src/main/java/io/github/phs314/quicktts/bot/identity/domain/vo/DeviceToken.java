@@ -1,6 +1,6 @@
 package io.github.phs314.quicktts.bot.identity.domain.vo;
 
-import io.github.phs314.quicktts.shared.domain.InvalidDomainValueException;
+import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

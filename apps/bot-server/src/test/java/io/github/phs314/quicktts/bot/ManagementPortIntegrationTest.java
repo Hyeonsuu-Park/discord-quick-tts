@@ -60,7 +60,7 @@ class ManagementPortIntegrationTest {
         management.get().uri("/actuator/prometheus").exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class).value(body -> assertThat(body)
-                        .contains("cache_gets_total{cache=\"speech\""));
+                        .contains("jvm_memory_used_bytes"));
     }
 
     @Test

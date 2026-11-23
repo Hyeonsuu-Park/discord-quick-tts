@@ -7,7 +7,7 @@ import io.github.phs314.quicktts.bot.guild.application.port.out.AllowedGuildPort
 import io.github.phs314.quicktts.bot.guild.application.port.out.BotOwnerPort;
 import io.github.phs314.quicktts.bot.guild.application.port.out.GuildAllowlistEventPort;
 import io.github.phs314.quicktts.bot.guild.domain.event.GuildRemovedFromAllowlist;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

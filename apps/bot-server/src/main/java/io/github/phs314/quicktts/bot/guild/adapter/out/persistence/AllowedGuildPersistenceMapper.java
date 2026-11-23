@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.guild.adapter.out.persistence;
 
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 
 /**
  * {@link AllowedGuild} 애그리거트와 {@link AllowedGuildJpaEntity} 를 서로 바꾼다 (ADR 0038).

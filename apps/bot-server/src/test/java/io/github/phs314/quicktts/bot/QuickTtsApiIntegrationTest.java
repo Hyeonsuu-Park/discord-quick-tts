@@ -21,17 +21,19 @@ import io.github.phs314.quicktts.bot.identity.application.port.in.command.IssueP
 import io.github.phs314.quicktts.bot.identity.application.port.in.command.UnlinkAllDevicesCommand;
 import io.github.phs314.quicktts.bot.settings.application.port.in.ChangeVoiceUseCase;
 import io.github.phs314.quicktts.bot.settings.application.port.in.command.ChangeVoiceCommand;
+import io.github.phs314.quicktts.bot.settings.application.port.out.FakeVoiceChoicesPort;
+import io.github.phs314.quicktts.bot.settings.application.port.out.VoiceChoicesPort;
 import io.github.phs314.quicktts.bot.speech.application.port.in.dto.VoiceChannelDto;
 import io.github.phs314.quicktts.bot.speech.application.port.out.FakeSpeechPlayerPort;
+import io.github.phs314.quicktts.bot.speech.application.port.out.FakeTextToSpeechPort;
 import io.github.phs314.quicktts.bot.speech.application.port.out.FakeVoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.application.port.out.SpeechPlayerPort;
+import io.github.phs314.quicktts.bot.speech.application.port.out.TextToSpeechPort;
 import io.github.phs314.quicktts.bot.speech.application.port.out.VoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.domain.vo.ChannelId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
-import io.github.phs314.quicktts.synthesis.application.port.out.FakeSpeechSynthesizerPort;
-import io.github.phs314.quicktts.synthesis.application.port.out.SpeechSynthesizerPort;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import net.dv8tion.jda.api.JDA;
@@ -50,7 +52,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 /**
  * 봇 서버를 통째로 띄우고 데스크톱 클라이언트처럼 HTTP 로 /api/v1 을 불러 응답까지 확인한다.
  * 컨트롤러부터 서비스, 도메인, DB(Flyway 마이그레이션 포함)까지는 실제 것을 쓴다.
- * 디스코드와 TTS 엔진은 출력 포트 대역으로 바꿔서 디스코드에 접속하지 않고 소리도 나지 않는다.
+ * 디스코드와 synthesis 서비스는 출력 포트 대역으로 바꿔서 디스코드에 접속하지 않고 소리도 나지 않는다.
  * 디스코드 /연결, /연결해제, /목소리 명령이 할 일은 그 명령이 부르는 입력 포트를 직접 부른다.
  */
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
@@ -66,7 +68,8 @@ class QuickTtsApiIntegrationTest {
 
     private static final FakeVoiceStatePort VOICE_CHANNELS = new FakeVoiceStatePort();
     private static final FakeSpeechPlayerPort PLAYER = new FakeSpeechPlayerPort();
-    private static final FakeSpeechSynthesizerPort TTS = new FakeSpeechSynthesizerPort();
+    private static final FakeTextToSpeechPort TTS = new FakeTextToSpeechPort();
+    private static final FakeVoiceChoicesPort VOICES = new FakeVoiceChoicesPort();
 
     /** 테스트끼리 봇 음성 상태, 목소리 설정, 기기가 섞이지 않게 사용자, 디스코드 서버, 채널마다 새 ID 를 쓴다. */
     private static final AtomicLong IDS = new AtomicLong(1_000);
@@ -78,7 +81,10 @@ class QuickTtsApiIntegrationTest {
     SpeechPlayerPort speechPlayerPort;
 
     @TestBean(methodName = "tts")
-    SpeechSynthesizerPort speechSynthesizerPort;
+    TextToSpeechPort textToSpeechPort;
+
+    @TestBean(methodName = "voices")
+    VoiceChoicesPort voiceChoicesPort;
 
     @LocalServerPort
     int port;
@@ -105,8 +111,12 @@ class QuickTtsApiIntegrationTest {
         return PLAYER;
     }
 
-    static SpeechSynthesizerPort tts() {
+    static TextToSpeechPort tts() {
         return TTS;
+    }
+
+    static VoiceChoicesPort voices() {
+        return VOICES;
     }
 
     @BeforeEach
@@ -166,7 +176,7 @@ class QuickTtsApiIntegrationTest {
         String token = registerDevice(user);
         VoiceChannel channel = newChannel(newGuild());
         VOICE_CHANNELS.enter(user, details(channel, "게임"));
-        changeVoiceUseCase.changeVoice(new ChangeVoiceCommand(user, FakeSpeechSynthesizerPort.INJOON.id()));
+        changeVoiceUseCase.changeVoice(new ChangeVoiceCommand(user, FakeVoiceChoicesPort.INJOON.id()));
 
         sendQuickChat(token, "안녕").expectStatus().isAccepted();
 
@@ -250,7 +260,7 @@ class QuickTtsApiIntegrationTest {
     }
 
     @Test
-    void TTS_엔진이_음성을_만들지_못하면_502_와_speech_synthesis_failed() {
+    void synthesis_서비스가_음성을_만들지_못하면_502_와_speech_synthesis_failed() {
         DiscordUserId user = newUser();
         String token = registerDevice(user);
         VOICE_CHANNELS.enter(user, details(newChannel(newGuild()), "게임"));
@@ -283,11 +293,11 @@ class QuickTtsApiIntegrationTest {
     }
 
     @Test
-    void 지표는_기기_토큰이_있어야_보고_음성_캐시_지표도_있다() {
-        String cacheGets = "/actuator/metrics/cache.gets?tag=cache:speech";
-        client.get().uri(cacheGets).exchange().expectStatus().isUnauthorized();
+    void 지표는_기기_토큰이_있어야_본다() {
+        String memoryUsed = "/actuator/metrics/jvm.memory.used";
+        client.get().uri(memoryUsed).exchange().expectStatus().isUnauthorized();
 
-        client.get().uri(cacheGets)
+        client.get().uri(memoryUsed)
                 .header(HttpHeaders.AUTHORIZATION, QuickTtsApi.BEARER_PREFIX + registerDevice(newUser()))
                 .exchange()
                 .expectStatus().isOk();

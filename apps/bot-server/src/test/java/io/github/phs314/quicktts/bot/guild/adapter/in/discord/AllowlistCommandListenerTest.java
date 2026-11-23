@@ -19,8 +19,8 @@ import io.github.phs314.quicktts.bot.guild.application.port.in.command.RemoveFro
 import io.github.phs314.quicktts.bot.guild.application.port.in.dto.AllowedGuildDto;
 import io.github.phs314.quicktts.bot.guild.application.port.in.dto.GuildAllowlistDto;
 import io.github.phs314.quicktts.bot.guild.application.port.in.query.GetAllowlistQuery;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.time.Instant;
 import java.util.List;
 import net.dv8tion.jda.api.entities.Guild;

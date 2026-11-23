@@ -2,6 +2,7 @@
 
 - 상태: 일부 대체됨
   - 따로 띄울 컨텍스트(synthesis)와 공유 커널은 `contexts/` 아래 Gradle 모듈로 → ADR 0060
+  - `contexts/` 를 없애고 synthesis 는 `apps/synthesis-service` 안에, 공유 커널은 봇 서버 안에 → ADR 0065
 - 날짜: 2026-11-01
 
 모듈 셋(`bot-server`, `desktop-client`, `common`)이 저장소 맨 위에 나란히 있었고, 모든 모듈의 공통 설정은 루트 `build.gradle.kts` 의 `subprojects {}` 한 곳에 있었습니다. 지금은 문제가 없지만, 앱이 늘면(웹 화면, 서버를 나눈 두 번째 프로세스) 두 가지가 커집니다.

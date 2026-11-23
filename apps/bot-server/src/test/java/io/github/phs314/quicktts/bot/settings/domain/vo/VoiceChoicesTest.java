@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.phs314.quicktts.bot.settings.domain.UnknownVoiceException;
-import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

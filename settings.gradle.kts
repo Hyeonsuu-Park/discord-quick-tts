@@ -5,13 +5,11 @@ pluginManagement {
 
 rootProject.name = "discord-quick-tts"
 
-// apps: 띄우는 프로그램, contexts: 앱에서 떼어 낸 업무 모듈, libs: 앱끼리 나눠 쓰는 약속
+// apps: 띄우는 프로그램(서비스마다 하나), libs: 앱끼리 나눠 쓰는 약속
 include(
     ":apps:bot-server",
     ":apps:desktop-client",
     ":apps:synthesis-service",
-    ":contexts:shared",
-    ":contexts:synthesis",
     ":libs:api-contract",
     ":libs:synthesis-contract",
 )

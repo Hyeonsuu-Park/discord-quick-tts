@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.shared.adapter.in.discord;
 
-import io.github.phs314.quicktts.shared.domain.BusinessException;
-import io.github.phs314.quicktts.shared.domain.ErrorKind;
+import io.github.phs314.quicktts.bot.shared.domain.BusinessException;
+import io.github.phs314.quicktts.bot.shared.domain.ErrorKind;
 import java.util.Objects;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.hooks.EventListener;

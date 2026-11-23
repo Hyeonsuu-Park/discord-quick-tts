@@ -15,9 +15,9 @@ import io.github.phs314.quicktts.bot.settings.adapter.out.persistence.UserSettin
 import io.github.phs314.quicktts.bot.settings.domain.UserSettings;
 import io.github.phs314.quicktts.bot.support.TestDatabase;
 import io.github.phs314.quicktts.bot.support.TestJpa;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
-import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import java.time.Clock;
 import java.time.Instant;
 import javax.sql.DataSource;

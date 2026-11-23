@@ -3,28 +3,34 @@ package io.github.phs314.quicktts.bot.settings.adapter.out.synthesis;
 import io.github.phs314.quicktts.bot.settings.application.port.out.VoiceChoicesPort;
 import io.github.phs314.quicktts.bot.settings.domain.vo.VoiceChoice;
 import io.github.phs314.quicktts.bot.settings.domain.vo.VoiceChoices;
-import io.github.phs314.quicktts.synthesis.application.port.in.GetVoicesUseCase;
-import io.github.phs314.quicktts.synthesis.application.port.in.dto.VoiceCatalogDto;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.synthesis.contract.SynthesisApi;
+import io.github.phs314.quicktts.synthesis.contract.VoiceCatalogResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 
 /**
- * synthesis 에 엔진들이 낼 수 있는 목소리를 물어 고를 수 있는 목소리로 바꾼다 (ADR 0040).
- * 같은 프로세스 안의 synthesis 를 부른다. 기본값이고, {@code quicktts.synthesis.mode=http} 면 HTTP 어댑터가 대신한다 (ADR 0062).
+ * synthesis 서비스에 엔진들이 낼 수 있는 목소리를 물어 고를 수 있는 목소리로 바꾼다 (ADR 0065).
  */
 @Component
-@ConditionalOnProperty(name = "quicktts.synthesis.mode", havingValue = "in-process", matchIfMissing = true)
 @RequiredArgsConstructor
 public class VoiceChoicesSynthesisAdapter implements VoiceChoicesPort {
 
-    private final GetVoicesUseCase getVoicesUseCase;
+    private final SynthesisApi synthesisApi;
 
     @Override
     public VoiceChoices getVoiceChoices() {
-        VoiceCatalogDto catalog = getVoicesUseCase.getVoices();
+        VoiceCatalogResponse catalog;
+        try {
+            catalog = synthesisApi.getVoices();
+        } catch (RestClientException e) {
+            throw new SynthesisServiceUnavailableException("synthesis 서비스에서 목소리 목록을 받지 못했습니다.", e);
+        }
         return new VoiceChoices(
-                catalog.voices().stream().map(voice -> new VoiceChoice(voice.id(), voice.label())).toList(),
-                catalog.defaultVoiceId());
+                catalog.voices().stream()
+                        .map(voice -> new VoiceChoice(new VoiceId(voice.id()), voice.label()))
+                        .toList(),
+                new VoiceId(catalog.defaultVoiceId()));
     }
 }

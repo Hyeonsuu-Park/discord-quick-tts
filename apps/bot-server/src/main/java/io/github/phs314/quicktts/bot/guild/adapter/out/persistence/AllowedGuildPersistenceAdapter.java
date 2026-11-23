@@ -2,7 +2,7 @@ package io.github.phs314.quicktts.bot.guild.adapter.out.persistence;
 
 import io.github.phs314.quicktts.bot.guild.application.port.out.AllowedGuildPort;
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

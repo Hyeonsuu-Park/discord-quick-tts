@@ -4,10 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":libs:api-contract"))
-    // 떼어 낸 컨텍스트. 같은 프로세스 안에서 입력 포트를 바로 부른다 (ADR 0060).
-    implementation(project(":contexts:shared"))
-    implementation(project(":contexts:synthesis"))
-    // 쿠버네티스에서는 synthesis 를 같은 프로세스 대신 synthesis 서비스로 부른다 (ADR 0062).
+    // 음성은 synthesis 서비스가 만든다. 그 웹 API 약속으로 HTTP 클라이언트를 만든다 (ADR 0065).
     implementation(project(":libs:synthesis-contract"))
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
@@ -25,9 +22,6 @@ dependencies {
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     // 분산 추적. 요청 하나가 봇 서버와 synthesis 서비스를 거친 길을 한 줄로 본다. 수집기 주소가 없으면 내보내지 않는다 (ADR 0063).
     implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
-    // 같은 문장의 음성을 기억해 두는 캐시.
-    implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("org.flywaydb:flyway-mysql")
     // 웹 API 문서(OpenAPI). 컨트롤러에서 /v3/api-docs 를 만들고 /swagger-ui.html 로 보여 준다.
     implementation(libs.springdoc.webmvc.ui)
@@ -51,8 +45,6 @@ dependencies {
     // 컨트롤러 테스트(@WebMvcTest)가 MVC, JSON, 보안 필터를 실제 설정 그대로 올린다.
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation(libs.archunit.junit5)
-    // API 통합 테스트가 진짜 TTS 엔진 대신 쓰는 가짜 엔진.
-    testImplementation(testFixtures(project(":contexts:synthesis")))
     // 저장소 테스트를 진짜 MySQL 에서도 돌린다. Docker 가 있어야 한다.
     testImplementation("org.testcontainers:testcontainers-mysql")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

@@ -7,8 +7,8 @@ import io.github.phs314.quicktts.bot.speech.application.port.in.query.FindCurren
 import io.github.phs314.quicktts.bot.speech.application.port.out.FakeVoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.domain.vo.ChannelId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import org.junit.jupiter.api.Test;
 
 class FindCurrentUserVoiceChannelServiceTest {

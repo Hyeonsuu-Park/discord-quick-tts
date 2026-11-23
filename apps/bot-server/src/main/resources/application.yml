@@ -21,18 +21,13 @@ spring:
   flyway:
     # Flyway 전에 schema.sql 로 만든 DB 는 테이블이 이미 있으므로, 처음 한 번 V1 을 건너뛰고 그 위부터 쌓는다.
     baseline-on-migrate: true
-  cache:
-    # 같은 목소리, 같은 문장의 음성을 기억해 비공식 TTS 를 덜 부른다. mp3 한 개가 20KB 안팎이라 500개면 10MB 정도다.
-    # 실패한 결과는 기억하지 않는다. 적중률은 /actuator/metrics/cache.gets 로 본다.
-    cache-names: speech
-    caffeine:
-      spec: maximumSize=500,expireAfterAccess=1d,recordStats
   http:
     serviceclient:
-      # quicktts.synthesis.mode=http 일 때 synthesis 서비스를 부르는 주소와 시간 제한 (ADR 0062).
-      # 엔진이 실패하면 서비스 안에서 다른 엔진으로 한 번 더 만들기 때문에, 같은 프로세스로 부를 때보다 짧게 끊지 않는다.
+      # 음성을 만드는 synthesis 서비스의 주소와 시간 제한 (ADR 0065).
+      # 기본값은 개발 PC 에서 bootRun 으로 함께 띄운 synthesis 서비스(8082)다. compose 와 쿠버네티스는 QUICKTTS_SYNTHESIS_URL 로 바꾼다.
+      # 엔진이 실패하면 서비스 안에서 다른 엔진으로 한 번 더 만들기 때문에 읽기 시간 제한을 넉넉히 둔다.
       synthesis:
-        base-url: ${QUICKTTS_SYNTHESIS_URL:http://synthesis-service:8080}
+        base-url: ${QUICKTTS_SYNTHESIS_URL:http://localhost:8082}
         connect-timeout: 2s
         read-timeout: 45s
   jpa:
@@ -97,16 +92,6 @@ springdoc:
 quicktts:
   discord:
     token: ${DISCORD_TOKEN:}
-  synthesis:
-    # 음성을 어디서 만들지. in-process: 이 서버 안의 synthesis 모듈(기본, 개발·exe), http: synthesis 서비스(쿠버네티스).
-    mode: ${QUICKTTS_SYNTHESIS_MODE:in-process}
-  tts:
-    # 아래 둘은 synthesis 를 이 서버 안에서 돌릴 때(in-process)만 쓴다. http 면 synthesis 서비스의 같은 설정을 쓴다.
-    # 목소리를 고르지 않은 사용자에게 쓰는 목소리. 사람마다 디스코드 /목소리 명령으로 바꿀 수 있다.
-    # 고를 수 있는 값: edge:ko-KR-SunHiNeural, edge:ko-KR-InJoonNeural, edge:ko-KR-HyunsuMultilingualNeural, google:ko
-    default-voice: ${QUICKTTS_DEFAULT_VOICE:edge:ko-KR-SunHiNeural}
-    # Edge 목소리 서버가 확인하는 Edge 브라우저 버전. Edge 목소리가 갑자기 안 되면 최신 버전으로 올린다.
-    edge-chromium-version: 143.0.3650.75
   guild-allowlist:
     # 켜 두면 봇 주인이 /허용목록 으로 넣은 디스코드 서버에만 봇이 남고, 다른 곳에 초대되면 안내를 남기고 나간다.
     # 누구나 초대할 수 있게 공개할 때 false 로 바꾼다.

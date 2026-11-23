@@ -6,7 +6,7 @@ import io.github.phs314.quicktts.bot.guild.application.port.in.command.AddToAllo
 import io.github.phs314.quicktts.bot.guild.application.port.out.AllowedGuildPort;
 import io.github.phs314.quicktts.bot.guild.application.port.out.BotOwnerPort;
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.time.Clock;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

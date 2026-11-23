@@ -8,7 +8,7 @@ import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceName;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceTokenHash;
 import io.github.phs314.quicktts.bot.support.TestDatabase;
 import io.github.phs314.quicktts.bot.support.TestJpa;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.AfterEach;
