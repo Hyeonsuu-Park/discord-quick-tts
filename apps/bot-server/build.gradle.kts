@@ -15,6 +15,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     // 상태 확인(/actuator/health)과 지표(Micrometer).
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // Prometheus 가 긁어 가는 /actuator/prometheus (쿠버네티스에서는 관리 포트로만 연다, ADR 0057).
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     // 같은 문장의 음성을 기억해 두는 캐시.
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine")
