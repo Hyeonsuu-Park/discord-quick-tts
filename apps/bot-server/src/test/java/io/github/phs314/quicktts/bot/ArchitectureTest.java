@@ -23,28 +23,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 바운디드 컨텍스트(speech, settings, synthesis, identity, guild) 사이와 각 컨텍스트 안의 헥사고날 의존 방향을 지킨다.
+ * 바운디드 컨텍스트(speech, settings, identity, guild) 사이와 각 컨텍스트 안의 헥사고날 의존 방향을 지킨다.
  * 이름과 위치 규칙은 ADR 에 적어 두고 리뷰로 지킨다 (ADR 0032).
- * synthesis 는 Gradle 모듈(contexts/synthesis)로 떼어 냈다. 그 안의 규칙은 그 모듈의 ArchitectureTest 가 보고,
- * 여기서는 봇 서버가 synthesis 를 공개 입구로만 부르는지 본다 (ADR 0060).
+ * synthesis 는 따로 띄우는 서비스(apps/synthesis-service)다. 그 안의 규칙은 그 서비스의 ArchitectureTest 가 보고,
+ * 여기서는 봇 서버가 synthesis 서비스를 웹 API 약속으로만 부르는지 본다 (ADR 0065).
  */
 @AnalyzeClasses(packages = "io.github.phs314.quicktts.bot", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
 
     private static final String ROOT_PACKAGE = "io.github.phs314.quicktts";
     private static final String BOT_PACKAGE = ROOT_PACKAGE + ".bot";
-
-    /** 봇 서버 밖 Gradle 모듈(contexts/)로 떼어 낸 컨텍스트. 패키지가 bot 아래가 아니라 io.github.phs314.quicktts 바로 아래다. */
-    private static final Set<String> MODULE_CONTEXTS = Set.of("synthesis");
+    private static final String SYNTHESIS_PACKAGE = ROOT_PACKAGE + ".synthesis";
 
     /**
      * 컨텍스트 지도. 왼쪽 컨텍스트가 오른쪽 컨텍스트의 공개 입구(application.port.in)를 부르거나 공개 이벤트를 받을 수 있다 (ADR 0026, ADR 0040).
      * 컨텍스트를 새로 만들면 여기에 넣어야 빌드가 통과한다.
      */
     private static final Map<String, Set<String>> CONTEXT_MAP = Map.of(
-            "speech", Set.of("settings", "synthesis"),
-            "settings", Set.of("synthesis"),
-            "synthesis", Set.of(),
+            "speech", Set.of("settings"),
+            "settings", Set.of(),
             "identity", Set.of(),
             "guild", Set.of());
 
@@ -131,7 +128,6 @@ class ArchitectureTest {
 
     /**
      * 다른 컨텍스트는 컨텍스트 지도에 있을 때만, 그 공개 입구(application.port.in)로만 부른다.
-     * 따로 띄우는 서비스로 부를 때는 그 서비스의 웹 API 약속(libs/&lt;서비스&gt;-contract 의 패키지 &lt;컨텍스트&gt;.contract)이 공개 입구다 (ADR 0062).
      * 부르는 쪽은 서비스가 내 출력 포트로 부탁한 일을 하는 adapter.out.상대 하나뿐이다 (ADR 0026, ADR 0040).
      * 예외는 상대가 낸 공개 이벤트(application.port.in.event)를 받는 adapter.in.event 하나다. 그 리스너는 이벤트만 알고
      * 상대의 유스케이스는 부르지 않는다. 그 밖의 인바운드 어댑터, 서비스, 도메인은 다른 컨텍스트를 모른다. guild 처럼 지도에 상대가 없는 컨텍스트는 다른 컨텍스트와 서로 모른다 (ADR 0015).
@@ -155,8 +151,7 @@ class ArchitectureTest {
                         String caller = javaClass.getPackageName();
                         String targetPackage = target.getPackageName();
                         boolean callsPublicEntrance = caller.startsWith(contextPackage(from) + ".adapter.out." + to)
-                                && (targetPackage.startsWith(contextPackage(to) + ".application.port.in")
-                                        || targetPackage.startsWith(contextPackage(to) + ".contract"));
+                                && targetPackage.startsWith(contextPackage(to) + ".application.port.in");
                         boolean receivesPublicEvent = caller.startsWith(contextPackage(from) + ".adapter.in.event")
                                 && targetPackage.startsWith(contextPackage(to) + ".application.port.in.event");
                         boolean allowed = CONTEXT_MAP.get(from).contains(to) && (callsPublicEntrance || receivesPublicEvent);
@@ -167,12 +162,25 @@ class ArchitectureTest {
                 }
             });
 
+    /**
+     * synthesis 서비스는 그 웹 API 약속(libs/synthesis-contract 의 synthesis.contract)으로만 부른다. 부르는 쪽은 서비스가
+     * 내 출력 포트로 부탁한 일을 하는 adapter.out.synthesis 와 HTTP 클라이언트를 만드는 config 뿐이다 (ADR 0065).
+     */
+    @ArchTest
+    static final ArchRule synthesisServiceIsCalledOnlyThroughItsContract = noClasses()
+            .that().resideOutsideOfPackages("..bot.*.adapter.out.synthesis..", "..bot.config..")
+            .should().dependOnClassesThat().resideInAPackage(SYNTHESIS_PACKAGE + "..");
+
+    @ArchTest
+    static final ArchRule botUsesOnlySynthesisContract = noClasses()
+            .should().dependOnClassesThat(resideInAPackage(SYNTHESIS_PACKAGE + "..")
+                    .and(resideOutsideOfPackages(SYNTHESIS_PACKAGE + ".contract..")));
+
     @ArchTest
     static final ArchRule sharedKernelDependsOnNoContext = noClasses()
             .that().resideInAPackage("..bot.shared..")
             .should().dependOnClassesThat().resideInAnyPackage(
-                    "..bot.speech..", "..bot.settings..", "..bot.identity..", "..bot.guild..",
-                    ROOT_PACKAGE + ".synthesis..");
+                    "..bot.speech..", "..bot.settings..", "..bot.identity..", "..bot.guild..");
 
     /** 인바운드 어댑터는 입력 포트로만 애플리케이션을 부른다. 서비스 구현이나 출력 포트를 직접 쓰지 않는다. */
     @ArchTest
@@ -213,14 +221,14 @@ class ArchitectureTest {
             .should().dependOnClassesThat().resideInAPackage("..bot.*.adapter..");
 
     /**
-     * 도메인은 자바 표준 라이브러리와 도메인(공유 커널 contexts/shared 포함), 클라이언트와 함께 쓰는 API 약속(libs/api-contract 의 오류 코드)만 쓴다.
+     * 도메인은 자바 표준 라이브러리와 도메인(공유 커널 bot.shared.domain 포함), 클라이언트와 함께 쓰는 API 약속(libs/api-contract 의 오류 코드)만 쓴다.
      * 쓰면 안 되는 라이브러리를 적는 대신 써도 되는 것만 적어서, 새 라이브러리를 들여도 이 규칙은 그대로 막는다 (ADR 0035).
      */
     @ArchTest
     static final ArchRule domainDependsOnlyOnJavaAndDomain = classes()
             .that().resideInAPackage("..bot.*.domain..")
             .should().onlyDependOnClassesThat().resideInAnyPackage(
-                    "java..", "..bot.*.domain..", ROOT_PACKAGE + ".shared.domain..", ROOT_PACKAGE + ".api..");
+                    "java..", "..bot.*.domain..", ROOT_PACKAGE + ".api..");
 
     /** 서비스에는 빈 등록(@Service)과 트랜잭션(@Transactional) 애너테이션만 허용한다 (ADR 0009). */
     @ArchTest
@@ -232,25 +240,18 @@ class ArchitectureTest {
                     .and(resideOutsideOfPackages(
                             "org.springframework.stereotype..", "org.springframework.transaction.annotation..")));
 
-    /** bot 바로 아래 패키지 이름, 또는 떼어 낸 모듈 컨텍스트 이름. 어느 쪽도 아니면(bot 패키지에 바로 있는 클래스 등) 빈 문자열. */
+    /** bot 바로 아래 패키지 이름. bot 밖이거나 bot 패키지에 바로 있는 클래스면 빈 문자열. */
     private static String topPackage(JavaClass javaClass) {
         String name = javaClass.getPackageName();
-        if (name.startsWith(BOT_PACKAGE + ".")) {
-            return firstSegment(name.substring(BOT_PACKAGE.length() + 1));
+        if (!name.startsWith(BOT_PACKAGE + ".")) {
+            return "";
         }
-        if (name.startsWith(ROOT_PACKAGE + ".")) {
-            String module = firstSegment(name.substring(ROOT_PACKAGE.length() + 1));
-            return MODULE_CONTEXTS.contains(module) ? module : "";
-        }
-        return "";
-    }
-
-    private static String firstSegment(String packageName) {
-        int dot = packageName.indexOf('.');
-        return dot < 0 ? packageName : packageName.substring(0, dot);
+        String rest = name.substring(BOT_PACKAGE.length() + 1);
+        int dot = rest.indexOf('.');
+        return dot < 0 ? rest : rest.substring(0, dot);
     }
 
     private static String contextPackage(String context) {
-        return (MODULE_CONTEXTS.contains(context) ? ROOT_PACKAGE : BOT_PACKAGE) + "." + context;
+        return BOT_PACKAGE + "." + context;
     }
 }

@@ -8,7 +8,7 @@ import io.github.phs314.quicktts.bot.identity.domain.Device;
 import io.github.phs314.quicktts.bot.identity.domain.InvalidPairingCodeException;
 import io.github.phs314.quicktts.bot.identity.domain.Pairing;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceToken;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.time.Clock;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;

@@ -2,7 +2,7 @@ package io.github.phs314.quicktts.bot.shared.adapter.in.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.phs314.quicktts.shared.domain.ErrorKind;
+import io.github.phs314.quicktts.bot.shared.domain.ErrorKind;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

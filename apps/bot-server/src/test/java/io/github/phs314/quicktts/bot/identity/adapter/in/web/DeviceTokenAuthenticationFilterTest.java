@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.phs314.quicktts.api.QuickTtsApi;
 import io.github.phs314.quicktts.bot.identity.application.port.in.AuthenticateDeviceUseCase;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

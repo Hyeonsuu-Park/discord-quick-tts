@@ -13,8 +13,6 @@ COPY gradlew settings.gradle.kts build.gradle.kts gradle.properties ./
 COPY gradle/ gradle/
 COPY build-logic/ build-logic/
 COPY libs/api-contract/build.gradle.kts libs/api-contract/
-COPY contexts/shared/build.gradle.kts contexts/shared/
-COPY contexts/synthesis/build.gradle.kts contexts/synthesis/
 COPY apps/bot-server/build.gradle.kts apps/bot-server/
 # settings.gradle.kts 가 포함한 다른 모듈도 폴더가 있어야 Gradle 이 켜진다. 빌드 설정 파일만 넣고 소스는 넣지 않는다.
 COPY apps/desktop-client/build.gradle.kts apps/desktop-client/
@@ -24,8 +22,6 @@ RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew --no-daemon :apps:bot-server:dependencies --configuration runtimeClasspath > /dev/null
 COPY libs/api-contract/src/ libs/api-contract/src/
 COPY libs/synthesis-contract/src/ libs/synthesis-contract/src/
-COPY contexts/shared/src/main/ contexts/shared/src/main/
-COPY contexts/synthesis/src/main/ contexts/synthesis/src/main/
 COPY apps/bot-server/src/main/ apps/bot-server/src/main/
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew --no-daemon :apps:bot-server:bootJar \

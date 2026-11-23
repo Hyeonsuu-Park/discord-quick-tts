@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.phs314.quicktts.bot.config.DiscordProperties;
 import io.github.phs314.quicktts.bot.guild.adapter.out.config.GuildAllowlistProperties;
-import io.github.phs314.quicktts.synthesis.adapter.out.tts.TtsProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -15,9 +14,7 @@ class ConfigurationPropertiesTest {
 
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
             .withUserConfiguration(PropertiesConfig.class)
-            .withPropertyValues("quicktts.discord.token=test-token",
-                    "quicktts.tts.default-voice=edge:ko-KR-SunHiNeural",
-                    "quicktts.tts.edge-chromium-version=143.0.3650.75");
+            .withPropertyValues("quicktts.discord.token=test-token");
 
     @Test
     void 허용_목록은_설정하지_않으면_켜져_있다() {
@@ -31,13 +28,6 @@ class ConfigurationPropertiesTest {
     }
 
     @Test
-    void 기본_목소리가_비어_있으면_켜지지_않고_고치는_방법을_알려준다() {
-        runner.withPropertyValues("quicktts.tts.default-voice=")
-                .run(context -> assertThat(context).hasFailed().getFailure()
-                        .rootCause().hasMessageContaining("QUICKTTS_DEFAULT_VOICE 가 비어 있습니다"));
-    }
-
-    @Test
     void 디스코드_토큰이_비어_있으면_켜지지_않고_설정하는_방법을_알려준다() {
         runner.withPropertyValues("quicktts.discord.token=")
                 .run(context -> assertThat(context).hasFailed().getFailure()
@@ -45,7 +35,7 @@ class ConfigurationPropertiesTest {
     }
 
     @Configuration(proxyBeanMethods = false)
-    @EnableConfigurationProperties({DiscordProperties.class, TtsProperties.class, GuildAllowlistProperties.class})
+    @EnableConfigurationProperties({DiscordProperties.class, GuildAllowlistProperties.class})
     static class PropertiesConfig {
     }
 }

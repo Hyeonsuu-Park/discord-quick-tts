@@ -15,5 +15,5 @@ configMapGenerator:
       - LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs
       - QUICKTTS_DB_URL=jdbc:mysql://mysql:3306/quicktts?connectionTimeZone=UTC
       - QUICKTTS_DB_USERNAME=quicktts
-      # 음성은 synthesis 서비스(http://synthesis-service:8080)가 만든다 (ADR 0062).
-      - QUICKTTS_SYNTHESIS_MODE=http
+      # 음성을 만드는 synthesis 서비스 (ADR 0065).
+      - QUICKTTS_SYNTHESIS_URL=http://synthesis-service:8080

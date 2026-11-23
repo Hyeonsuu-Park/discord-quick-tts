@@ -1,6 +1,7 @@
 # synthesis 를 클러스터 안 웹 API 서비스로도 띄운다
 
-- 상태: 채택
+- 상태: 일부 대체됨
+  - synthesis 코드는 `contexts/synthesis` 모듈 대신 이 서비스 안에(패키지 `io.github.phs314.quicktts.synthesis`) → ADR 0065
 - 날짜: 2026-11-23
 
 synthesis 를 Gradle 모듈로 뺐습니다(ADR 0060). 이제 그 모듈을 혼자 띄울 앱과, 봇 서버가 네트워크 너머로 부를 약속이 필요합니다. TTS 엔진(Edge, Google 번역)은 공식 API 가 아니어서 느려지거나 막히기 쉽고, 문장마다 수백 ms 를 씁니다. 봇 서버는 디스코드 연결 때문에 한 벌만 띄우지만(ADR 0059), TTS 는 상태가 없어 여러 벌로 나눌 수 있습니다.

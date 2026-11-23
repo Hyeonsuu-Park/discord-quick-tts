@@ -1,8 +1,8 @@
 package io.github.phs314.quicktts.bot.identity.domain;
 
 import io.github.phs314.quicktts.api.ApiErrorCode;
-import io.github.phs314.quicktts.shared.domain.BusinessException;
-import io.github.phs314.quicktts.shared.domain.ErrorKind;
+import io.github.phs314.quicktts.bot.shared.domain.BusinessException;
+import io.github.phs314.quicktts.bot.shared.domain.ErrorKind;
 
 /**
  * 없는 연결 코드이거나 만료된 연결 코드일 때 던진다.

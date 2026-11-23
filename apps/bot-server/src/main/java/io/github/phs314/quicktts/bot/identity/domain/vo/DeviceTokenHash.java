@@ -1,6 +1,6 @@
 package io.github.phs314.quicktts.bot.identity.domain.vo;
 
-import io.github.phs314.quicktts.shared.domain.InvalidDomainValueException;
+import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
 
 /**
  * 기기 토큰의 SHA-256 해시 (소문자 16진수 64자). 서버는 토큰 원문 대신 이것만 저장하고 이것으로 기기를 찾는다.

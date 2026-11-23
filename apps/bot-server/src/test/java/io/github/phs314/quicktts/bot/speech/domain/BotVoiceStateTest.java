@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.phs314.quicktts.bot.speech.domain.vo.ChannelId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;

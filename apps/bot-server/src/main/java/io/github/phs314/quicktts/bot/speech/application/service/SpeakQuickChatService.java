@@ -15,7 +15,7 @@ import io.github.phs314.quicktts.bot.speech.domain.normalization.TextNormalizer;
 import io.github.phs314.quicktts.bot.speech.domain.vo.Audio;
 import io.github.phs314.quicktts.bot.speech.domain.vo.SpokenText;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
-import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

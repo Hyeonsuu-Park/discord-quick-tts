@@ -2,8 +2,8 @@ package io.github.phs314.quicktts.bot.speech.application.exception;
 
 import io.github.phs314.quicktts.api.ApiErrorCode;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
-import io.github.phs314.quicktts.shared.domain.BusinessException;
-import io.github.phs314.quicktts.shared.domain.ErrorKind;
+import io.github.phs314.quicktts.bot.shared.domain.BusinessException;
+import io.github.phs314.quicktts.bot.shared.domain.ErrorKind;
 
 /**
  * 봇이 그 음성 채널에 들어갈 수 없을 때 던진다. 채널 인원이 꽉 찼거나 봇에게 연결 권한이 없는 경우다.

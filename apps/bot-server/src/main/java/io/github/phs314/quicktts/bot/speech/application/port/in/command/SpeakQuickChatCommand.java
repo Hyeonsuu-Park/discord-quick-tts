@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.speech.application.port.in.command;
 
 import io.github.phs314.quicktts.bot.speech.domain.vo.QuickChatMessage;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 
 /**
  * @param author 문장을 보낸 사용자

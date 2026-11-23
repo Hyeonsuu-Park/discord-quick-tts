@@ -1,8 +1,8 @@
 package io.github.phs314.quicktts.bot.settings.domain;
 
 import io.github.phs314.quicktts.bot.settings.domain.vo.VoiceChoice;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import java.util.Objects;
 import java.util.Optional;
 

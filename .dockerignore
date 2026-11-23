@@ -8,10 +8,8 @@
 build/
 build-logic/build/
 apps/*/build/
-contexts/*/build/
 libs/*/build/
 apps/*/out/
-contexts/*/out/
 libs/*/out/
 .idea/
 .vscode/

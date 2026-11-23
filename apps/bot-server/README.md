@@ -1,6 +1,6 @@
 # bot-server
 
-디스코드 봇과 웹 API 를 함께 띄우는 서버입니다. `/연결` 명령, 기기 등록, quick chat 을 받아 음성 채널에서 읽습니다. 구조와 개발 방법은 [저장소 README](../../README.md) 를 봅니다.
+디스코드 봇과 웹 API 를 함께 띄우는 서버입니다. `/연결` 명령, 기기 등록, quick chat 을 받아 음성 채널에서 읽습니다. 음성은 [synthesis 서비스](../synthesis-service/README.md)에 HTTP 로 부탁하므로 그 서비스도 떠 있어야 합니다. 구조와 개발 방법은 [저장소 README](../../README.md) 를 봅니다.
 
 | 항목 | 값 |
 | --- | --- |
@@ -21,9 +21,7 @@
 | `QUICKTTS_DB_USERNAME`, `QUICKTTS_DB_PASSWORD` | MySQL 이면 예 | 비밀번호는 비밀값. 쿠버네티스는 `mysql-secrets` 에서 받음 |
 | `MANAGEMENT_SERVER_PORT` | 아니오 | 프로브와 지표를 받을 포트 |
 | `LOGGING_STRUCTURED_FORMAT_CONSOLE` | 아니오 | `ecs` 면 로그를 한 줄에 JSON 하나로 |
-| `QUICKTTS_SYNTHESIS_MODE` | 아니오 | `in-process`(기본, 이 서버 안에서 음성 만들기) 또는 `http`(synthesis 서비스 부르기) |
-| `QUICKTTS_SYNTHESIS_URL` | 아니오 | `http` 일 때 synthesis 서비스 주소. 기본 `http://synthesis-service:8080` |
-| `QUICKTTS_DEFAULT_VOICE` | 아니오 | 기본 `edge:ko-KR-SunHiNeural`. `in-process` 일 때만 |
+| `QUICKTTS_SYNTHESIS_URL` | 아니오 | 음성을 만드는 synthesis 서비스 주소. 기본 `http://localhost:8082`(bootRun 으로 함께 띄운 것). compose·쿠버네티스는 `http://synthesis-service:8080` |
 | `QUICKTTS_API_DOCS_ENABLED` | 아니오 | 기본 `true`. 공개 서버는 `false` |
 | `QUICKTTS_GUILD_ALLOWLIST_ENABLED` | 아니오 | 기본 `true` |
 
@@ -32,7 +30,7 @@
 ## 띄우기
 
 ```bash
-./gradlew :apps:bot-server:bootRun                                   # JDK 로 바로
+./gradlew :apps:bot-server:bootRun                                   # JDK 로 바로 (synthesis 서비스도 bootRun 해 둔다)
 docker build -f apps/bot-server/Dockerfile -t quicktts-bot-server .  # 이미지 (저장소 루트에서)
 kubectl apply -k deploy/k8s/overlays/local                           # k3d 클러스터
 ```

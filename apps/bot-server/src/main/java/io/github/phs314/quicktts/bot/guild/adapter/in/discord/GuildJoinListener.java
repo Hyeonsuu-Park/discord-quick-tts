@@ -4,7 +4,7 @@ import io.github.phs314.quicktts.bot.guild.application.port.in.LeaveAllNotAllowe
 import io.github.phs314.quicktts.bot.guild.application.port.in.LeaveNotAllowedGuildUseCase;
 import io.github.phs314.quicktts.bot.guild.application.port.in.SeedAllowlistUseCase;
 import io.github.phs314.quicktts.bot.guild.application.port.in.command.LeaveNotAllowedGuildCommand;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

@@ -1,8 +1,8 @@
 package io.github.phs314.quicktts.bot.shared.adapter.in.web;
 
 import io.github.phs314.quicktts.api.ApiErrorCode;
-import io.github.phs314.quicktts.shared.domain.BusinessException;
-import io.github.phs314.quicktts.shared.domain.ErrorKind;
+import io.github.phs314.quicktts.bot.shared.domain.BusinessException;
+import io.github.phs314.quicktts.bot.shared.domain.ErrorKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;

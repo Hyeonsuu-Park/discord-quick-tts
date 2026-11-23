@@ -1,7 +1,7 @@
 package io.github.phs314.quicktts.bot.settings.domain.vo;
 
 import io.github.phs314.quicktts.bot.settings.domain.UnknownVoiceException;
-import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import java.util.List;
 import java.util.Optional;
 

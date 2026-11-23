@@ -19,7 +19,7 @@ import io.github.phs314.quicktts.bot.identity.application.port.in.dto.DeviceDto;
 import io.github.phs314.quicktts.bot.identity.application.port.in.query.GetDevicesQuery;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceId;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceName;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;

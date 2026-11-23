@@ -5,7 +5,7 @@ import io.github.phs314.quicktts.bot.speech.application.port.in.command.LeaveEmp
 import io.github.phs314.quicktts.bot.speech.application.port.out.BotVoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.application.port.out.SpeechPlayerPort;
 import io.github.phs314.quicktts.bot.speech.application.port.out.VoiceStatePort;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

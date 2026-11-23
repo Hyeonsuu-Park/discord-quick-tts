@@ -7,8 +7,8 @@ import io.github.phs314.quicktts.bot.guild.application.exception.NotBotOwnerExce
 import io.github.phs314.quicktts.bot.guild.application.port.in.command.AddToAllowlistCommand;
 import io.github.phs314.quicktts.bot.guild.application.port.out.FakeAllowedGuildPort;
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;

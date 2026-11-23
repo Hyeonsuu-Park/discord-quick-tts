@@ -9,8 +9,8 @@ import io.github.phs314.quicktts.bot.settings.application.port.in.query.GetUserS
 import io.github.phs314.quicktts.bot.settings.domain.UnknownVoiceException;
 import io.github.phs314.quicktts.bot.settings.domain.vo.VoiceChoice;
 import io.github.phs314.quicktts.bot.shared.adapter.in.discord.DiscordSlashCommand;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.VoiceId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

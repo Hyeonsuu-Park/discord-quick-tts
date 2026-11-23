@@ -4,8 +4,8 @@ import io.github.phs314.quicktts.bot.speech.application.port.in.dto.VoiceChannel
 import io.github.phs314.quicktts.bot.speech.application.port.out.VoiceStatePort;
 import io.github.phs314.quicktts.bot.speech.domain.vo.ChannelId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
-import io.github.phs314.quicktts.shared.domain.vo.GuildId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package io.github.phs314.quicktts.bot.speech.domain.vo;
 
-import io.github.phs314.quicktts.shared.domain.InvalidDomainValueException;
+import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
 
 /**
  * 사용자가 quick chat 으로 보낸, 음성으로 읽어 줄 문장.

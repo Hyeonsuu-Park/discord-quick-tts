@@ -2,7 +2,7 @@ package io.github.phs314.quicktts.bot.identity.adapter.out.persistence;
 
 import io.github.phs314.quicktts.bot.identity.domain.Pairing;
 import io.github.phs314.quicktts.bot.identity.domain.vo.PairingCode;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 
 /**
  * {@link Pairing} 과 {@link PairingJpaEntity} 를 서로 바꾼다 (ADR 0038).

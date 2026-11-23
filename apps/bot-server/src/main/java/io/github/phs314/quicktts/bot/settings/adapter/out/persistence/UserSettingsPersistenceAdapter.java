@@ -2,7 +2,7 @@ package io.github.phs314.quicktts.bot.settings.adapter.out.persistence;
 
 import io.github.phs314.quicktts.bot.settings.application.port.out.UserSettingsPort;
 import io.github.phs314.quicktts.bot.settings.domain.UserSettings;
-import io.github.phs314.quicktts.shared.domain.vo.DiscordUserId;
+import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
