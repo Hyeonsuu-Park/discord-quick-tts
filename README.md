@@ -243,6 +243,7 @@ kubectl -n quicktts port-forward svc/bot-server 8080:8080
 - 음성은 synthesis 서비스가 만듭니다. 두 벌로 시작해 CPU 를 보고 네 벌까지 늘고, 봇 서버만 부를 수 있습니다 ([ADR 0061](docs/adr/0061-synthesis-service.md)).
 - 디스코드 토큰은 개발용 봇 것을 씁니다. 같은 토큰으로 `bootRun`, `docker run`, 클러스터를 같이 켜지 마세요.
 - 서비스마다 포트, 환경변수, 이미지 이름은 `apps/<서비스>/README.md` 에 있습니다.
+- PC 에서 k3d 로 띄우는 순서(개발용 봇 만들기 포함)는 [deploy/k8s/README.md](deploy/k8s/README.md) 에 있습니다.
 - 지표 그래프(Prometheus, Grafana)와 추적은 [deploy/monitoring/README.md](deploy/monitoring/README.md) 를 봅니다.
 
 ## 데스크톱 클라이언트 실행
