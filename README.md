@@ -217,6 +217,19 @@ synthesis 서비스가 꺼져 있으면 봇 서버는 켜지지만 문장을 읽
 
 봇 서버, synthesis 서비스, MySQL 컨테이너를 함께 띄워 배포와 같은 모양으로 돌려 보려면 `docker compose --profile app up --build` 를 씁니다. 지우려면 `docker compose --profile app down`, 데이터까지 지우려면 `-v` 를 붙입니다.
 
+### 이 PC 의 서버를 인터넷에 열기
+
+다른 PC 의 데스크톱 앱이 이 PC 에 띄운 봇 서버에 붙게 하려면 Cloudflare Tunnel 을 같이 띄웁니다. 공유기 포트는 열지 않습니다 ([ADR 0067](docs/adr/0067-open-pc-server-with-cloudflare-tunnel.md)).
+
+```bash
+docker compose --profile app --profile tunnel up --build -d
+docker compose --profile app --profile tunnel logs cloudflared | grep trycloudflare.com
+```
+
+- 로그에 나온 `https://<무작위>.trycloudflare.com` 이 봇 서버 주소입니다. `logs`, `ps`, `down` 같은 다른 명령에도 `--profile app --profile tunnel` 을 붙입니다. 빼면 `cloudflared` 가 기대는 `bot-server` 를 못 찾습니다. 데스크톱 앱의 `~/.discord-quick-tts/client.properties` 에서 `server-url` 을 이 주소로 바꾸고 앱을 다시 켭니다.
+- 이 주소는 계정 없이 쓰는 시험용(quick tunnel)이라 터널을 다시 켤 때마다 바뀝니다. 고정 주소는 Cloudflare 계정과 도메인으로 만드는 named tunnel 이 필요합니다.
+- PC 의 8080 을 다른 프로그램이 쓰고 있으면 `.env` 에 `QUICKTTS_HOST_PORT=8090` 처럼 비어 있는 번호를 넣습니다. 터널은 이 값과 상관없이 붙습니다.
+
 ### Docker 로 봇 서버 띄우기
 
 Docker 만 있으면 JDK 없이 이미지를 만들고 띄울 수 있습니다 ([ADR 0055](docs/adr/0055-bot-server-container-image.md)). 저장소 루트에서 실행합니다.
