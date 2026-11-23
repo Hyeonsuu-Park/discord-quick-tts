@@ -211,6 +211,7 @@ docker run --rm -p 8080:8080 --env-file .env -v quicktts-data:/app/data quicktts
 - 설정은 `.env` 와 같은 이름의 환경변수로 넣습니다. `--env-file .env` 는 `.env` 를 그대로 환경변수로 넘깁니다.
 - `QUICKTTS_DB_URL` 을 주지 않으면 컨테이너 안 `/app/data` 에 H2 파일을 만듭니다. `-v quicktts-data:/app/data` 가 그 폴더를 Docker 볼륨에 남겨서, 컨테이너를 지워도 등록된 기기와 목소리 설정이 남습니다. MySQL 을 쓰면 볼륨은 없어도 됩니다.
 - 같은 디스코드 봇 토큰으로 `bootRun` 과 컨테이너를 같이 켜지 마세요. 봇이 두 번 붙어서 명령이 두 번 처리되고 음성 연결을 서로 빼앗습니다.
+- 쿠버네티스처럼 상태 확인과 지표를 따로 보려면 `MANAGEMENT_SERVER_PORT=8081` 을 줍니다. 그 포트에서 `/actuator/health/liveness`, `/actuator/health/readiness`, `/actuator/prometheus` 를 토큰 없이 봅니다. 이 포트는 바깥에 열지 않습니다 ([ADR 0057](docs/adr/0057-probes-and-prometheus-on-management-port.md)).
 - 이미지는 x86(amd64)과 ARM(arm64) 리눅스에서 돕니다. 다른 CPU 용으로 만들려면 `docker buildx build --platform linux/arm64 ...` 를 씁니다.
 
 ## 데스크톱 클라이언트 실행
