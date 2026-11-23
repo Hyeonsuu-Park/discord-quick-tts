@@ -283,10 +283,9 @@ kubectl -n quicktts port-forward svc/bot-server 8080:8080
 
 ## exe 만들기 (Windows)
 
-자바를 설치하지 않은 PC 에서도 돌아가도록 자바 런타임까지 넣은 exe 를 만듭니다. JDK 25 에 들어 있는 `jpackage` 를 씁니다. 설치 마법사와 압축 파일 두 가지로 만들 수 있고, 어느 쪽이든 안의 `QuickTTS` 폴더에는 두 실행 파일이 같은 자바 런타임을 나눠 쓰며 들어 있습니다.
+자바를 설치하지 않은 PC 에서도 돌아가도록 자바 런타임까지 넣은 exe 를 만듭니다. JDK 25 에 들어 있는 `jpackage` 를 씁니다. 설치 마법사와 압축 파일 두 가지로 만들 수 있고, 어느 쪽이든 안에는 데스크톱 클라이언트 `QuickTTS.exe` 하나만 들어 있습니다. 이미 떠 있을 때 다시 실행하면 입력창을 엽니다.
 
-- `QuickTTS.exe`: 데스크톱 클라이언트. 서버 주소가 이 PC 면 켜질 때 봇 서버도 같이 켜고, 트레이의 Exit 로 끌 때 같이 끕니다. 이미 떠 있을 때 다시 실행하면 입력창을 엽니다.
-- `QuickTTS-Server.exe`: 봇 서버. 보통은 직접 실행할 필요가 없습니다.
+봇 서버와 synthesis 서비스는 exe 에 없습니다. [봇 서버 실행](#봇-서버-실행)대로 `bootRun` 이나 `docker compose --profile app up`, 쿠버네티스로 따로 띄우고, 클라이언트는 그 주소로 붙습니다 ([ADR 0066](docs/adr/0066-exe-has-desktop-client-only.md)).
 
 ### 설치 마법사 (권장)
 
@@ -336,13 +335,11 @@ git push origin v0.2.0
 
 | 무엇 | 위치 |
 | --- | --- |
-| 봇 토큰 (`DISCORD_TOKEN=...`) | `~/.discord-quick-tts/server.env` |
-| 등록된 PC, 목소리 설정, 허용 목록 (H2) | `~/.discord-quick-tts/data/` |
-| 봇 서버 로그 | `~/.discord-quick-tts/logs/bot-server.log` |
-| 클라이언트 설정 (기기 토큰) | `~/.discord-quick-tts/client.properties` |
+| 클라이언트 설정 (봇 서버 주소 `server-url`, 기기 토큰, 단축키) | `~/.discord-quick-tts/client.properties` |
 
-- 트레이 아이콘 메뉴의 **Start with Windows** 를 켜면 윈도우에 로그인할 때 QuickTTS 가 자동으로 켜지고, 그때 봇 서버도 같이 켜집니다.
-- 기본 봇 서버 주소는 `http://localhost:8080` 입니다. 다른 곳에 띄운 서버를 쓰려면 `-PserverUrl=https://...` 를 붙여 만듭니다. 이때 클라이언트는 이 PC 의 봇 서버를 켜지 않습니다.
+- 트레이 아이콘 메뉴의 **Start with Windows** 를 켜면 윈도우에 로그인할 때 QuickTTS 가 자동으로 켜집니다.
+- 기본 봇 서버 주소는 `http://localhost:8080`(이 PC 에 띄운 봇 서버)입니다. 이미 설치했다면 `client.properties` 의 `server-url=` 을 고치고 QuickTTS 를 다시 켭니다. 처음부터 다른 주소로 나눠 주려면 `-PserverUrl=https://...` 를 붙여 만듭니다.
+- 예전 exe(서버가 들어 있던 판)가 쓰던 봇 토큰(`server.env`)과 DB(`~/.discord-quick-tts/data/`)는 지우지 않고 남습니다. 등록한 PC, 목소리, 허용 목록을 이어 쓰려면 봇 서버의 `.env` 에 `QUICKTTS_DB_URL=jdbc:h2:file:~/.discord-quick-tts/data/quicktts;MODE=MySQL` 을 넣고 `bootRun` 합니다.
 - 서명하지 않은 exe 라서 설치 파일이나 exe 를 처음 실행할 때 Windows 가 "알 수 없는 게시자" 경고를 띄웁니다. "추가 정보" → "실행" 으로 넘어가면 됩니다.
 
 ## 커밋 컨벤션

@@ -20,7 +20,6 @@ public class QuickTtsApp extends Application {
     private final TrayMenu trayMenu = new TrayMenu();
     private ClientConfig config;
     private QuickTtsClient client;
-    private LocalBotServer localBotServer;
     private GlobalKeybind keybind;
     private QuickChatWindow window;
     /** 단축키 바꾸기 창이 이미 떠 있으면 트레이 메뉴를 또 눌러도 하나만 띄운다. */
@@ -32,8 +31,6 @@ public class QuickTtsApp extends Application {
         Platform.setImplicitExit(false);
 
         config = ClientConfig.load();
-        // exe 로 실행했고 서버가 이 PC 면, 봇 서버도 같이 켠다.
-        localBotServer = LocalBotServer.startIfNeeded(config.serverUrl());
         client = new QuickTtsClient(config.serverUrl());
         if (!config.isRegistered() && !pairDevice()) {
             Platform.exit();
@@ -63,9 +60,6 @@ public class QuickTtsApp extends Application {
 
     @Override
     public void stop() {
-        if (localBotServer != null) {
-            localBotServer.close();
-        }
         if (singleInstance != null) {
             singleInstance.close();
         }

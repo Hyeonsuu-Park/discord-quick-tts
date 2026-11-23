@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
 /**
- * Flyway 를 넣기 전에는 서버가 켜질 때마다 schema.sql 을 돌렸다. 그렇게 만든 H2 파일 DB(개발용 data/, exe 의
+ * Flyway 를 넣기 전에는 서버가 켜질 때마다 schema.sql 을 돌렸다. 그렇게 만든 H2 파일 DB(개발용 data/, 예전 exe 의
  * ~/.discord-quick-tts/data/)를 지우지 않고 그대로 이어 쓰는지 본다.
  */
 class ExistingH2DatabaseMigrationTest {

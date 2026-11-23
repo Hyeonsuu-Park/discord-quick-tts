@@ -2,17 +2,14 @@ spring:
   application:
     name: quick-tts-bot
   config:
-    # KEY=VALUE 설정 파일을 읽는다. 개발할 때는 저장소 루트의 .env, exe 로 띄울 때는 사용자 폴더의 server.env.
-    # 둘 다 없으면 환경변수만 쓴다.
-    import:
-      - optional:file:.env[.properties]
-      - optional:file:${user.home}/.discord-quick-tts/server.env[.properties]
+    # 개발할 때는 저장소 루트의 .env(KEY=VALUE)를 읽는다. 없으면(컨테이너) 환경변수만 쓴다.
+    import: optional:file:.env[.properties]
   docker:
     compose:
       # 개발 PC 에서 bootRun 할 때 compose.yaml 의 MySQL 을 쓰려면 .env 에 QUICKTTS_DEV_MYSQL=true. 켜면 아래 datasource 대신 그 MySQL 에 붙는다.
       enabled: ${QUICKTTS_DEV_MYSQL:false}
   datasource:
-    # 등록된 기기, 목소리 설정. 기본은 실행 위치의 data/ 폴더에 H2 파일로 저장한다.
+    # 등록된 기기, 목소리 설정. 기본은 실행 위치의 data/ 폴더에 H2 파일로 저장한다(개발 PC).
     # 배포 서버는 MySQL 을 쓴다. 예: QUICKTTS_DB_URL=jdbc:mysql://localhost:3306/quicktts?connectionTimeZone=UTC
     # H2 는 MySQL 과 같은 SQL 이 돌도록 MySQL 호환 모드로 연다.
     url: ${QUICKTTS_DB_URL:jdbc:h2:file:./data/quicktts;MODE=MySQL}
@@ -47,7 +44,7 @@ server:
 management:
   server:
     # 쿠버네티스에서는 관리 포트를 따로 연다(예: MANAGEMENT_SERVER_PORT=8081). 그 포트는 클러스터 안에서만 닿으므로
-    # 프로브와 Prometheus 가 토큰 없이 부른다. 정하지 않으면(개발, exe) 지금처럼 8080 하나다 (ADR 0057).
+    # 프로브와 Prometheus 가 토큰 없이 부른다. 정하지 않으면(개발, compose) 8080 하나다 (ADR 0057).
     port: ${MANAGEMENT_SERVER_PORT:}
   endpoints:
     web:

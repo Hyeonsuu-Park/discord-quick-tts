@@ -25,17 +25,17 @@ dependencies {
     implementation("org.flywaydb:flyway-mysql")
     // 웹 API 문서(OpenAPI). 컨트롤러에서 /v3/api-docs 를 만들고 /swagger-ui.html 로 보여 준다.
     implementation(libs.springdoc.webmvc.ui)
-    // 배포 서버는 MySQL, 이 PC 에서 띄우는 서버(개발, exe)는 설치가 필요 없는 H2 파일 DB.
+    // 배포 서버는 MySQL, 개발 PC 의 bootRun 은 설치가 필요 없는 H2 파일 DB.
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")
-    // bootRun 때만 저장소 루트의 compose.yaml 로 개발용 MySQL 을 띄운다(QUICKTTS_DEV_MYSQL=true). exe 와 이미지에는 들어가지 않는다.
+    // bootRun 때만 저장소 루트의 compose.yaml 로 개발용 MySQL 을 띄운다(QUICKTTS_DEV_MYSQL=true). 이미지에는 들어가지 않는다.
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
     implementation(libs.jda)
     implementation(libs.lavaplayer)
-    // 디스코드 음성 연결에 필요한 DAVE(종단간 암호화) 구현. 네이티브는 exe(Windows), x86 리눅스 서버, ARM 리눅스 서버(Oracle A1 등) 몫이다.
+    // 디스코드 음성 연결에 필요한 DAVE(종단간 암호화) 구현. 네이티브는 Windows 개발 PC, x86 리눅스 서버, ARM 리눅스 서버(Oracle A1 등) 몫이다.
     implementation(libs.jdave.api)
     runtimeOnly(libs.jdave.natives.windows)
     runtimeOnly(libs.jdave.natives.linux)
