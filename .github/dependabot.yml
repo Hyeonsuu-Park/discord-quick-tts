@@ -27,3 +27,23 @@ updates:
     commit-message:
       prefix: '🔧 [chore]'
     labels: []
+
+  # 봇 서버 이미지의 베이스(eclipse-temurin)와 개발용 compose.yaml 의 MySQL. 보안 패치가 베이스 이미지로 들어온다.
+  - package-ecosystem: docker
+    directories: ['/apps/*']
+    schedule:
+      interval: weekly
+    groups:
+      docker:
+        patterns: ['*']
+    commit-message:
+      prefix: '🔧 [chore]'
+    labels: []
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: '🔧 [chore]'
+    labels: []
