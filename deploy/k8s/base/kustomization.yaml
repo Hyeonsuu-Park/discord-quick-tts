@@ -1,0 +1,15 @@
+# 모든 환경이 같이 쓰는 뼈대 (ADR 0059). 환경마다 다른 값은 overlays/<환경>/ 에서 덮어쓴다.
+# 비밀값(디스코드 토큰, DB 비밀번호)은 여기 없다. 각 오버레이의 secrets.env 로 만든다.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: quicktts
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: quicktts
+
+resources:
+  - namespace.yaml
+  - bot-server
+  - mysql
