@@ -1,0 +1,23 @@
+# 이미지 빌드에 보내지 않는 것. Dockerfile 이 필요한 파일만 골라 COPY 하지만,
+# 빌드 컨텍스트로 보내는 양을 줄이고 비밀값이 실수로 들어가지 않게 한 번 더 막는다.
+.git/
+.github/
+.githooks/
+.gradle/
+# Gradle 결과물과 IDE 출력. 소스 안 패키지(port/out 등)까지 빠지지 않게 모듈 바로 아래만 적는다.
+build/
+build-logic/build/
+apps/*/build/
+libs/*/build/
+apps/*/out/
+libs/*/out/
+.idea/
+.vscode/
+data/
+.env
+*.env
+*.env.local
+docs/
+scripts/
+apps/desktop-client/src/
+apps/desktop-client/packaging/
