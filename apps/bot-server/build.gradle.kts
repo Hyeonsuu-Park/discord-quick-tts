@@ -29,10 +29,11 @@ dependencies {
 
     implementation(libs.jda)
     implementation(libs.lavaplayer)
-    // 디스코드 음성 연결에 필요한 DAVE(종단간 암호화) 구현
+    // 디스코드 음성 연결에 필요한 DAVE(종단간 암호화) 구현. 네이티브는 exe(Windows), x86 리눅스 서버, ARM 리눅스 서버(Oracle A1 등) 몫이다.
     implementation(libs.jdave.api)
     runtimeOnly(libs.jdave.natives.windows)
     runtimeOnly(libs.jdave.natives.linux)
+    runtimeOnly(libs.jdave.natives.linux.arm)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // 컨트롤러 테스트(@WebMvcTest)가 MVC, JSON, 보안 필터를 실제 설정 그대로 올린다.

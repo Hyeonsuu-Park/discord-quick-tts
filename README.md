@@ -181,7 +181,7 @@ apps/bot-server/src/main/java/io/github/phs314/quicktts/bot/
 ## 준비물
 
 - JDK 25
-- Docker (선택): 있으면 테스트가 MySQL 에서도 돕니다. 없으면 MySQL 쪽 테스트만 건너뜁니다.
+- Docker (선택): 있으면 테스트가 MySQL 에서도 돌고, 봇 서버 이미지를 만들 수 있습니다. 없으면 MySQL 쪽 테스트만 건너뜁니다.
 - 디스코드 봇 (Discord Developer Portal 에서 만들고, `bot` 과 `applications.commands` 스코프, `View Channels`, `Connect`, `Speak` 권한으로 서버에 초대)
 
 ## 봇 서버 실행
@@ -192,6 +192,20 @@ apps/bot-server/src/main/java/io/github/phs314/quicktts/bot/
 ```bash
 ./gradlew :apps:bot-server:bootRun
 ```
+
+### Docker 로 봇 서버 띄우기
+
+Docker 만 있으면 JDK 없이 이미지를 만들고 띄울 수 있습니다 ([ADR 0055](docs/adr/0055-bot-server-container-image.md)). 저장소 루트에서 실행합니다.
+
+```bash
+docker build -f apps/bot-server/Dockerfile -t quicktts-bot-server .
+docker run --rm -p 8080:8080 --env-file .env -v quicktts-data:/app/data quicktts-bot-server
+```
+
+- 설정은 `.env` 와 같은 이름의 환경변수로 넣습니다. `--env-file .env` 는 `.env` 를 그대로 환경변수로 넘깁니다.
+- `QUICKTTS_DB_URL` 을 주지 않으면 컨테이너 안 `/app/data` 에 H2 파일을 만듭니다. `-v quicktts-data:/app/data` 가 그 폴더를 Docker 볼륨에 남겨서, 컨테이너를 지워도 등록된 기기와 목소리 설정이 남습니다. MySQL 을 쓰면 볼륨은 없어도 됩니다.
+- 같은 디스코드 봇 토큰으로 `bootRun` 과 컨테이너를 같이 켜지 마세요. 봇이 두 번 붙어서 명령이 두 번 처리되고 음성 연결을 서로 빼앗습니다.
+- 이미지는 x86(amd64)과 ARM(arm64) 리눅스에서 돕니다. 다른 CPU 용으로 만들려면 `docker buildx build --platform linux/arm64 ...` 를 씁니다.
 
 ## 데스크톱 클라이언트 실행
 
