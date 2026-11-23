@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: quick-tts-synthesis
+  cache:
+    # 같은 목소리, 같은 문장의 음성을 기억해 비공식 TTS 를 덜 부른다. 봇 서버와 같은 크기이고 벌마다 따로 기억한다.
+    cache-names: speech
+    caffeine:
+      spec: maximumSize=500,expireAfterAccess=1d,recordStats
+
+server:
+  port: ${SYNTHESIS_PORT:8080}
+
+management:
+  server:
+    # 쿠버네티스에서는 관리 포트를 따로 연다(MANAGEMENT_SERVER_PORT=8081). 정하지 않으면 8080 하나다.
+    port: ${MANAGEMENT_SERVER_PORT:}
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+quicktts:
+  tts:
+    # 봇 서버의 같은 설정과 값을 맞춘다. 봇 서버가 이 서비스를 부르면 기본 목소리는 이 값을 쓴다.
+    default-voice: ${QUICKTTS_DEFAULT_VOICE:edge:ko-KR-SunHiNeural}
+    edge-chromium-version: 143.0.3650.75
