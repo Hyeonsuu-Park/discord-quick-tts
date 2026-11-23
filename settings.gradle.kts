@@ -9,7 +9,9 @@ rootProject.name = "discord-quick-tts"
 include(
     ":apps:bot-server",
     ":apps:desktop-client",
+    ":apps:synthesis-service",
     ":contexts:shared",
     ":contexts:synthesis",
     ":libs:api-contract",
+    ":libs:synthesis-contract",
 )

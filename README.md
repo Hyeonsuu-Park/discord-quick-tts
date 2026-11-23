@@ -40,10 +40,12 @@
 | 모듈 | 내용 |
 | --- | --- |
 | `apps/bot-server` | Spring Boot + JDA + LavaPlayer. `/연결` 명령, 기기 등록, quick chat API 를 맡습니다. |
+| `apps/synthesis-service` | synthesis 를 클러스터 안 웹 API 로 내놓는 서비스. 쿠버네티스에서 봇 서버가 부릅니다([README](apps/synthesis-service/README.md)). |
 | `apps/desktop-client` | JavaFX 입력 위젯 + JNativeHook 전역 단축키 + 트레이 아이콘. |
 | `contexts/synthesis` | synthesis 컨텍스트(TTS 엔진, 목소리 목록). 봇 서버가 같은 프로세스 안에서 쓰고, 따로 띄우는 서비스도 같은 코드를 씁니다. 패키지는 `io.github.phs314.quicktts.synthesis` 입니다. |
 | `contexts/shared` | 공유 커널(`DiscordUserId`, `GuildId`, `VoiceId`, 도메인 예외의 공통 부모). 패키지는 `io.github.phs314.quicktts.shared` 입니다. |
 | `libs/api-contract` | 데스크톱 앱과 봇 서버가 함께 쓰는 웹 API 약속(경로, 요청·응답 형식, 오류 코드). 패키지는 `io.github.phs314.quicktts.api` 입니다. |
+| `libs/synthesis-contract` | 봇 서버와 synthesis 서비스 사이의 웹 API 약속(`SynthesisApi` HTTP 인터페이스, 요청·응답 형식). |
 | `deploy/k8s` | 쿠버네티스 매니페스트(Kustomize). 서비스마다 `base/<서비스>/`, 환경마다 `overlays/<환경>/`. |
 | `build-logic` | 규칙 플러그인 `quicktts.java`(JDK 25, UTF-8, JUnit 5), `quicktts.spring-app`(스프링 부트 앱), `quicktts.spring-library`(스프링을 쓰는 `contexts/` 모듈). 버전은 `gradle/libs.versions.toml` 하나에서 정합니다. |
 

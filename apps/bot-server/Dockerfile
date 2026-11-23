@@ -16,8 +16,10 @@ COPY libs/api-contract/build.gradle.kts libs/api-contract/
 COPY contexts/shared/build.gradle.kts contexts/shared/
 COPY contexts/synthesis/build.gradle.kts contexts/synthesis/
 COPY apps/bot-server/build.gradle.kts apps/bot-server/
-# settings.gradle.kts 가 데스크톱 앱도 포함하므로 빌드 설정 파일만 넣는다. 소스는 넣지 않는다.
+# settings.gradle.kts 가 포함한 다른 모듈도 폴더가 있어야 Gradle 이 켜진다. 빌드 설정 파일만 넣고 소스는 넣지 않는다.
 COPY apps/desktop-client/build.gradle.kts apps/desktop-client/
+COPY apps/synthesis-service/build.gradle.kts apps/synthesis-service/
+COPY libs/synthesis-contract/build.gradle.kts libs/synthesis-contract/
 RUN --mount=type=cache,target=/root/.gradle \
     ./gradlew --no-daemon :apps:bot-server:dependencies --configuration runtimeClasspath > /dev/null
 COPY libs/api-contract/src/ libs/api-contract/src/
