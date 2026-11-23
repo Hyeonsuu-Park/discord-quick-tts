@@ -193,6 +193,12 @@ apps/bot-server/src/main/java/io/github/phs314/quicktts/bot/
 ./gradlew :apps:bot-server:bootRun
 ```
 
+### 개발할 때 MySQL 쓰기
+
+`.env` 에 `QUICKTTS_DEV_MYSQL=true` 를 넣고 평소처럼 `bootRun` 하면, 스프링 부트가 저장소 루트의 `compose.yaml` 로 MySQL 을 띄우고 거기에 붙습니다. Docker Desktop 이 켜져 있어야 합니다. 끄면 다시 H2 파일입니다 ([ADR 0056](docs/adr/0056-dev-mysql-with-docker-compose.md)).
+
+봇 서버 컨테이너와 MySQL 을 함께 띄워 배포와 같은 모양으로 돌려 보려면 `docker compose --profile app up --build` 를 씁니다. 지우려면 `docker compose --profile app down`, 데이터까지 지우려면 `-v` 를 붙입니다.
+
 ### Docker 로 봇 서버 띄우기
 
 Docker 만 있으면 JDK 없이 이미지를 만들고 띄울 수 있습니다 ([ADR 0055](docs/adr/0055-bot-server-container-image.md)). 저장소 루트에서 실행합니다.

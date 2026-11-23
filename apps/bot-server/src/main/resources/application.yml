@@ -7,6 +7,10 @@ spring:
     import:
       - optional:file:.env[.properties]
       - optional:file:${user.home}/.discord-quick-tts/server.env[.properties]
+  docker:
+    compose:
+      # 개발 PC 에서 bootRun 할 때 compose.yaml 의 MySQL 을 쓰려면 .env 에 QUICKTTS_DEV_MYSQL=true. 켜면 아래 datasource 대신 그 MySQL 에 붙는다.
+      enabled: ${QUICKTTS_DEV_MYSQL:false}
   datasource:
     # 등록된 기기, 목소리 설정. 기본은 실행 위치의 data/ 폴더에 H2 파일로 저장한다.
     # 배포 서버는 MySQL 을 쓴다. 예: QUICKTTS_DB_URL=jdbc:mysql://localhost:3306/quicktts?connectionTimeZone=UTC
