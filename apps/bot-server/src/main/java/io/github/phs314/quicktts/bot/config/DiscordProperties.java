@@ -14,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties("quicktts.discord")
 public record DiscordProperties(
-        @NotBlank(message = "DISCORD_TOKEN 이 비어 있습니다. 저장소의 .env, 사용자 폴더의 .discord-quick-tts/server.env, "
-                + "환경변수 중 하나로 봇 토큰을 설정하세요.")
+        @NotBlank(message = "DISCORD_TOKEN 이 비어 있습니다. 저장소의 .env 나 환경변수로 봇 토큰을 설정하세요.")
         String token) {
 }

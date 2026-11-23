@@ -155,8 +155,9 @@
 
 | ADR | 제목 | 상태 |
 | --- | --- | --- |
-| [0018](0018-windows-installer.md) | Windows 에는 jpackage 설치 마법사(.exe)로 설치한다 | 일부 대체됨 (ADR 0020, ADR 0021) |
+| [0018](0018-windows-installer.md) | Windows 에는 jpackage 설치 마법사(.exe)로 설치한다 | 일부 대체됨 (ADR 0020, ADR 0021, ADR 0066) |
 | [0021](0021-installer-look.md) | 설치 마법사는 앱 색의 그림과 한국어 문구로 꾸민다 | 채택 |
+| [0066](0066-exe-has-desktop-client-only.md) | exe 에는 데스크톱 클라이언트만 넣고, 서버는 따로 띄운다 | 채택 |
 | [0050](0050-desktop-input-ui-tests.md) | 데스크톱 입력창은 TestFX 로 화면 없이 띄워 테스트한다 | 채택 |
 
 ### 릴리스
