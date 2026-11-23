@@ -82,3 +82,22 @@ jobs:
             docker run --rm -i ghcr.io/yannh/kubeconform:v0.8.0 -strict -summary < /tmp/rendered.yaml
             echo "::endgroup::"
           done
+
+      # 모니터링 component 는 kube-prometheus-stack 이 있어야 켜므로 오버레이에 기본으로 없다. 따로 붙여 검사한다.
+      # ServiceMonitor 같은 CRD 는 공개 CRD 스키마 모음으로 본다.
+      - name: 모니터링 component 검사
+        run: |
+          mkdir -p deploy/k8s/ci-monitoring
+          cat > deploy/k8s/ci-monitoring/kustomization.yaml <<'YAML'
+          apiVersion: kustomize.config.k8s.io/v1beta1
+          kind: Kustomization
+          resources:
+            - ../overlays/local
+          components:
+            - ../components/monitoring
+          YAML
+          kubectl kustomize deploy/k8s/ci-monitoring > /tmp/rendered.yaml
+          docker run --rm -i ghcr.io/yannh/kubeconform:v0.8.0 -strict -summary \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            < /tmp/rendered.yaml

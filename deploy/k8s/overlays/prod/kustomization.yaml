@@ -10,6 +10,8 @@ resources:
 
 components:
   - ../../components/cloudflared
+  # kube-prometheus-stack 을 설치했으면 주석을 푼다 (deploy/monitoring/README.md).
+  # - ../../components/monitoring
 
 # 운영에서는 :main 처럼 움직이는 태그 대신 버전이나 main-<커밋> 으로 고정한다 (ADR 0058).
 images:

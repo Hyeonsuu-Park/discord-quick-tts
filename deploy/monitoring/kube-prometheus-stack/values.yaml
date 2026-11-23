@@ -1,0 +1,34 @@
+# kube-prometheus-stack(Prometheus, Grafana, 노드·쿠버네티스 지표) 설치 값 (ADR 0063).
+# 노드 하나짜리 클러스터(현수 PC k3d, 작은 배포 서버)에 맞게 작게 둔다. 설치는 deploy/monitoring/README.md.
+
+# 알림은 아직 받을 곳이 없어 끈다. 알림 규칙을 정할 때 켠다.
+alertmanager:
+  enabled: false
+
+grafana:
+  # 처음 로그인 비밀번호. 배포 서버에서는 --set grafana.adminPassword=... 로 바꿔 설치한다.
+  adminPassword: quicktts-dev
+  sidecar:
+    dashboards:
+      # 다른 네임스페이스(quicktts)의 grafana_dashboard 라벨 ConfigMap 도 대시보드로 올린다.
+      searchNamespace: ALL
+
+prometheus:
+  prometheusSpec:
+    # 이 차트가 만든 것만이 아니라 클러스터의 모든 ServiceMonitor 를 본다(quicktts 의 봇 서버, synthesis 서비스).
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    retention: 7d
+    resources:
+      requests:
+        cpu: 100m
+        memory: 400Mi
+      limits:
+        memory: 1Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 5Gi

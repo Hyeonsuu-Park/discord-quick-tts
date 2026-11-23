@@ -1,0 +1,30 @@
+# Prometheus 가 관리 포트(8081)의 /actuator/prometheus 를 30초마다 긁어 간다 (ADR 0057, ADR 0063).
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: bot-server
+  labels:
+    app.kubernetes.io/name: bot-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: bot-server
+  endpoints:
+    - port: management
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: synthesis-service
+  labels:
+    app.kubernetes.io/name: synthesis-service
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: synthesis-service
+  endpoints:
+    - port: management
+      path: /actuator/prometheus
+      interval: 30s

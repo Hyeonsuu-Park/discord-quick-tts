@@ -10,6 +10,10 @@ kind: Kustomization
 resources:
   - ../../base
 
+# kube-prometheus-stack 을 설치했으면 주석을 푼다 (deploy/monitoring/README.md).
+# components:
+#   - ../../components/monitoring
+
 # main 에 머지될 때마다 올라가는 이미지. 막 고친 코드를 올리려면
 #   docker build -f apps/bot-server/Dockerfile -t ghcr.io/phs314/quicktts-bot-server:main .
 #   k3d image import ghcr.io/phs314/quicktts-bot-server:main -c quicktts
