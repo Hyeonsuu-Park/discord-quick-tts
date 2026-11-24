@@ -4,7 +4,7 @@
 
 | 항목 | 값 |
 | --- | --- |
-| 이미지 | `ghcr.io/phs314/quicktts-bot-server` (태그: `main`, `main-<커밋>`, 버전) |
+| 이미지 | `ghcr.io/hyeonsuu-park/quicktts-bot-server` (태그: `main`, `main-<커밋>`, 버전) |
 | 웹 API 포트 | 8080 (`QUICKTTS_PORT`) |
 | 관리 포트 | `MANAGEMENT_SERVER_PORT` 를 줄 때만 열림. 쿠버네티스는 8081 |
 | 상태 확인 | `/actuator/health/liveness`, `/actuator/health/readiness` (관리 포트) |

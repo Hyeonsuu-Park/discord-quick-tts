@@ -15,13 +15,13 @@ resources:
 #   - ../../components/monitoring
 
 # main 에 머지될 때마다 올라가는 이미지. 막 고친 코드를 올리려면
-#   docker build -f apps/bot-server/Dockerfile -t ghcr.io/phs314/quicktts-bot-server:main .
-#   k3d image import ghcr.io/phs314/quicktts-bot-server:main -c quicktts
+#   docker build -f apps/bot-server/Dockerfile -t ghcr.io/hyeonsuu-park/quicktts-bot-server:main .
+#   k3d image import ghcr.io/hyeonsuu-park/quicktts-bot-server:main -c quicktts
 # synthesis 서비스도 같은 방법이다(apps/synthesis-service/Dockerfile, quicktts-synthesis-service).
 images:
-  - name: ghcr.io/phs314/quicktts-bot-server
+  - name: ghcr.io/hyeonsuu-park/quicktts-bot-server
     newTag: main
-  - name: ghcr.io/phs314/quicktts-synthesis-service
+  - name: ghcr.io/hyeonsuu-park/quicktts-synthesis-service
     newTag: main
 
 secretGenerator:

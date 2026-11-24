@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
  */
 class UpdateCheckerTest {
 
-    private static final String PAGE = "https://github.com/phs314/discord-quick-tts/releases/tag/v0.2.0";
+    private static final String PAGE = "https://github.com/Hyeonsuu-Park/discord-quick-tts/releases/tag/v0.2.0";
 
     @Test
     void 태그가_지금보다_높으면_새_버전과_Release_페이지를_돌려준다() {

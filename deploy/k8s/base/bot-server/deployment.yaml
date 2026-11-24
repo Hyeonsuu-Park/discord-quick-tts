@@ -36,7 +36,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: bot-server
-          image: ghcr.io/phs314/quicktts-bot-server:main
+          image: ghcr.io/hyeonsuu-park/quicktts-bot-server:main
           ports:
             - name: http
               containerPort: 8080

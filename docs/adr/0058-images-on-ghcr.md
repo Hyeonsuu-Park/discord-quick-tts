@@ -8,7 +8,7 @@
 ## 결정
 
 1. **레지스트리는 GitHub Container Registry(`ghcr.io`)입니다.** 저장소와 같은 곳에 있고, 워크플로의 `GITHUB_TOKEN` 으로 올려서 비밀값을 따로 두지 않습니다.
-2. **이미지 이름은 `ghcr.io/phs314/quicktts-<서비스>` 입니다.** 서비스 이름은 `apps/` 아래 폴더 이름과 같습니다(지금은 `bot-server`).
+2. **이미지 이름은 `ghcr.io/hyeonsuu-park/quicktts-<서비스>` 입니다.** 서비스 이름은 `apps/` 아래 폴더 이름과 같습니다(지금은 `bot-server`).
 3. **태그는 세 가지입니다.**
    - `v1.2.3` 태그: `:1.2.3`, `:1.2`. 설치 파일 Release 와 같은 버전입니다.
    - main 머지: `:main`(늘 최신 main), `:main-<커밋 7자리>`(되돌릴 때 고르는 고정 태그).

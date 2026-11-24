@@ -16,7 +16,7 @@ public class HelpCommandListener extends ListenerAdapter implements DiscordSlash
 
     private static final String COMMAND_NAME = "help";
 
-    private static final String DOWNLOAD_URL = "https://github.com/phs314/discord-quick-tts/releases/latest";
+    private static final String DOWNLOAD_URL = "https://github.com/Hyeonsuu-Park/discord-quick-tts/releases/latest";
 
     static final String HELP_MESSAGE = """
             **Quick TTS 시작하기**
