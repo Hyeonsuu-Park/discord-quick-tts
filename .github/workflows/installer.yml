@@ -103,11 +103,16 @@ jobs:
           merge-multiple: true
 
       # 태그 이름으로 Release 를 만들고, 지난 Release 이후 머지된 PR 목록을 본문에 자동으로 붙인다.
+      # 본문 맨 위에는 exe 에 서버가 없다는 안내를 넣는다. 서버 주소를 넣어 만든 배포판을 내면 이 안내도 바꾼다.
       - name: Release 만들기
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > notes.md <<'EOF'
+          > [!NOTE]
+          > QuickTTS 에는 봇 서버가 들어 있지 않습니다. 봇 주인이 띄워 둔 봇 서버에 붙어서 씁니다.
+          > 기본 주소는 이 PC 의 `http://localhost:8080` 입니다. 다른 주소의 서버를 쓰려면 `~/.discord-quick-tts/client.properties` 의 `server-url=` 을 고치고 QuickTTS 를 다시 켜세요.
+
           ## 설치
 
           아래 **Assets** 에서 `QuickTTS-버전.exe` 를 내려받아 실행하세요. 이미 설치되어 있으면 트레이의 Exit 로 끄고 실행하면 그 자리에 새 버전이 깔립니다.
