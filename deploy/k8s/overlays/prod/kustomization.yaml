@@ -1,6 +1,6 @@
 # 배포 서버 (ADR 0059). 웹 API 는 Cloudflare Tunnel 로만 밖에 나간다.
 #   1. 이 폴더의 *.env.example 을 .example 을 뗀 이름으로 복사해 값을 채운다 (커밋되지 않는다).
-#   2. 이미지 태그를 올릴 버전으로 고정한다. 예: kustomize edit set image ghcr.io/phs314/quicktts-bot-server:1.2.3
+#   2. 이미지 태그를 올릴 버전으로 고정한다. 예: kustomize edit set image ghcr.io/hyeonsuu-park/quicktts-bot-server:1.2.3
 #   3. kubectl apply -k deploy/k8s/overlays/prod
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -15,9 +15,9 @@ components:
 
 # 운영에서는 :main 처럼 움직이는 태그 대신 버전이나 main-<커밋> 으로 고정한다 (ADR 0058).
 images:
-  - name: ghcr.io/phs314/quicktts-bot-server
+  - name: ghcr.io/hyeonsuu-park/quicktts-bot-server
     newTag: main
-  - name: ghcr.io/phs314/quicktts-synthesis-service
+  - name: ghcr.io/hyeonsuu-park/quicktts-synthesis-service
     newTag: main
 
 configMapGenerator:

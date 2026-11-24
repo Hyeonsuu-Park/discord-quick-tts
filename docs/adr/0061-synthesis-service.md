@@ -16,7 +16,7 @@ synthesis 를 Gradle 모듈로 뺐습니다(ADR 0060). 이제 그 모듈을 혼�
 3. **실패는 봇 서버 웹 API 와 같은 모양**(`application/problem+json`, `code` 에 `ApiErrorCode`)입니다. 상태 코드도 실패 종류(`ErrorKind`)로 같은 규칙을 씁니다.
 4. **인증은 두지 않고, 클러스터 네트워크로 막습니다.** 서비스는 바깥에 내보내지 않고, 쿠버네티스 NetworkPolicy 로 봇 서버만 부르게 합니다. 서비스가 늘어 서로 부르는 곳이 많아지면 서비스 메시(mTLS)를 그때 정합니다.
 5. **캐시는 벌마다 따로입니다.** 같은 문장을 다른 벌이 받으면 엔진을 다시 부릅니다. 적중률이 떨어지는 게 보이면 Redis 같은 공유 캐시를 그때 정합니다.
-6. **이미지는 서비스마다 하나**(`ghcr.io/phs314/quicktts-synthesis-service`)이고, 이미지 워크플로의 서비스 목록에 더했습니다(ADR 0058).
+6. **이미지는 서비스마다 하나**(`ghcr.io/hyeonsuu-park/quicktts-synthesis-service`)이고, 이미지 워크플로의 서비스 목록에 더했습니다(ADR 0058).
 
 ## 결과
 

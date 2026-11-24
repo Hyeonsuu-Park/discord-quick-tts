@@ -20,7 +20,7 @@ final class UpdateChecker {
 
     /** 초안과 미리 보기(prerelease)를 뺀 가장 최근 Release. */
     private static final URI LATEST_RELEASE = URI.create(
-            "https://api.github.com/repos/phs314/discord-quick-tts/releases/latest");
+            "https://api.github.com/repos/Hyeonsuu-Park/discord-quick-tts/releases/latest");
     private static final Pattern VERSION = Pattern.compile("v?(\\d+)\\.(\\d+)\\.(\\d+)");
     private static final JsonMapper JSON = JsonMapper.builder().build();
 

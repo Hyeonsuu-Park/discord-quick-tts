@@ -2,7 +2,7 @@ name: 컨테이너 이미지
 
 # 서버 이미지를 만들어 GitHub Container Registry(ghcr.io)에 올린다 (ADR 0058).
 # - PR: 이미지가 만들어지는지만 확인하고 올리지 않는다.
-# - main: ghcr.io/phs314/quicktts-<서비스>:main 과 :main-<커밋 7자리>
+# - main: ghcr.io/hyeonsuu-park/quicktts-<서비스>:main 과 :main-<커밋 7자리>
 # - v1.2.3 태그: :1.2.3 과 :1.2 (설치 파일 Release 와 같은 버전)
 # 서비스가 늘면 matrix 의 service 에 apps/ 아래 폴더 이름을 더한다.
 on:

@@ -48,7 +48,7 @@ spec:
                     app.kubernetes.io/name: synthesis-service
       containers:
         - name: synthesis-service
-          image: ghcr.io/phs314/quicktts-synthesis-service:main
+          image: ghcr.io/hyeonsuu-park/quicktts-synthesis-service:main
           ports:
             - name: http
               containerPort: 8080

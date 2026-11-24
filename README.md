@@ -18,7 +18,7 @@
 
 봇이 들어와 있는 디스코드 서버에서 쓰는 방법입니다. 디스코드에서 `/도움말` 을 입력하면 같은 안내를 나만 보이게 받을 수 있습니다.
 
-1. **PC 앱 설치**: [Releases](https://github.com/phs314/discord-quick-tts/releases/latest) 에서 `QuickTTS-*.exe` 를 받아 실행합니다. 서명하지 않은 앱이라 Windows 가 "알 수 없는 게시자" 경고를 띄우면 "추가 정보" → "실행" 을 누르세요.
+1. **PC 앱 설치**: [Releases](https://github.com/Hyeonsuu-Park/discord-quick-tts/releases/latest) 에서 `QuickTTS-*.exe` 를 받아 실행합니다. 서명하지 않은 앱이라 Windows 가 "알 수 없는 게시자" 경고를 띄우면 "추가 정보" → "실행" 을 누르세요.
 2. **연결**: 디스코드에서 `/연결` 을 입력하면 나만 보이는 코드가 옵니다. 앱이 처음 켜질 때 묻는 칸에 붙여 넣으세요. 코드는 5분 동안 한 번만 쓸 수 있습니다.
 3. **말하기**: 음성 채널에 들어간 뒤 `Ctrl+Shift+Space` 를 누르면 입력창이 뜹니다. 문장을 쓰고 Enter 를 치면 봇이 그 채널에 들어와 읽어 줍니다. Esc 를 누르면 닫힙니다.
 
@@ -312,12 +312,12 @@ winget install --id WiXToolset.WiXToolset
 ./gradlew :apps:desktop-client:packageInstaller
 ```
 
-`apps/desktop-client/build/distributions/QuickTTS-0.1.0.exe` 가 생깁니다. GitHub Actions 의 **설치 파일** 워크플로도 같은 파일을 만들어 아티팩트(`QuickTTS-installer`)로 올리므로, WiX 없이 거기서 받아도 됩니다. 정식 버전은 [Releases](https://github.com/phs314/discord-quick-tts/releases/latest) 에서 로그인 없이 받을 수 있습니다.
+`apps/desktop-client/build/distributions/QuickTTS-0.1.0.exe` 가 생깁니다. GitHub Actions 의 **설치 파일** 워크플로도 같은 파일을 만들어 아티팩트(`QuickTTS-installer`)로 올리므로, WiX 없이 거기서 받아도 됩니다. 정식 버전은 [Releases](https://github.com/Hyeonsuu-Park/discord-quick-tts/releases/latest) 에서 로그인 없이 받을 수 있습니다.
 
 설치 파일을 실행하면 설치 경로(기본 `%LOCALAPPDATA%\QuickTTS`)를 고르고, 바탕화면과 시작 메뉴에 바로가기를 만들지 체크박스로 고릅니다. 사용자 폴더에 설치하므로 관리자 권한은 묻지 않습니다 ([ADR 0018](docs/adr/0018-windows-installer.md)). 설치 화면은 앱 아이콘 색의 그림과 한국어 문구로 꾸며져 있습니다 ([ADR 0021](docs/adr/0021-installer-look.md)).
 
 - 새로 만든 설치 파일을 실행하면 이전 설치를 지우고 그 자리에 새로 설치합니다. 실행 중이면 트레이의 Exit 로 먼저 끄세요.
-- 설치 화면의 그림(`apps/desktop-client/packaging/installer/*.bmp`, 원본은 `source/`)이나 문구(`MsiInstallerStrings_ko.wxl`)를 바꾸면, PR 의 **설치 화면 미리보기** 워크플로가 실제 설치 화면을 캡처해 [`ci/installer-screenshots`](https://github.com/phs314/discord-quick-tts/tree/ci/installer-screenshots) 브랜치와 아티팩트(`installer-screenshots`)로 올립니다.
+- 설치 화면의 그림(`apps/desktop-client/packaging/installer/*.bmp`, 원본은 `source/`)이나 문구(`MsiInstallerStrings_ko.wxl`)를 바꾸면, PR 의 **설치 화면 미리보기** 워크플로가 실제 설치 화면을 캡처해 [`ci/installer-screenshots`](https://github.com/Hyeonsuu-Park/discord-quick-tts/tree/ci/installer-screenshots) 브랜치와 아티팩트(`installer-screenshots`)로 올립니다.
 - 압축 파일로 쓰던 PC 는 트레이의 Exit 로 끄고 풀어 둔 폴더를 지운 뒤 설치하면 됩니다. Start with Windows 는 새로 설치한 QuickTTS 를 처음 켤 때 새 경로로 바뀝니다.
 - 지울 때는 Windows 설정 → 앱 → 설치된 앱 → QuickTTS → 제거 를 씁니다. 설정과 데이터(`~/.discord-quick-tts`)는 남습니다. 트레이의 **Start with Windows** 를 켜 두었다면 제거 전에 끄세요.
 
@@ -333,7 +333,7 @@ winget install --id WiXToolset.WiXToolset
 
 ### 새 버전 내기 (GitHub Releases)
 
-`v1.2.3` 모양의 태그를 푸시하면 **설치 파일** 워크플로가 그 버전으로 설치 파일과 압축 파일을 만들어 [Releases](https://github.com/phs314/discord-quick-tts/releases) 에 올립니다. 버전은 태그에서만 정하므로 코드를 고칠 필요가 없습니다. 태그가 아닌 빌드는 `gradle.properties` 의 `version`(0.1.0)을 씁니다 ([ADR 0020](docs/adr/0020-github-releases-and-update-notice.md)).
+`v1.2.3` 모양의 태그를 푸시하면 **설치 파일** 워크플로가 그 버전으로 설치 파일과 압축 파일을 만들어 [Releases](https://github.com/Hyeonsuu-Park/discord-quick-tts/releases) 에 올립니다. 버전은 태그에서만 정하므로 코드를 고칠 필요가 없습니다. 태그가 아닌 빌드는 `gradle.properties` 의 `version`(0.1.0)을 씁니다 ([ADR 0020](docs/adr/0020-github-releases-and-update-notice.md)).
 
 ```bash
 git tag v0.2.0
@@ -341,7 +341,7 @@ git push origin v0.2.0
 ```
 
 - Release 본문에는 설치 안내와 지난 Release 이후 머지된 PR 목록이 자동으로 들어갑니다. PR 은 제목의 `[타입]` 으로 붙는 라벨에 따라 새 기능, 버그 수정, 기타로 나뉩니다 ([ADR 0022](docs/adr/0022-release-notes-by-pr-type.md)). 리팩터링만 쌓였을 때는 버전을 올리지 않고 다음 기능이나 버그 수정과 함께 냅니다.
-- 같은 태그로 **컨테이너 이미지** 워크플로가 서버 이미지 `ghcr.io/phs314/quicktts-bot-server:1.2.3` 을 올립니다. main 에 머지될 때마다 `:main` 과 `:main-<커밋>` 도 올라갑니다 ([ADR 0058](docs/adr/0058-images-on-ghcr.md)).
+- 같은 태그로 **컨테이너 이미지** 워크플로가 서버 이미지 `ghcr.io/hyeonsuu-park/quicktts-bot-server:1.2.3` 을 올립니다. main 에 머지될 때마다 `:main` 과 `:main-<커밋>` 도 올라갑니다 ([ADR 0058](docs/adr/0058-images-on-ghcr.md)).
 - QuickTTS 는 켜질 때 최신 Release 를 확인해서, 지금보다 새 버전이 있으면 트레이 알림을 띄웁니다. 알림이나 트레이 메뉴의 **Download v버전...** 을 누르면 Release 페이지가 열리고, 받은 설치 파일을 실행하면 그 자리에 새 버전이 깔립니다.
 
 ### exe 로 쓸 때의 설정과 데이터 위치
