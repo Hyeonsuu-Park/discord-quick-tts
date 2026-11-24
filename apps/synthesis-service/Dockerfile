@@ -16,12 +16,13 @@ COPY apps/synthesis-service/build.gradle.kts apps/synthesis-service/
 # settings.gradle.kts 가 포함한 다른 모듈도 폴더가 있어야 Gradle 이 켜진다. 빌드 설정 파일만 넣고 소스는 넣지 않는다.
 COPY apps/bot-server/build.gradle.kts apps/bot-server/
 COPY apps/desktop-client/build.gradle.kts apps/desktop-client/
-RUN --mount=type=cache,target=/root/.gradle \
+# compose 가 두 이미지를 함께 만들 때 Gradle 캐시를 동시에 쓰면 잠금을 기다리다 실패하므로 한 번에 하나씩 쓴다.
+RUN --mount=type=cache,target=/root/.gradle,sharing=locked \
     ./gradlew --no-daemon :apps:synthesis-service:dependencies --configuration runtimeClasspath > /dev/null
 COPY libs/api-contract/src/ libs/api-contract/src/
 COPY libs/synthesis-contract/src/ libs/synthesis-contract/src/
 COPY apps/synthesis-service/src/main/ apps/synthesis-service/src/main/
-RUN --mount=type=cache,target=/root/.gradle \
+RUN --mount=type=cache,target=/root/.gradle,sharing=locked \
     ./gradlew --no-daemon :apps:synthesis-service:bootJar \
     && cp apps/synthesis-service/build/libs/synthesis-service-*.jar application.jar
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted

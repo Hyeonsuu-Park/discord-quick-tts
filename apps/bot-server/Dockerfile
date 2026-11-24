@@ -18,12 +18,13 @@ COPY apps/bot-server/build.gradle.kts apps/bot-server/
 COPY apps/desktop-client/build.gradle.kts apps/desktop-client/
 COPY apps/synthesis-service/build.gradle.kts apps/synthesis-service/
 COPY libs/synthesis-contract/build.gradle.kts libs/synthesis-contract/
-RUN --mount=type=cache,target=/root/.gradle \
+# compose 가 두 이미지를 함께 만들 때 Gradle 캐시를 동시에 쓰면 잠금을 기다리다 실패하므로 한 번에 하나씩 쓴다.
+RUN --mount=type=cache,target=/root/.gradle,sharing=locked \
     ./gradlew --no-daemon :apps:bot-server:dependencies --configuration runtimeClasspath > /dev/null
 COPY libs/api-contract/src/ libs/api-contract/src/
 COPY libs/synthesis-contract/src/ libs/synthesis-contract/src/
 COPY apps/bot-server/src/main/ apps/bot-server/src/main/
-RUN --mount=type=cache,target=/root/.gradle \
+RUN --mount=type=cache,target=/root/.gradle,sharing=locked \
     ./gradlew --no-daemon :apps:bot-server:bootJar \
     && cp apps/bot-server/build/libs/bot-server-*.jar application.jar
 # 의존성(잘 안 바뀜)과 우리 코드(자주 바뀜)를 다른 레이어로 나눈다. 코드만 바뀌면 받을 레이어가 작다.
