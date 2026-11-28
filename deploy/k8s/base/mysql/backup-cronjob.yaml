@@ -1,0 +1,68 @@
+# 하루에 한 번 DB 를 mysql-backup 디스크에 덤프하고 14일치를 남긴다. compose.prod.yaml 의 mysql-backup 과 같은 일이다(ADR 0073).
+# 되살리기는 docs/runbook.md.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mysql-backup
+  labels:
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/component: backup
+spec:
+  schedule: "30 4 * * *"
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: mysql
+            app.kubernetes.io/component: backup
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999
+            runAsGroup: 999
+            fsGroup: 999
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: backup
+              image: mysql:8.4
+              command: ["bash", "-c"]
+              args:
+                - |
+                  set -euo pipefail
+                  file=/backups/quicktts-$(date -u +%Y%m%dT%H%M%SZ).sql.gz
+                  mysqldump -h mysql -u quicktts --single-transaction --no-tablespaces quicktts | gzip > "$file.part"
+                  mv "$file.part" "$file"
+                  find /backups -name 'quicktts-*.sql.gz' -mtime +14 -delete
+                  echo "DB 를 $file 에 덤프했습니다."
+              env:
+                - name: MYSQL_PWD
+                  valueFrom:
+                    secretKeyRef:
+                      name: mysql-secrets
+                      key: MYSQL_PASSWORD
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 256Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: [ALL]
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: backups
+              persistentVolumeClaim:
+                claimName: mysql-backup

@@ -16,8 +16,10 @@ spring:
     username: ${QUICKTTS_DB_USERNAME:sa}
     password: ${QUICKTTS_DB_PASSWORD:}
   flyway:
-    # Flyway 전에 schema.sql 로 만든 DB 는 테이블이 이미 있으므로, 처음 한 번 V1 을 건너뛰고 그 위부터 쌓는다.
-    baseline-on-migrate: true
+    # 비어 있지 않은데 마이그레이션 기록이 없는 DB 에 붙으면 켜지지 않는다. 잘못 붙은 DB 를 V1 을 건너뛴 채 쓰는 일을 막는다(ADR 0073).
+    # Flyway 를 넣기 전(2026-10-18) schema.sql 로 만든 옛 H2 파일만 처음 한 번 QUICKTTS_FLYWAY_BASELINE_ON_MIGRATE=true 로 켠다.
+    # 마이그레이션은 늘리기와 줄이기를 다른 판에 나눈다: 지우거나 이름을 바꾸는 파일은 V<n>__contract_<설명>.sql (MigrationRulesTest).
+    baseline-on-migrate: ${QUICKTTS_FLYWAY_BASELINE_ON_MIGRATE:false}
   http:
     serviceclient:
       # 음성을 만드는 synthesis 서비스의 주소와 시간 제한 (ADR 0065).

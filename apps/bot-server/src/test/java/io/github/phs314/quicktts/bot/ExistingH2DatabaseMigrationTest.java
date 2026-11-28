@@ -1,6 +1,7 @@
 package io.github.phs314.quicktts.bot;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.phs314.quicktts.bot.guild.adapter.out.persistence.AllowedGuildPersistenceAdapter;
 import io.github.phs314.quicktts.bot.guild.domain.AllowedGuild;
@@ -21,6 +22,7 @@ import io.github.phs314.quicktts.bot.shared.domain.vo.VoiceId;
 import java.time.Clock;
 import java.time.Instant;
 import javax.sql.DataSource;
+import org.flywaydb.core.api.FlywayException;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -29,12 +31,24 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 
 /**
  * Flyway 를 넣기 전에는 서버가 켜질 때마다 schema.sql 을 돌렸다. 그렇게 만든 H2 파일 DB(개발용 data/, 예전 exe 의
- * ~/.discord-quick-tts/data/)를 지우지 않고 그대로 이어 쓰는지 본다.
+ * ~/.discord-quick-tts/data/)를 지우지 않고 그대로 이어 쓰는지 본다. 이어 받을 때는 처음 한 번
+ * {@code QUICKTTS_FLYWAY_BASELINE_ON_MIGRATE=true} 로 켠다. 기본값으로는 기록 없는 DB 에 붙지 않는다(ADR 0073).
  */
 class ExistingH2DatabaseMigrationTest {
 
     private static final DiscordUserId OWNER = new DiscordUserId(123456789012345678L);
     private static final GuildId GUILD = new GuildId(987654321098765432L);
+
+    @Test
+    void 기본_설정으로는_마이그레이션_기록_없이_테이블이_있는_DB_에_붙지_않는다() {
+        DataSource dataSource = TestDatabase.H2.emptyDataSource();
+        JdbcClient jdbc = JdbcClient.create(dataSource);
+        createTablesLikeOldSchemaSql(jdbc);
+
+        assertThatThrownBy(() -> TestDatabase.migrate(dataSource))
+                .isInstanceOf(FlywayException.class)
+                .hasMessageContaining("baseline");
+    }
 
     @Test
     void 허용_목록_전에_만든_DB_는_V1_을_건너뛰고_허용_목록_테이블을_더한다() {
@@ -43,7 +57,7 @@ class ExistingH2DatabaseMigrationTest {
         createTablesLikeOldSchemaSql(jdbc);
         insertDeviceAndVoice(jdbc);
 
-        TestDatabase.migrate(dataSource);
+        TestDatabase.migrate(dataSource, true);
 
         assertThat(historyType(jdbc, "1")).isEqualTo("BASELINE");
         assertThat(historyType(jdbc, "2")).isEqualTo("SQL");
@@ -70,7 +84,7 @@ class ExistingH2DatabaseMigrationTest {
                 .update();
         insertDeviceAndVoice(jdbc);
 
-        TestDatabase.migrate(dataSource);
+        TestDatabase.migrate(dataSource, true);
 
         try (var context = repositories(dataSource)) {
             assertKeepsDeviceAndVoice(context);

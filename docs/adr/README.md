@@ -106,7 +106,8 @@
 
 | ADR | 제목 | 상태 |
 | --- | --- | --- |
-| [0016](0016-mysql-and-flyway.md) | 배포 서버는 MySQL, 스키마는 Flyway 로 관리한다 | 일부 대체됨 (ADR 0038) |
+| [0016](0016-mysql-and-flyway.md) | 배포 서버는 MySQL, 스키마는 Flyway 로 관리한다 | 일부 대체됨 (ADR 0038, ADR 0073) |
+| [0073](0073-db-backup-and-migration-rules.md) | DB 는 하루에 한 번 덤프하고, 마이그레이션은 늘리기와 줄이기를 다른 판에 나눈다 | 채택 |
 | [0028](0028-one-aggregate-per-write.md) | 한 번에 함께 저장하는 것은 애그리거트 하나다 | 일부 대체됨 (ADR 0033, ADR 0049) |
 | [0033](0033-transactional-on-writing-use-cases.md) | DB 에 쓰는 유스케이스에는 @Transactional 을 붙인다 | 일부 대체됨 (ADR 0049) |
 | [0038](0038-jpa-entities-with-persistence-mappers.md) | 저장소 어댑터는 JPA 엔티티를 도메인과 따로 두고 매퍼로 옮긴다 | 일부 대체됨 (ADR 0039) |

@@ -1,0 +1,14 @@
+# DB 덤프를 담는 디스크. DB 디스크와 따로 두어 DB 볼륨이 망가져도 덤프는 남는다.
+# 노드나 클러스터가 통째로 없어지는 경우까지 견디려면 클러스터 밖(오브젝트 저장소)으로도 보낸다(ADR 0073).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-backup
+  labels:
+    app.kubernetes.io/name: mysql
+    app.kubernetes.io/component: backup
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
