@@ -12,6 +12,7 @@
 # - 추적 화면(otel-lgtm)은 띄우지 않는다.
 # - DB 를 하루에 한 번 QUICKTTS_BACKUP_DIR(기본 ./backups)에 덤프하고 14일치를 남긴다(ADR 0073).
 #   이 폴더를 OneDrive·Google Drive 처럼 다른 곳에 올라가는 폴더로 두면 PC 가 망가져도 남는다.
+# - Prometheus 와 Alertmanager 가 고장을 디스코드 채널 웹훅(QUICKTTS_ALERT_DISCORD_WEBHOOK_URL)으로 알린다(ADR 0074).
 #
 # .env 에 넣을 값은 .env.example 의 "배포" 부분에 있다.
 
@@ -46,18 +47,26 @@ services:
     environment:
       MYSQL_PWD: ${QUICKTTS_PROD_DB_PASSWORD:?.env 에 QUICKTTS_PROD_DB_PASSWORD 를 넣으세요}
       KEEP_DAYS: ${QUICKTTS_BACKUP_KEEP_DAYS:-14}
+      # 덤프가 실패하면 이 웹훅으로 바로 알린다(ADR 0074). Prometheus 는 이 컨테이너를 보지 않는다.
+      DISCORD_WEBHOOK_URL: ${QUICKTTS_ALERT_DISCORD_WEBHOOK_URL:?.env 에 QUICKTTS_ALERT_DISCORD_WEBHOOK_URL 을 넣으세요 (README 의 알림 받기)}
     volumes:
       - ${QUICKTTS_BACKUP_DIR:-./backups}:/backups
     entrypoint: ["bash", "-c"]
     command:
       - |
-        set -euo pipefail
+        set -uo pipefail
         while true; do
           file=/backups/quicktts-$$(date -u +%Y%m%dT%H%M%SZ).sql.gz
-          mysqldump -h mysql -u quicktts --single-transaction --no-tablespaces quicktts | gzip > "$$file.part"
-          mv "$$file.part" "$$file"
-          find /backups -name 'quicktts-*.sql.gz' -mtime +"$$KEEP_DAYS" -delete
-          echo "DB 를 $$file 에 덤프했습니다."
+          if mysqldump -h mysql -u quicktts --single-transaction --no-tablespaces quicktts | gzip > "$$file.part" \
+              && mv "$$file.part" "$$file"; then
+            echo "DB 를 $$file 에 덤프했습니다."
+          else
+            echo "DB 덤프가 실패했습니다." >&2
+            curl --silent --show-error --max-time 10 -H 'Content-Type: application/json' \
+              -d '{"content":"🔴 QuickTTS DB 백업이 실패했습니다. logs mysql-backup 을 보세요 (docs/runbook.md)."}' \
+              "$$DISCORD_WEBHOOK_URL" || true
+          fi
+          find /backups -name 'quicktts-*' -mtime +"$$KEEP_DAYS" -delete
           sleep 86400
         done
 
@@ -68,10 +77,12 @@ services:
     logging: *logging
     environment:
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: !reset null
+      # 상태 확인과 지표는 관리 포트에서 토큰 없이 연다. 이 포트는 compose 네트워크 안(Prometheus)에서만 닿는다(ADR 0057).
+      MANAGEMENT_SERVER_PORT: "8081"
     ports: !reset []
     healthcheck:
       # 이미지에 curl 이 없어서 bash 로 상태 확인 주소를 부른다.
-      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /actuator/health/liveness HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8081 && printf 'GET /actuator/health/liveness HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -85,6 +96,7 @@ services:
     environment:
       QUICKTTS_DB_PASSWORD: ${QUICKTTS_PROD_DB_PASSWORD:?.env 에 QUICKTTS_PROD_DB_PASSWORD 를 넣으세요}
       OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: !reset null
+      MANAGEMENT_SERVER_PORT: "8081"
     # 이 PC 의 데스크톱 앱은 http://localhost:8080 으로 붙는다. 같은 와이파이의 다른 기기는 닿지 않는다.
     ports: !override
       - "127.0.0.1:${QUICKTTS_HOST_PORT:-8080}:8080"
@@ -92,7 +104,7 @@ services:
       synthesis-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /actuator/health/liveness HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8081 && printf 'GET /actuator/health/liveness HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -102,9 +114,47 @@ services:
   otel-lgtm:
     profiles: !override [observability]
 
+  # 알림 (ADR 0074). Prometheus 가 두 서비스의 지표를 긁고 deploy/monitoring/alerts.yml 규칙이 맞으면
+  # Alertmanager 가 디스코드 채널 웹훅으로 보낸다. 지표 화면은 이 PC 에서만 http://localhost:9090 .
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [app]
+    restart: unless-stopped
+    logging: *logging
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+    volumes:
+      - ./deploy/monitoring/compose/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    profiles: [app]
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      DISCORD_WEBHOOK_URL: ${QUICKTTS_ALERT_DISCORD_WEBHOOK_URL:?.env 에 QUICKTTS_ALERT_DISCORD_WEBHOOK_URL 을 넣으세요 (README 의 알림 받기)}
+    # 설정 파일에는 비밀을 적지 않고, 켜질 때 웹훅 주소를 파일로 써서 설정이 읽게 한다.
+    entrypoint: ["sh", "-c"]
+    command:
+      - printf '%s' "$$DISCORD_WEBHOOK_URL" > /tmp/discord-webhook-url
+        && exec /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/alertmanager
+    volumes:
+      - ./deploy/monitoring/compose/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+
   cloudflared:
     restart: unless-stopped
     logging: *logging
     depends_on: !override
       bot-server:
         condition: service_healthy
+
+volumes:
+  prometheus-data:
+  alertmanager-data:

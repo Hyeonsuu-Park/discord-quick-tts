@@ -5,6 +5,7 @@ kind: Component
 
 resources:
   - servicemonitors.yaml
+  - prometheusrule.yaml
 
 # Grafana 가 이 라벨이 붙은 ConfigMap 을 찾아 대시보드로 올린다.
 configMapGenerator:

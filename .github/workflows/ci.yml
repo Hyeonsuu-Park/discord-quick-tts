@@ -94,6 +94,19 @@ jobs:
             echo "::endgroup::"
           done
 
+      # 알림 규칙은 이 PC 배포(deploy/monitoring/alerts.yml)와 클러스터(PrometheusRule)가 같아야 한다 (ADR 0074).
+      - name: 두 곳의 알림 규칙이 같은지 확인
+        run: |
+          python3 - <<'PY'
+          import sys, yaml
+          compose = yaml.safe_load(open('deploy/monitoring/alerts.yml'))['groups']
+          cluster = yaml.safe_load(open('deploy/k8s/components/monitoring/prometheusrule.yaml'))['spec']['groups']
+          shared = [group for group in cluster if group['name'] in {g['name'] for g in compose}]
+          if shared != compose:
+              sys.exit('deploy/monitoring/alerts.yml 과 prometheusrule.yaml 의 같은 이름 묶음이 다릅니다.')
+          print('알림 규칙이 같습니다:', ', '.join(g['name'] for g in compose))
+          PY
+
       # 모니터링 component 는 kube-prometheus-stack 이 있어야 켜므로 오버레이에 기본으로 없다. 따로 붙여 검사한다.
       # ServiceMonitor 같은 CRD 는 공개 CRD 스키마 모음으로 본다.
       - name: 모니터링 component 검사

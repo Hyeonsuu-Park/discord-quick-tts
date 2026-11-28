@@ -1,0 +1,54 @@
+# 알림 규칙 (ADR 0074). quicktts 묶음은 deploy/monitoring/alerts.yml(이 PC 배포가 읽는 파일)과 같아야 하고, CI 가 확인한다.
+# quicktts-kubernetes 묶음은 클러스터에만 있는 것(kube-state-metrics 의 Job 지표)을 본다.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: quicktts
+  labels:
+    app.kubernetes.io/part-of: quicktts
+spec:
+  groups:
+  - name: quicktts
+    rules:
+    - alert: QuickTtsServiceDown
+      expr: up{job=~"bot-server|synthesis-service"} == 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: '{{ $labels.job }} 가 2분 넘게 지표에 답하지 않습니다.'
+        runbook: docs/runbook.md#서비스가-답하지-않음
+    - alert: QuickTtsDiscordDisconnected
+      expr: quicktts_discord_shards_connected < quicktts_discord_shards
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: 디스코드 샤드 {{ $value }}개만 붙어 있습니다. 끊긴 샤드의 서버에서는 봇이 말하지 못합니다.
+        runbook: docs/runbook.md#디스코드-연결이-끊김
+    - alert: QuickTtsQuickChatFailing
+      expr: sum by (error) (increase(quicktts_quickchat_speak_seconds_count{error=~"speech-synthesis-failed|unexpected-failure"}[10m])) >= 3
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: 최근 10분 동안 quick chat 이 {{ $labels.error }} 로 {{ $value | printf "%.0f" }}번 실패했습니다.
+        runbook: docs/runbook.md#quick-chat-이-실패함
+    - alert: QuickTtsEngineCircuitOpen
+      expr: max_over_time(resilience4j_circuitbreaker_state{state="closed"}[10m]) == 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: TTS 엔진 {{ $labels.name }} 의 차단기가 10분 넘게 닫히지 않았습니다. 다른 엔진으로 대신 읽는 중입니다.
+        runbook: docs/runbook.md#tts-엔진-차단기가-열림
+  - name: quicktts-kubernetes
+    rules:
+    - alert: QuickTtsBackupMissing
+      expr: time() - max(kube_cronjob_status_last_successful_time{cronjob="mysql-backup"}) > 26 * 3600
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: DB 백업이 26시간 넘게 성공하지 않았습니다.
+        runbook: docs/runbook.md#db-백업이-실패함

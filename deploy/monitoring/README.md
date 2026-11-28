@@ -17,6 +17,13 @@ helm install monitoring prometheus-community/kube-prometheus-stack \
   -f deploy/monitoring/kube-prometheus-stack/values.yaml
 ```
 
+알림을 받을 디스코드 채널 웹훅 주소를 비밀값으로 먼저 만듭니다(채널 설정 > 연동 > 웹후크 > 새 웹후크 > 웹후크 URL 복사).
+
+```bash
+kubectl create namespace monitoring
+kubectl -n monitoring create secret generic alertmanager-discord --from-literal=url='<웹훅 주소>'
+```
+
 설치한 차트 버전은 `helm list -n monitoring` 으로 보고, 올릴 때는 `helm upgrade` 에 같은 값 파일을 줍니다.
 
 ## 우리 서비스 붙이기
