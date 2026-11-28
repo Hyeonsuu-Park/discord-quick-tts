@@ -64,6 +64,14 @@ class QuickTtsClientTest {
     }
 
     @Test
+    void 너무_빨리_보내거나_읽을_차례가_꽉_차면_잠시_뒤에_보내라고_안내한다() {
+        assertThat(client.sendFailure(429, problem(ApiErrorCode.TOO_MANY_REQUESTS, "x")).getMessage())
+                .contains("너무 빨리");
+        assertThat(client.sendFailure(429, problem(ApiErrorCode.SPEECH_QUEUE_FULL, "x")).getMessage())
+                .contains("밀려 있습니다");
+    }
+
+    @Test
     void 오류_코드가_없으면_상태_코드를_보여_준다() {
         assertThat(client.sendFailure(500, "<html>오류</html>")).hasMessageContaining("HTTP 500");
         assertThat(client.sendFailure(404, "")).hasMessageContaining("HTTP 404");

@@ -93,3 +93,9 @@ quicktts:
     # 켜 두면 봇 주인이 /허용목록 으로 넣은 디스코드 서버에만 봇이 남고, 다른 곳에 초대되면 안내를 남기고 나간다.
     # 누구나 초대할 수 있게 공개할 때 false 로 바꾼다.
     enabled: ${QUICKTTS_GUILD_ALLOWLIST_ENABLED:true}
+  rate-limit:
+    # 웹 API 사용량 제한 (ADR 0069). 평소 쓰는 사람은 닿지 않는 값이다. 넘으면 429 와 Retry-After 로 답한다.
+    # 기기 토큰이 있는 요청은 디스코드 사용자마다 1분에 몇 번까지
+    requests-per-minute: ${QUICKTTS_RATE_LIMIT_REQUESTS_PER_MINUTE:60}
+    # 기기 등록은 보낸 곳(IP)마다 1분에 몇 번까지
+    registrations-per-minute: ${QUICKTTS_RATE_LIMIT_REGISTRATIONS_PER_MINUTE:10}

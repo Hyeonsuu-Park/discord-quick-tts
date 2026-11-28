@@ -87,6 +87,8 @@ class QuickTtsClient {
         return switch (error.code()) {
             case ApiErrorCode.INVALID_PAIRING_CODE, ApiErrorCode.INVALID_VALUE ->
                     new QuickTtsClientException("연결 코드가 틀렸거나 만료되었습니다. 디스코드에서 /연결 을 다시 입력해 주세요.");
+            case ApiErrorCode.TOO_MANY_REQUESTS ->
+                    new QuickTtsClientException("연결을 너무 여러 번 시도했습니다. 1분 뒤에 다시 해 주세요.");
             default -> unexpectedFailure(status);
         };
     }
@@ -106,6 +108,10 @@ class QuickTtsClient {
                     new QuickTtsClientException("봇이 이 음성 채널에 들어갈 수 없습니다. 채널 인원이 꽉 찼거나 봇에게 연결 권한이 없습니다.");
             case ApiErrorCode.SPEECH_SYNTHESIS_FAILED ->
                     new QuickTtsClientException("음성을 만들지 못했습니다. 잠시 뒤 다시 보내 주세요.");
+            case ApiErrorCode.TOO_MANY_REQUESTS ->
+                    new QuickTtsClientException("문장을 너무 빨리 보내고 있습니다. 잠시 뒤 다시 보내 주세요.");
+            case ApiErrorCode.SPEECH_QUEUE_FULL ->
+                    new QuickTtsClientException("읽을 문장이 너무 많이 밀려 있습니다. 앞 문장을 다 읽은 뒤 다시 보내 주세요.");
             default -> unexpectedFailure(status);
         };
     }

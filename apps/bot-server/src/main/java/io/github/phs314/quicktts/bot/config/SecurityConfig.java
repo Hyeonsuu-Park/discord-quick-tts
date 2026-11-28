@@ -4,7 +4,10 @@ import io.github.phs314.quicktts.api.QuickTtsApi;
 import io.github.phs314.quicktts.bot.identity.adapter.in.web.DeviceTokenAuthenticationEntryPoint;
 import io.github.phs314.quicktts.bot.identity.adapter.in.web.DeviceTokenAuthenticationFilter;
 import io.github.phs314.quicktts.bot.identity.application.port.in.AuthenticateDeviceUseCase;
+import io.github.phs314.quicktts.bot.shared.adapter.in.web.RateLimitFilter;
+import io.github.phs314.quicktts.bot.shared.adapter.in.web.RateLimitProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -22,17 +25,20 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  * 클라이언트는 매 요청에 토큰을 싣는 프로그램이라 세션, 로그인 화면, CSRF 토큰을 쓰지 않는다.
  * 관리 포트({@code management.server.port})를 따로 열면 그 포트로 온 요청은 모두 토큰 없이 연다.
  * 그 포트는 클러스터 안의 프로브와 Prometheus 만 닿는다 (ADR 0057).
+ * 기기 토큰으로 사람을 알아낸 다음에 사용량 제한을 센다 (ADR 0069).
  */
 @Configuration
 @Import(ManagementPortRequestMatcher.class)
 @EnableWebSecurity
+@EnableConfigurationProperties(RateLimitProperties.class)
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
             AuthenticateDeviceUseCase authenticateDeviceUseCase,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
-            ManagementPortRequestMatcher managementPort) throws Exception {
+            ManagementPortRequestMatcher managementPort,
+            RateLimitProperties rateLimitProperties) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -50,6 +56,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(new DeviceTokenAuthenticationEntryPoint(handlerExceptionResolver)))
                 .addFilterBefore(new DeviceTokenAuthenticationFilter(authenticateDeviceUseCase),
                         UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RateLimitFilter(rateLimitProperties, handlerExceptionResolver),
+                        DeviceTokenAuthenticationFilter.class)
                 .build();
     }
 

@@ -25,6 +25,9 @@ dependencies {
     implementation("org.flywaydb:flyway-mysql")
     // 웹 API 문서(OpenAPI). 컨트롤러에서 /v3/api-docs 를 만들고 /swagger-ui.html 로 보여 준다.
     implementation(libs.springdoc.webmvc.ui)
+    // 웹 API 사용량 제한. 사용자·IP 마다 토큰 버킷을 두고, 오래 안 쓴 버킷은 Caffeine 이 지운다 (ADR 0069).
+    implementation(libs.bucket4j.core)
+    implementation("com.github.ben-manes.caffeine:caffeine")
     // 배포 서버는 MySQL, 개발 PC 의 bootRun 은 설치가 필요 없는 H2 파일 DB.
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("com.h2database:h2")

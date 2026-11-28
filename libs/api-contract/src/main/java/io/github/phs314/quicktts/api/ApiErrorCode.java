@@ -37,6 +37,15 @@ public final class ApiErrorCode {
     /** 봇 주인만 할 수 있는 일. 403. 지금은 디스코드 {@code /허용목록} 에서만 생긴다. */
     public static final String NOT_BOT_OWNER = "not-bot-owner";
 
+    /**
+     * 짧은 시간에 요청을 너무 많이 보냄. 429. {@code Retry-After} 헤더의 초만큼 기다린 뒤 다시 보낸다.
+     * 기기 토큰이 있으면 디스코드 사용자마다, 기기 등록은 보낸 곳(IP)마다 센다.
+     */
+    public static final String TOO_MANY_REQUESTS = "too-many-requests";
+
+    /** 그 디스코드 서버의 읽을 차례가 꽉 참. 429. 앞 문장을 읽고 나면 다시 보낼 수 있다. */
+    public static final String SPEECH_QUEUE_FULL = "speech-queue-full";
+
     /** 요청 모양이 틀림 (JSON 이 깨짐, 없는 경로, 맞지 않는 메서드 등). 4xx. 클라이언트 버그라서 따로 안내하지 않는다. */
     public static final String INVALID_REQUEST = "invalid-request";
 

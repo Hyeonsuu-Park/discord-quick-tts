@@ -60,7 +60,10 @@ import org.springframework.test.web.servlet.client.RestTestClient;
         // PC 서버와 같은 H2(MySQL 모드)를 파일 대신 메모리에 띄운다. MySQL 쪽 SQL 은 저장소 테스트가 확인한다.
         "spring.datasource.url=jdbc:h2:mem:api-test;DB_CLOSE_DELAY=-1;MODE=MySQL",
         "spring.datasource.username=sa",
-        "spring.datasource.password="
+        "spring.datasource.password=",
+        // 테스트마다 기기를 새로 연결하므로 사용량 제한은 넉넉하게 둔다. 제한 자체는 RateLimitFilterTest 가 확인한다.
+        "quicktts.rate-limit.requests-per-minute=10000",
+        "quicktts.rate-limit.registrations-per-minute=10000"
 })
 // 진짜 ShardManager 를 만들면 디스코드에 로그인하므로 빈 껍데기로 바꾸고, 켜질 때 디스코드를 부르는 빈도 함께 바꾼다.
 @MockitoBean(types = {ShardManager.class, DiscordListenerRegistrar.class, BotOwnerPort.class, JoinedGuildPort.class})

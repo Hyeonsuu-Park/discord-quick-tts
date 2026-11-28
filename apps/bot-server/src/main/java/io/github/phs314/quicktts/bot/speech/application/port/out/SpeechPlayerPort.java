@@ -22,6 +22,8 @@ public interface SpeechPlayerPort {
      *
      * @throws io.github.phs314.quicktts.bot.speech.application.exception.UnplayableAudioException
      *         음성이 재생할 수 없는 형식일 때
+     * @throws io.github.phs314.quicktts.bot.speech.application.exception.SpeechQueueFullException
+     *         그 디스코드 서버의 읽을 차례가 꽉 찼을 때
      */
     void play(GuildId guildId, Audio audio);
 
