@@ -1,5 +1,6 @@
 package io.github.phs314.quicktts.bot.identity.adapter.in.discord;
 
+import io.github.phs314.quicktts.bot.shared.adapter.in.AuditLog;
 import io.github.phs314.quicktts.bot.identity.application.port.in.IssuePairingCodeUseCase;
 import io.github.phs314.quicktts.bot.identity.application.port.in.command.IssuePairingCodeCommand;
 import io.github.phs314.quicktts.bot.identity.application.port.in.dto.IssuedPairingCodeDto;
@@ -37,8 +38,9 @@ public class LinkCommandListener extends ListenerAdapter implements DiscordSlash
         if (!COMMAND_NAME.equals(event.getName())) {
             return;
         }
-        IssuedPairingCodeDto issued = issuePairingCodeUseCase.issue(
-                new IssuePairingCodeCommand(new DiscordUserId(event.getUser().getIdLong())));
+        DiscordUserId user = new DiscordUserId(event.getUser().getIdLong());
+        IssuedPairingCodeDto issued = issuePairingCodeUseCase.issue(new IssuePairingCodeCommand(user));
+        AuditLog.record("pairing-code.issued", "actor", user.value());
         event.reply("""
                         연결 코드: **%s**
                         Quick TTS 데스크톱 앱에 %d분 안에 입력해 주세요. 이 코드는 한 번만 쓸 수 있습니다.

@@ -1,5 +1,6 @@
 package io.github.phs314.quicktts.bot.guild.adapter.in.discord;
 
+import io.github.phs314.quicktts.bot.shared.adapter.in.AuditLog;
 import io.github.phs314.quicktts.bot.guild.application.exception.NotBotOwnerException;
 import io.github.phs314.quicktts.bot.guild.application.port.in.AddToAllowlistUseCase;
 import io.github.phs314.quicktts.bot.guild.application.port.in.GetAllowlistUseCase;
@@ -96,6 +97,7 @@ public class AllowlistCommandListener extends ListenerAdapter implements Discord
                 default -> list(requester);
             };
         } catch (NotBotOwnerException e) {
+            AuditLog.record("allowlist.denied", "actor", requester.value(), "subcommand", event.getSubcommandName());
             reply = "봇 주인만 쓸 수 있는 명령이에요.";
         } catch (InvalidDomainValueException e) {
             reply = "디스코드 서버 ID 는 숫자예요. 봇이 허용되지 않은 서버에서 나갈 때 남긴 안내에 ID 가 있어요.";
@@ -104,7 +106,9 @@ public class AllowlistCommandListener extends ListenerAdapter implements Discord
     }
 
     private String add(JDA shard, DiscordUserId requester, GuildId guildId) {
-        String result = addToAllowlistUseCase.add(new AddToAllowlistCommand(requester, guildId))
+        boolean added = addToAllowlistUseCase.add(new AddToAllowlistCommand(requester, guildId));
+        AuditLog.record("allowlist.added", "actor", requester.value(), "guild", guildId.value(), "changed", added);
+        String result = added
                 ? "허용 목록에 넣었어요: **" + guildName(guildId) + "**"
                 : "이미 허용 목록에 있어요: **" + guildName(guildId) + "**";
         if (shardManager.getGuildById(guildId.value()) != null) {
@@ -116,7 +120,9 @@ public class AllowlistCommandListener extends ListenerAdapter implements Discord
     /** 봇이 그 서버에서 나가는 일은 목록에서 빼는 트랜잭션이 커밋된 뒤에 이벤트로 일어난다 (ADR 0033). */
     private String remove(DiscordUserId requester, GuildId guildId) {
         String name = guildName(guildId);
-        return removeFromAllowlistUseCase.remove(new RemoveFromAllowlistCommand(requester, guildId))
+        boolean removed = removeFromAllowlistUseCase.remove(new RemoveFromAllowlistCommand(requester, guildId));
+        AuditLog.record("allowlist.removed", "actor", requester.value(), "guild", guildId.value(), "changed", removed);
+        return removed
                 ? "허용 목록에서 뺐어요: **" + name + "**\n봇이 그 서버에 있었다면 안내를 남기고 나가요."
                 : "허용 목록에 없는 서버예요: **" + name + "**";
     }

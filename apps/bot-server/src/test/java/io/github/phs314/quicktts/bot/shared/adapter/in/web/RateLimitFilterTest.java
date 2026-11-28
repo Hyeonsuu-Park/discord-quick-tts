@@ -100,7 +100,7 @@ class RateLimitFilterTest {
 
     private static MockHttpServletRequest registration(String clientIp) {
         MockHttpServletRequest request = post(QuickTtsApi.DEVICES_PATH);
-        request.addHeader(RateLimitFilter.CLIENT_IP_HEADER, clientIp);
+        request.addHeader(ClientAddress.CLIENT_IP_HEADER, clientIp);
         return request;
     }
 

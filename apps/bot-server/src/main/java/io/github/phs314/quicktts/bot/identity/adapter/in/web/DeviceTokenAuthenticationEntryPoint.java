@@ -1,5 +1,8 @@
 package io.github.phs314.quicktts.bot.identity.adapter.in.web;
 
+import org.springframework.http.HttpHeaders;
+import io.github.phs314.quicktts.bot.shared.adapter.in.web.ClientAddress;
+import io.github.phs314.quicktts.bot.shared.adapter.in.AuditLog;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,8 @@ public class DeviceTokenAuthenticationEntryPoint implements AuthenticationEntryP
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) {
+        AuditLog.record("device-token.rejected", "path", request.getRequestURI(), "ip", ClientAddress.of(request),
+                "token-sent", request.getHeader(HttpHeaders.AUTHORIZATION) != null);
         handlerExceptionResolver.resolveException(request, response, null, new InvalidDeviceTokenException());
     }
 }

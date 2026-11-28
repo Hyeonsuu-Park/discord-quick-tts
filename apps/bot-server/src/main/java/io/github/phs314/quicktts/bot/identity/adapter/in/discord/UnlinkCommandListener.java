@@ -1,5 +1,6 @@
 package io.github.phs314.quicktts.bot.identity.adapter.in.discord;
 
+import io.github.phs314.quicktts.bot.shared.adapter.in.AuditLog;
 import io.github.phs314.quicktts.bot.identity.application.port.in.GetDevicesUseCase;
 import io.github.phs314.quicktts.bot.identity.application.port.in.UnlinkAllDevicesUseCase;
 import io.github.phs314.quicktts.bot.identity.application.port.in.UnlinkDeviceUseCase;
@@ -85,8 +86,11 @@ public class UnlinkCommandListener extends ListenerAdapter implements DiscordSla
 
         String result;
         if (ALL_DEVICES.equals(selected)) {
-            result = "PC " + unlinkAllDevicesUseCase.unlinkAll(new UnlinkAllDevicesCommand(userId)) + "대의 연결을 끊었습니다.";
+            int unlinked = unlinkAllDevicesUseCase.unlinkAll(new UnlinkAllDevicesCommand(userId));
+            AuditLog.record("device.unlinked", "actor", userId.value(), "device", ALL_DEVICES, "count", unlinked);
+            result = "PC " + unlinked + "대의 연결을 끊었습니다.";
         } else if (unlinkDeviceUseCase.unlink(new UnlinkDeviceCommand(userId, new DeviceId(selected)))) {
+            AuditLog.record("device.unlinked", "actor", userId.value(), "device", selected, "count", 1);
             result = "연결을 끊었습니다. 그 PC 에서 다시 쓰려면 `/연결` 로 코드를 받으세요.";
         } else {
             result = "이미 끊긴 PC 입니다.";
