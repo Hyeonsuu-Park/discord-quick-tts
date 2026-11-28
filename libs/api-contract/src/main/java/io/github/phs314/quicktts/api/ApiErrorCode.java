@@ -4,6 +4,7 @@ package io.github.phs314.quicktts.api;
  * 봇 서버가 오류 응답(ProblemDetail)의 {@link #PROPERTY} 속성에 싣는 오류 코드.
  * 클라이언트는 HTTP 상태 코드 대신 이 값으로 안내 문구를 고른다. 같은 상태 코드도 뜻이 여럿일 수 있기 때문이다.
  * 이미 배포된 클라이언트가 알고 있으므로 값을 바꾸거나 지우지 않고, 필요하면 새 코드를 더한다.
+ * 코드 목록은 {@code libs/api-contract/error-codes.txt} 에도 적고, CI 가 main 의 목록에서 빠진 코드가 있으면 막는다 (ADR 0076).
  */
 public final class ApiErrorCode {
 
