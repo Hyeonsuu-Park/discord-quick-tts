@@ -22,6 +22,7 @@ import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceName;
 import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.components.actionrow.ActionRow;
@@ -73,6 +74,22 @@ class UnlinkCommandListenerTest {
         assertThat(options.get(23).getValue()).isEqualTo("device-24");
         assertThat(options.getLast().getLabel()).isEqualTo("모두 해제");
         assertThat(options.getLast().getDescription()).isEqualTo("연결된 PC 30대를 모두 끊습니다");
+    }
+
+    @Test
+    void 메뉴_항목에_등록_시각과_마지막으로_쓴_날짜를_보여_준다() {
+        ReplyCallbackAction reply = mock(ReplyCallbackAction.class, RETURNS_SELF);
+        SlashCommandInteractionEvent event = slashCommand(reply);
+        DeviceDto used = new DeviceDto(new DeviceId("used"), new DeviceName("데스크톱"),
+                Instant.parse("2026-10-18T00:00:00Z"), Optional.of(Instant.parse("2026-11-27T16:00:00Z")));
+        when(getDevicesUseCase.getDevices(new GetDevicesQuery(USER))).thenReturn(List.of(used, device(2)));
+
+        listener.onSlashCommandInteraction(event);
+
+        List<SelectOption> options = menuOptions(reply);
+        // 한국 시각으로 보여 준다(2026-11-27T16:00Z 는 11월 28일 새벽 1시).
+        assertThat(options.get(0).getDescription()).isEqualTo("2026-10-18 09:00 등록, 2026-11-28 마지막 사용");
+        assertThat(options.get(1).getDescription()).isEqualTo("2026-10-18 09:00 등록, 아직 안 씀");
     }
 
     @Test
@@ -143,7 +160,7 @@ class UnlinkCommandListenerTest {
 
     private static DeviceDto device(int number) {
         return new DeviceDto(new DeviceId("device-" + number), new DeviceName("PC " + number),
-                Instant.parse("2026-10-18T00:00:00Z"));
+                Instant.parse("2026-10-18T00:00:00Z"), Optional.empty());
     }
 
     private static List<SelectOption> menuOptions(ReplyCallbackAction reply) {

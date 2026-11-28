@@ -40,6 +40,8 @@ public class UnlinkCommandListener extends ListenerAdapter implements DiscordSla
     private static final int MAX_DEVICE_OPTIONS = 24;
     private static final DateTimeFormatter REGISTERED_AT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm 등록").withZone(ZoneId.of("Asia/Seoul"));
+    private static final DateTimeFormatter LAST_USED_AT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd 마지막 사용").withZone(ZoneId.of("Asia/Seoul"));
 
     private final GetDevicesUseCase getDevicesUseCase;
     private final UnlinkDeviceUseCase unlinkDeviceUseCase;
@@ -67,7 +69,7 @@ public class UnlinkCommandListener extends ListenerAdapter implements DiscordSla
         StringSelectMenu.Builder menu = StringSelectMenu.create(MENU_ID)
                 .setPlaceholder("연결을 끊을 PC 를 고르세요");
         devices.stream().limit(MAX_DEVICE_OPTIONS).forEach(device ->
-                menu.addOption(device.name().value(), device.id().value(), REGISTERED_AT.format(device.registeredAt())));
+                menu.addOption(device.name().value(), device.id().value(), describe(device)));
         menu.addOption("모두 해제", ALL_DEVICES, "연결된 PC " + devices.size() + "대를 모두 끊습니다");
 
         event.reply("연결된 PC " + devices.size() + "대")
@@ -100,5 +102,13 @@ public class UnlinkCommandListener extends ListenerAdapter implements DiscordSla
 
     private static DiscordUserId userIdOf(long discordUserId) {
         return new DiscordUserId(discordUserId);
+    }
+
+    /** 메뉴 항목 아래 작은 글씨. 오래 안 쓴 PC 를 골라 끊을 수 있게 마지막 사용 날짜를 함께 보여 준다. */
+    private static String describe(DeviceDto device) {
+        String registered = REGISTERED_AT.format(device.registeredAt());
+        return device.lastUsedAt()
+                .map(usedAt -> registered + ", " + LAST_USED_AT.format(usedAt))
+                .orElse(registered + ", 아직 안 씀");
     }
 }

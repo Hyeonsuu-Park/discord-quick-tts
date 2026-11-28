@@ -54,6 +54,12 @@ public class FakeDevicePort implements DevicePort {
     }
 
     @Override
+    public void updateLastUsedAt(DeviceId id, Instant usedAt) {
+        findById(id).ifPresent(device -> save(Device.restore(device.id(), device.tokenHash(), device.userId(),
+                device.name(), device.registeredAt(), usedAt)));
+    }
+
+    @Override
     public boolean delete(DeviceId id) {
         return byHash.values().removeIf(device -> device.id().equals(id));
     }

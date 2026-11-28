@@ -144,6 +144,12 @@ $prod logs bot-server | grep "audit event=.* actor=123456789"  # 한 사람이 �
 | `allowlist.denied` | 봇 주인이 아닌 사람이 `/허용목록` 을 씀 | `actor`, `subcommand` |
 | `guild.left` | 허용 목록에 없는 서버에서 나감 | `guild`, `guild-name`, `reason` |
 
+오래 안 쓴 기기는 DB 의 `last_used_at`(한 시간 단위, [ADR 0078](adr/0078-device-last-used-at.md))으로 찾습니다. 사용자는 `/연결해제` 메뉴에서 같은 날짜를 봅니다.
+
+```bash
+$prod exec mysql sh -c 'mysql -uquicktts -p"$MYSQL_PASSWORD" quicktts -e "select name, discord_user_id, registered_at, last_used_at from device where last_used_at is null or last_used_at < now() - interval 90 day order by last_used_at"'
+```
+
 컨테이너 로그는 서비스마다 30MB(10MB × 3)까지만 남습니다. 오래된 일을 찾으려면 그 전에 파일로 꺼내 둡니다. `$prod logs --no-color bot-server > bot-server-$(date +%F).log`
 
 ## 누가 몰아 보낼 때

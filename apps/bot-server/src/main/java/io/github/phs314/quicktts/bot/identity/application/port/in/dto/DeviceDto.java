@@ -4,6 +4,7 @@ import io.github.phs314.quicktts.bot.identity.domain.Device;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceId;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceName;
 import java.time.Instant;
+import java.util.Optional;
 
 /**
  * 사용자에게 보여 줄 연결된 PC 한 대. 기기 토큰 해시처럼 바깥에 보일 필요 없는 값은 담지 않는다.
@@ -11,10 +12,11 @@ import java.time.Instant;
  * @param id           연결을 끊을 때 고르는 식별자
  * @param name         PC 이름
  * @param registeredAt 등록 시각
+ * @param lastUsedAt   마지막으로 쓴 시각(1시간 단위). 아직 안 썼으면 비어 있다
  */
-public record DeviceDto(DeviceId id, DeviceName name, Instant registeredAt) {
+public record DeviceDto(DeviceId id, DeviceName name, Instant registeredAt, Optional<Instant> lastUsedAt) {
 
     public static DeviceDto from(Device device) {
-        return new DeviceDto(device.id(), device.name(), device.registeredAt());
+        return new DeviceDto(device.id(), device.name(), device.registeredAt(), device.lastUsedAt());
     }
 }

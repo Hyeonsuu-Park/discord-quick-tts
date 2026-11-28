@@ -1,5 +1,6 @@
 package io.github.phs314.quicktts.bot.identity.adapter.out.persistence;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,12 @@ interface DeviceSpringDataRepository extends JpaRepository<DeviceJpaEntity, Stri
     Optional<DeviceJpaEntity> findByTokenHash(String tokenHash);
 
     List<DeviceJpaEntity> findByDiscordUserIdOrderByRegisteredAt(long discordUserId);
+
+    /** 마지막 사용 시각만 한 문장으로 고친다. 엔티티를 읽어 오지 않는다. */
+    @Transactional
+    @Modifying
+    @Query("update DeviceJpaEntity d set d.lastUsedAt = :usedAt where d.id = :id")
+    int updateLastUsedAt(String id, Instant usedAt);
 
     /** 지운 줄 수를 돌려준다. 한 문장으로 지워서 엔티티를 먼저 읽지 않는다. */
     @Transactional
