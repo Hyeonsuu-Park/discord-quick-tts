@@ -1,8 +1,9 @@
 package io.github.phs314.quicktts.synthesis.application.port.out;
 
-import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.domain.vo.Audio;
+import io.github.phs314.quicktts.synthesis.domain.vo.SpokenText;
 import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
+import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import java.util.List;
 
 /**
@@ -20,5 +21,5 @@ public interface SpeechSynthesizerPort {
      * @param text 소리 내 읽을 꼴로 다듬은 문장
      * @throws io.github.phs314.quicktts.synthesis.application.exception.SpeechSynthesisException 음성 생성에 실패했을 때
      */
-    Audio synthesize(String text, VoiceId voiceId);
+    Audio synthesize(SpokenText text, VoiceId voiceId);
 }

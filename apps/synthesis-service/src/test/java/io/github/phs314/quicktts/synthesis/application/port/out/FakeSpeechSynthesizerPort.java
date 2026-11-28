@@ -1,9 +1,10 @@
 package io.github.phs314.quicktts.synthesis.application.port.out;
 
-import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.application.exception.SpeechSynthesisException;
 import io.github.phs314.quicktts.synthesis.domain.vo.Audio;
+import io.github.phs314.quicktts.synthesis.domain.vo.SpokenText;
 import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
+import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -37,7 +38,8 @@ public class FakeSpeechSynthesizerPort implements SpeechSynthesizerPort {
     }
 
     @Override
-    public Audio synthesize(String text, VoiceId voiceId) {
+    public Audio synthesize(SpokenText spokenText, VoiceId voiceId) {
+        String text = spokenText.value();
         if (failing) {
             throw new SpeechSynthesisException("테스트용 TTS 엔진이 고장 났습니다.");
         }
