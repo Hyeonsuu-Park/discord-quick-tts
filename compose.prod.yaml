@@ -38,7 +38,7 @@ services:
   # 띄우자마자 한 번, 그 뒤 24시간마다 덤프한다. 다 쓴 파일만 .sql.gz 이름을 얻으므로 덜 쓴 파일로 되살리는 일이 없다.
   # 되살리기와 연습은 docs/runbook.md 와 scripts/restore-drill.sh.
   mysql-backup:
-    image: mysql:8.4
+    image: mysql:26.10
     restart: unless-stopped
     logging: *logging
     depends_on:
