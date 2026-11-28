@@ -1,6 +1,7 @@
 # 이 PC 에 띄운 서버는 Cloudflare Tunnel 로 인터넷에 연다
 
-- 상태: 채택
+- 상태: 일부 대체됨
+  - 배포로 띄울 때는 `compose.prod.yaml` 을 덮어써서 ghcr.io 이미지, 재시작 정책, 닫힌 포트로 띄움 → ADR 0068
 - 날짜: 2026-11-23
 
 첫 배포는 따로 서버를 빌리지 않고 이 PC 에서 `docker compose --profile app` 으로 띄운 봇 서버, synthesis 서비스, MySQL 을 씁니다(ADR 0056). 다른 PC 의 데스크톱 앱이 붙으려면 봇 서버에 인터넷 주소가 있어야 합니다. 집 공유기는 포트를 열기 번거롭고, 공인 IP 가 바뀌며, HTTPS 인증서도 따로 챙겨야 합니다.

@@ -150,7 +150,8 @@
 | [0063](0063-observability-prometheus-grafana-and-tracing.md) | 지표는 kube-prometheus-stack 으로 모으고, 서비스 사이 요청은 OpenTelemetry 로 추적한다 | 채택 |
 | [0064](0064-scale-bot-server-by-shard-groups.md) | 봇 서버를 여러 벌로 늘릴 때는 샤드 묶음마다 한 벌씩 맡긴다 (설계만) | 채택 |
 | [0059](0059-kustomize-manifests-in-deploy.md) | 쿠버네티스 매니페스트는 deploy/k8s 에 Kustomize 로 두고, 봇 서버는 한 벌만 띄운다 | 채택 |
-| [0067](0067-open-pc-server-with-cloudflare-tunnel.md) | 이 PC 에 띄운 서버는 Cloudflare Tunnel 로 인터넷에 연다 | 채택 |
+| [0067](0067-open-pc-server-with-cloudflare-tunnel.md) | 이 PC 에 띄운 서버는 Cloudflare Tunnel 로 인터넷에 연다 | 일부 대체됨 (ADR 0068) |
+| [0068](0068-pc-deploy-with-compose-prod-override.md) | 이 PC 를 배포 서버로 쓸 때는 compose.prod.yaml 을 덮어써서 띄운다 | 채택 |
 
 ### 데스크톱 클라이언트와 배포
 
