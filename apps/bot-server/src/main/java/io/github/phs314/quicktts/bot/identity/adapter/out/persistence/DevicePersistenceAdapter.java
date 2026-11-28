@@ -5,6 +5,7 @@ import io.github.phs314.quicktts.bot.identity.domain.Device;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceId;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceTokenHash;
 import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,11 @@ public class DevicePersistenceAdapter implements DevicePort {
     public Optional<Device> findById(DeviceId id) {
         return deviceSpringDataRepository.findById(id.value())
                 .map(DevicePersistenceMapper::toDomain);
+    }
+
+    @Override
+    public void updateLastUsedAt(DeviceId id, Instant usedAt) {
+        deviceSpringDataRepository.updateLastUsedAt(id.value(), usedAt);
     }
 
     @Override

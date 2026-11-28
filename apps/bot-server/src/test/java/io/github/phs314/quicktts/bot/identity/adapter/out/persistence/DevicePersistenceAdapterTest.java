@@ -92,7 +92,21 @@ class DevicePersistenceAdapterTest {
         assertThat(repository.findByUserId(OTHER)).hasSize(1);
     }
 
+    @Test
+    void 마지막_사용_시각만_고친다() {
+        Device device = device(USER, "a", "현수-PC", NOW);
+        repository.save(device);
+        assertThat(repository.findById(device.id()).orElseThrow().lastUsedAt()).isEmpty();
+
+        Instant usedAt = NOW.plusSeconds(3600);
+        repository.updateLastUsedAt(device.id(), usedAt);
+
+        Device updated = repository.findById(device.id()).orElseThrow();
+        assertThat(updated.lastUsedAt()).contains(usedAt);
+        assertThat(updated.registeredAt()).isEqualTo(NOW);
+    }
+
     private static Device device(DiscordUserId userId, String hashSeed, String name, Instant registeredAt) {
-        return Device.restore(DeviceId.generate(), new DeviceTokenHash(hashSeed.repeat(64)), userId, new DeviceName(name), registeredAt);
+        return Device.restore(DeviceId.generate(), new DeviceTokenHash(hashSeed.repeat(64)), userId, new DeviceName(name), registeredAt, null);
     }
 }

@@ -10,7 +10,9 @@ import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceId;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceName;
 import io.github.phs314.quicktts.bot.identity.domain.vo.DeviceToken;
 import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
 
 class UnlinkDeviceServiceTest {
@@ -31,7 +33,7 @@ class UnlinkDeviceServiceTest {
 
         assertThat(service.unlink(new UnlinkDeviceCommand(USER, id))).isTrue();
         AuthenticateDeviceQuery query = new AuthenticateDeviceQuery(token.value());
-        assertThat(new AuthenticateDeviceService(devices).authenticate(query)).isEmpty();
+        assertThat(new AuthenticateDeviceService(devices, Clock.fixed(NOW, ZoneOffset.UTC)).authenticate(query)).isEmpty();
     }
 
     @Test
