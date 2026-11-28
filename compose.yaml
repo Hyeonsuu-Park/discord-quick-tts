@@ -5,10 +5,11 @@
 # 2. 봇 서버 이미지까지 같이 띄우기: docker compose --profile app up --build
 #    배포와 같은 모양(봇 서버 + synthesis 서비스 + MySQL 컨테이너)을 이 PC 에서 돌려 본다. bootRun 과 같은 토큰으로 동시에 켜지 않는다.
 #    PC 의 8080 을 다른 프로그램이 쓰고 있으면 .env 에 QUICKTTS_HOST_PORT=8090 처럼 비어 있는 번호를 넣는다.
-# 3. 이 PC 의 봇 서버를 인터넷 주소로 열기: docker compose --profile app --profile tunnel up --build (ADR 0067)
+# 3. 고치던 봇 서버를 잠깐 인터넷 주소로 열어 보기: docker compose --profile app --profile tunnel up --build (ADR 0067)
 #    주소는 docker compose --profile app --profile tunnel logs cloudflared 에 나오는 https://<무작위>.trycloudflare.com 이다. 켤 때마다 바뀐다.
 #
-# 비밀번호는 이 PC 안에서만 쓰는 개발용 값이다. 배포 서버에서는 이 파일을 쓰지 않는다.
+# 비밀번호는 이 PC 안에서만 쓰는 개발용 값이다. 이 PC 를 배포 서버로 쓸 때는 compose.prod.yaml 을 덮어써서 띄운다 (ADR 0068).
+#   docker compose -f compose.yaml -f compose.prod.yaml --profile app --profile tunnel up -d
 
 services:
   mysql:

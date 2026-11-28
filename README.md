@@ -217,18 +217,44 @@ synthesis 서비스가 꺼져 있으면 봇 서버는 켜지지만 문장을 읽
 
 봇 서버, synthesis 서비스, MySQL 컨테이너를 함께 띄워 배포와 같은 모양으로 돌려 보려면 `docker compose --profile app up --build` 를 씁니다. 지우려면 `docker compose --profile app down`, 데이터까지 지우려면 `-v` 를 붙입니다.
 
-### 이 PC 의 서버를 인터넷에 열기
+### 이 PC 를 배포 서버로 쓰기
 
-다른 PC 의 데스크톱 앱이 이 PC 에 띄운 봇 서버에 붙게 하려면 Cloudflare Tunnel 을 같이 띄웁니다. 공유기 포트는 열지 않습니다 ([ADR 0067](docs/adr/0067-open-pc-server-with-cloudflare-tunnel.md)).
+다른 PC 의 데스크톱 앱이 이 PC 에 띄운 봇 서버에 붙게 합니다. Cloudflare Tunnel 로 열어서 공유기 포트는 열지 않습니다 ([ADR 0067](docs/adr/0067-open-pc-server-with-cloudflare-tunnel.md)). 개발용 `compose.yaml` 위에 운영 설정 `compose.prod.yaml` 을 덮어써서 띄웁니다 ([ADR 0068](docs/adr/0068-pc-deploy-with-compose-prod-override.md)). 이 PC 에서 이미지를 만들지 않고 CI 가 ghcr.io 에 올린 이미지를 받으며, MySQL 과 synthesis 서비스 포트는 열지 않고, 컨테이너가 죽거나 PC 를 다시 켜면 저절로 다시 뜹니다.
+
+**한 번만 준비하기**
+
+1. Docker Desktop > Settings > General 에서 **Start Docker Desktop when you sign in to your computer** 를 켭니다. 꺼져 있으면 PC 를 다시 켰을 때 봇이 돌아오지 않습니다.
+2. `.env` 에 아래 세 줄을 더합니다(`.env.example` 의 "배포" 부분).
+   - `QUICKTTS_IMAGE_TAG`: GitHub 저장소 오른쪽 **Packages > quicktts-bot-server** 에서 가장 최근 `main-<커밋 7자리>` 태그
+   - `QUICKTTS_PROD_DB_PASSWORD`, `QUICKTTS_PROD_DB_ROOT_PASSWORD`: 새로 정한 비밀번호 두 개
+3. 예전처럼 `docker compose --profile app --profile tunnel up --build` 로 띄워 쓰던 데이터(등록된 기기, 목소리, 허용 목록)가 있으면 한 번 옮깁니다. 저장소 루트의 Git Bash 에서 차례로 실행합니다.
+
+   ```bash
+   # 1) 옛 배포의 DB 를 파일로 꺼내고 옛 배포를 끈다
+   docker compose --profile app --profile tunnel exec -T mysql mysqldump -uquicktts -pquicktts-dev --single-transaction --no-tablespaces quicktts > ~/quicktts-backup.sql
+   docker compose --profile app --profile tunnel down
+   # 2) 새 배포의 MySQL 만 띄우고 꺼낸 파일을 넣는다
+   docker compose -f compose.yaml -f compose.prod.yaml up -d --wait mysql
+   docker compose -f compose.yaml -f compose.prod.yaml exec -T mysql sh -c 'mysql -uquicktts -p"$MYSQL_PASSWORD" quicktts' < ~/quicktts-backup.sql
+   ```
+
+   옮길 데이터가 없으면 건너뜁니다. 처음 켤 때 봇이 들어가 있는 디스코드 서버가 허용 목록에 저절로 들어갑니다.
+
+**띄우고 주소 보기**
 
 ```bash
-docker compose --profile app --profile tunnel up --build -d
-docker compose --profile app --profile tunnel logs cloudflared | grep trycloudflare.com
+docker compose -f compose.yaml -f compose.prod.yaml --profile app --profile tunnel up -d
+docker compose -f compose.yaml -f compose.prod.yaml --profile app --profile tunnel ps
+docker compose -f compose.yaml -f compose.prod.yaml --profile app --profile tunnel logs cloudflared | grep trycloudflare.com
 ```
 
-- 로그에 나온 `https://<무작위>.trycloudflare.com` 이 봇 서버 주소입니다. `logs`, `ps`, `down` 같은 다른 명령에도 `--profile app --profile tunnel` 을 붙입니다. 빼면 `cloudflared` 가 기대는 `bot-server` 를 못 찾습니다. 데스크톱 앱의 `~/.discord-quick-tts/client.properties` 에서 `server-url` 을 이 주소로 바꾸고 앱을 다시 켭니다.
-- 이 주소는 계정 없이 쓰는 시험용(quick tunnel)이라 터널을 다시 켤 때마다 바뀝니다. 고정 주소는 Cloudflare 계정과 도메인으로 만드는 named tunnel 이 필요합니다.
-- PC 의 8080 을 다른 프로그램이 쓰고 있으면 `.env` 에 `QUICKTTS_HOST_PORT=8090` 처럼 비어 있는 번호를 넣습니다. 터널은 이 값과 상관없이 붙습니다.
+- `ps` 에서 `bot-server` 가 `healthy` 가 되기까지 1~2분 걸립니다. 그 뒤에 `cloudflared` 가 뜹니다.
+- 로그에 나온 `https://<무작위>.trycloudflare.com` 이 봇 서버 주소입니다. 데스크톱 앱의 `~/.discord-quick-tts/client.properties` 에서 `server-url` 을 이 주소로 바꾸고 앱을 다시 켭니다. 이 PC 의 앱은 `http://localhost:8080` 그대로 써도 됩니다.
+- 이 주소는 계정 없이 쓰는 시험용(quick tunnel)이라 터널이 다시 뜰 때마다(PC 를 다시 켤 때도) 바뀝니다. 고정 주소는 Cloudflare 계정과 도메인으로 만드는 named tunnel 이 필요합니다.
+- `logs`, `ps`, `down` 같은 다른 명령에도 같은 `-f` 두 개와 `--profile` 두 개를 붙입니다.
+- 새 판으로 올리거나 옛 판으로 되돌리려면 `.env` 의 `QUICKTTS_IMAGE_TAG` 를 바꾸고 `up -d` 를 다시 실행합니다.
+- 개발용 `bootRun`, `docker compose --profile app up` 과 같은 봇 토큰으로 동시에 켜지 않습니다. 명령이 두 번 처리되고 음성 연결을 서로 끊습니다.
+- 고치던 코드를 잠깐 인터넷에 열어 보려면 예전처럼 `docker compose --profile app --profile tunnel up --build` 를 씁니다. 이건 개발용 설정 그대로라 남에게 주소를 주지 않습니다.
 
 ### Docker 로 봇 서버 띄우기
 
