@@ -47,7 +47,14 @@ public enum TestDatabase {
 
     /** 서버가 켜질 때와 같은 설정(application.yml 의 spring.flyway)으로 마이그레이션한다. */
     public static void migrate(DataSource dataSource) {
-        Flyway.configure().dataSource(dataSource).baselineOnMigrate(true).load().migrate();
+        migrate(dataSource, false);
+    }
+
+    /**
+     * {@code QUICKTTS_FLYWAY_BASELINE_ON_MIGRATE} 를 정해서 마이그레이션한다. 옛 H2 파일을 처음 한 번 이어 받을 때만 true 다.
+     */
+    public static void migrate(DataSource dataSource, boolean baselineOnMigrate) {
+        Flyway.configure().dataSource(dataSource).baselineOnMigrate(baselineOnMigrate).load().migrate();
     }
 
     /** 모든 테스트가 나눠 쓰는 MySQL 컨테이너. 처음 쓸 때 한 번 띄우고, 테스트가 끝나면 Testcontainers 가 치운다. */

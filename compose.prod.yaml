@@ -10,6 +10,8 @@
 # - 컨테이너가 죽거나 PC 를 다시 켜면 저절로 다시 뜬다(Docker Desktop 이 로그인할 때 켜져 있어야 한다).
 # - 컨테이너 로그는 서비스마다 10MB 파일 3개까지만 남긴다.
 # - 추적 화면(otel-lgtm)은 띄우지 않는다.
+# - DB 를 하루에 한 번 QUICKTTS_BACKUP_DIR(기본 ./backups)에 덤프하고 14일치를 남긴다(ADR 0073).
+#   이 폴더를 OneDrive·Google Drive 처럼 다른 곳에 올라가는 폴더로 두면 PC 가 망가져도 남는다.
 #
 # .env 에 넣을 값은 .env.example 의 "배포" 부분에 있다.
 
@@ -31,6 +33,33 @@ services:
     ports: !reset []
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uquicktts -p\"$$MYSQL_PASSWORD\""]
+
+  # 띄우자마자 한 번, 그 뒤 24시간마다 덤프한다. 다 쓴 파일만 .sql.gz 이름을 얻으므로 덜 쓴 파일로 되살리는 일이 없다.
+  # 되살리기와 연습은 docs/runbook.md 와 scripts/restore-drill.sh.
+  mysql-backup:
+    image: mysql:8.4
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_PWD: ${QUICKTTS_PROD_DB_PASSWORD:?.env 에 QUICKTTS_PROD_DB_PASSWORD 를 넣으세요}
+      KEEP_DAYS: ${QUICKTTS_BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - ${QUICKTTS_BACKUP_DIR:-./backups}:/backups
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        set -euo pipefail
+        while true; do
+          file=/backups/quicktts-$$(date -u +%Y%m%dT%H%M%SZ).sql.gz
+          mysqldump -h mysql -u quicktts --single-transaction --no-tablespaces quicktts | gzip > "$$file.part"
+          mv "$$file.part" "$$file"
+          find /backups -name 'quicktts-*.sql.gz' -mtime +"$$KEEP_DAYS" -delete
+          echo "DB 를 $$file 에 덤프했습니다."
+          sleep 86400
+        done
 
   synthesis-service:
     build: !reset null

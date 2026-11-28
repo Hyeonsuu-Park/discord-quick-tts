@@ -227,6 +227,7 @@ synthesis 서비스가 꺼져 있으면 봇 서버는 켜지지만 문장을 읽
 2. `.env` 에 아래 세 줄을 더합니다(`.env.example` 의 "배포" 부분).
    - `QUICKTTS_IMAGE_TAG`: GitHub 저장소 오른쪽 **Packages > quicktts-bot-server** 에서 가장 최근 `main-<커밋 7자리>` 태그
    - `QUICKTTS_PROD_DB_PASSWORD`, `QUICKTTS_PROD_DB_ROOT_PASSWORD`: 새로 정한 비밀번호 두 개
+   - (추천) `QUICKTTS_BACKUP_DIR`: 하루 한 번 DB 덤프를 남길 폴더. OneDrive·Google Drive 처럼 다른 곳에 올라가는 폴더로 두면 이 PC 가 망가져도 남습니다. 비우면 저장소의 `backups/` 입니다.
 3. 예전처럼 `docker compose --profile app --profile tunnel up --build` 로 띄워 쓰던 데이터(등록된 기기, 목소리, 허용 목록)가 있으면 한 번 옮깁니다. 저장소 루트의 Git Bash 에서 차례로 실행합니다.
 
    ```bash
@@ -253,6 +254,7 @@ docker compose -f compose.yaml -f compose.prod.yaml --profile app --profile tunn
 - 이 주소는 계정 없이 쓰는 시험용(quick tunnel)이라 터널이 다시 뜰 때마다(PC 를 다시 켤 때도) 바뀝니다. 고정 주소는 Cloudflare 계정과 도메인으로 만드는 named tunnel 이 필요합니다.
 - `logs`, `ps`, `down` 같은 다른 명령에도 같은 `-f` 두 개와 `--profile` 두 개를 붙입니다.
 - 새 판으로 올리거나 옛 판으로 되돌리려면 `.env` 의 `QUICKTTS_IMAGE_TAG` 를 바꾸고 `up -d` 를 다시 실행합니다.
+- DB 는 `mysql-backup` 이 띄우자마자 한 번, 그 뒤 하루에 한 번 `QUICKTTS_BACKUP_DIR` 에 `quicktts-<시각>.sql.gz` 로 덤프하고 14일치를 남깁니다. 되살리는 방법과 연습은 [운영 안내서](docs/runbook.md)에 있습니다.
 - 개발용 `bootRun`, `docker compose --profile app up` 과 같은 봇 토큰으로 동시에 켜지 않습니다. 명령이 두 번 처리되고 음성 연결을 서로 끊습니다.
 - 고치던 코드를 잠깐 인터넷에 열어 보려면 예전처럼 `docker compose --profile app --profile tunnel up --build` 를 씁니다. 이건 개발용 설정 그대로라 남에게 주소를 주지 않습니다.
 

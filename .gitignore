@@ -27,5 +27,8 @@ Thumbs.db
 # 봇 서버 로컬 DB (등록된 기기)
 data/
 
+# 배포 DB 덤프 (compose.prod.yaml 의 mysql-backup)
+/backups/
+
 # 쿠버네티스 비밀값 (deploy/k8s/overlays/*/ 의 *.env.example 을 복사해 채운 것)
 deploy/k8s/overlays/*/*.env
