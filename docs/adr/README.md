@@ -150,7 +150,8 @@
 | [0057](0057-probes-and-prometheus-on-management-port.md) | 쿠버네티스 프로브와 Prometheus 지표는 따로 연 관리 포트에서 토큰 없이 본다 | 채택 |
 | [0058](0058-images-on-ghcr.md) | 서버 이미지는 GitHub Actions 가 만들어 ghcr.io 에 올린다 | 일부 대체됨 (ADR 0072) |
 | [0072](0072-images-after-ci-and-smoke-run.md) | 이미지는 CI 를 통과한 main 커밋만 올리고, 올리기 전에 한 번 띄워 본다 | 채택 |
-| [0063](0063-observability-prometheus-grafana-and-tracing.md) | 지표는 kube-prometheus-stack 으로 모으고, 서비스 사이 요청은 OpenTelemetry 로 추적한다 | 채택 |
+| [0063](0063-observability-prometheus-grafana-and-tracing.md) | 지표는 kube-prometheus-stack 으로 모으고, 서비스 사이 요청은 OpenTelemetry 로 추적한다 | 일부 대체됨 (ADR 0074) |
+| [0074](0074-alerts-to-discord-webhook.md) | 고장은 Prometheus 알림 규칙으로 잡아 디스코드 채널 웹훅으로 받는다 | 채택 |
 | [0064](0064-scale-bot-server-by-shard-groups.md) | 봇 서버를 여러 벌로 늘릴 때는 샤드 묶음마다 한 벌씩 맡긴다 (설계만) | 채택 |
 | [0059](0059-kustomize-manifests-in-deploy.md) | 쿠버네티스 매니페스트는 deploy/k8s 에 Kustomize 로 두고, 봇 서버는 한 벌만 띄운다 | 채택 |
 | [0067](0067-open-pc-server-with-cloudflare-tunnel.md) | 이 PC 에 띄운 서버는 Cloudflare Tunnel 로 인터넷에 연다 | 일부 대체됨 (ADR 0068, ADR 0069) |

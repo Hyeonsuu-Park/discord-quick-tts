@@ -1,0 +1,24 @@
+# 이 PC 배포(compose.prod.yaml)의 Prometheus 설정 (ADR 0074).
+# 두 서비스의 관리 포트(8081)에서 지표를 긁고, 알림 규칙이 맞으면 Alertmanager 로 보낸다.
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: [alertmanager:9093]
+
+scrape_configs:
+  # job 이름은 쿠버네티스 ServiceMonitor 가 붙이는 이름(서비스 이름)과 같게 둔다. 알림 규칙이 job 으로 고른다.
+  - job_name: bot-server
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [bot-server:8081]
+  - job_name: synthesis-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [synthesis-service:8081]

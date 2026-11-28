@@ -224,9 +224,10 @@ synthesis 서비스가 꺼져 있으면 봇 서버는 켜지지만 문장을 읽
 **한 번만 준비하기**
 
 1. Docker Desktop > Settings > General 에서 **Start Docker Desktop when you sign in to your computer** 를 켭니다. 꺼져 있으면 PC 를 다시 켰을 때 봇이 돌아오지 않습니다.
-2. `.env` 에 아래 세 줄을 더합니다(`.env.example` 의 "배포" 부분).
+2. `.env` 에 아래 값을 더합니다(`.env.example` 의 "배포" 부분).
    - `QUICKTTS_IMAGE_TAG`: GitHub 저장소 오른쪽 **Packages > quicktts-bot-server** 에서 가장 최근 `main-<커밋 7자리>` 태그
    - `QUICKTTS_PROD_DB_PASSWORD`, `QUICKTTS_PROD_DB_ROOT_PASSWORD`: 새로 정한 비밀번호 두 개
+   - `QUICKTTS_ALERT_DISCORD_WEBHOOK_URL`: 고장 알림을 받을 디스코드 채널의 웹훅 주소. 혼자 보는 채널을 하나 만들고 **채널 설정 > 연동 > 웹후크 > 새 웹후크 > 웹후크 URL 복사** 로 얻습니다. 서비스가 죽거나 디스코드 연결이 끊기거나 음성 생성이 계속 실패하면 이 채널로 옵니다([운영 안내서](docs/runbook.md#알림을-받았을-때)).
    - (추천) `QUICKTTS_BACKUP_DIR`: 하루 한 번 DB 덤프를 남길 폴더. OneDrive·Google Drive 처럼 다른 곳에 올라가는 폴더로 두면 이 PC 가 망가져도 남습니다. 비우면 저장소의 `backups/` 입니다.
 3. 예전처럼 `docker compose --profile app --profile tunnel up --build` 로 띄워 쓰던 데이터(등록된 기기, 목소리, 허용 목록)가 있으면 한 번 옮깁니다. 저장소 루트의 Git Bash 에서 차례로 실행합니다.
 

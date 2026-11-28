@@ -1,0 +1,15 @@
+# 이 PC 배포(compose.prod.yaml)의 Alertmanager 설정 (ADR 0074). 알림은 디스코드 채널 웹훅으로 보낸다.
+# 웹훅 주소는 비밀이라 이 파일에 적지 않는다. 컨테이너가 켜질 때 .env 의 QUICKTTS_ALERT_DISCORD_WEBHOOK_URL 을 파일로 쓴다.
+route:
+  receiver: discord
+  group_by: [alertname, job]
+  group_wait: 30s
+  group_interval: 5m
+  # 고쳐지지 않으면 4시간마다 다시 알린다.
+  repeat_interval: 4h
+
+receivers:
+  - name: discord
+    discord_configs:
+      - webhook_url_file: /tmp/discord-webhook-url
+        send_resolved: true

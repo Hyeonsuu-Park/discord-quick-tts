@@ -1,6 +1,7 @@
 # 지표는 kube-prometheus-stack 으로 모으고, 서비스 사이 요청은 OpenTelemetry 로 추적한다
 
-- 상태: 채택
+- 상태: 일부 대체됨
+  - Alertmanager 를 켜고 알림 규칙을 PrometheusRule 로 둠, 이 PC 배포에도 Prometheus·Alertmanager → ADR 0074
 - 날짜: 2026-11-23
 
 지표는 이미 있습니다(TTS 성공·실패와 대신 읽기 ADR 0036, quick chat 빠르기 ADR 0053, Prometheus 형식 ADR 0057). 그래프 화면이 없고, ADR 0053 의 목표 값은 "배포 뒤"로 미뤄져 있습니다. 이제 서비스가 둘(봇 서버, synthesis 서비스)이 되어, quick chat 이 느릴 때 어느 쪽이 느린지 지표만으로는 가르기 어렵습니다.
