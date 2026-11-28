@@ -169,6 +169,7 @@
 | [0021](0021-installer-look.md) | 설치 마법사는 앱 색의 그림과 한국어 문구로 꾸민다 | 채택 |
 | [0066](0066-exe-has-desktop-client-only.md) | exe 에는 데스크톱 클라이언트만 넣고, 서버는 따로 띄운다 | 채택 |
 | [0050](0050-desktop-input-ui-tests.md) | 데스크톱 입력창은 TestFX 로 화면 없이 띄워 테스트한다 | 채택 |
+| [0077](0077-device-token-dpapi.md) | 데스크톱 앱은 기기 토큰을 Windows DPAPI 로 암호화해 설정 파일에 적는다 | 채택 |
 
 ### 릴리스
 
