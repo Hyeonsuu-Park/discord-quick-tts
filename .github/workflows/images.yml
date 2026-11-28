@@ -1,9 +1,11 @@
 name: 컨테이너 이미지
 
-# 서버 이미지를 만들어 GitHub Container Registry(ghcr.io)에 올린다 (ADR 0058).
-# - PR: 이미지가 만들어지는지만 확인하고 올리지 않는다.
-# - main: ghcr.io/hyeonsuu-park/quicktts-<서비스>:main 과 :main-<커밋 7자리>
-# - v1.2.3 태그: :1.2.3 과 :1.2 (설치 파일 Release 와 같은 버전)
+# 서버 이미지를 만들어 GitHub Container Registry(ghcr.io)에 올린다 (ADR 0058, ADR 0072).
+# 올리기 전에 amd64 이미지를 한 번 띄워 본다(scripts/smoke-image.sh).
+# - PR: 만들고 띄워 보기만 하고 올리지 않는다.
+# - main: CI(ci.yml)의 빌드·테스트가 통과한 뒤 CI 가 이 워크플로를 부른다.
+#   ghcr.io/hyeonsuu-park/quicktts-<서비스>:main 과 :main-<커밋 7자리>
+# - v1.2.3 태그: :1.2.3 과 :1.2 (설치 파일 Release 와 같은 버전). 태그는 main 에서 CI 가 통과한 커밋에 단다.
 # 서비스가 늘면 matrix 의 service 에 apps/ 아래 폴더 이름을 더한다.
 on:
   pull_request:
@@ -16,18 +18,10 @@ on:
       - '*.gradle.kts'
       - '.dockerignore'
       - '.github/workflows/images.yml'
+      - 'scripts/smoke-image.sh'
   push:
-    branches: [main]
     tags: ['v*']
-    paths:
-      - 'apps/bot-server/**'
-      - 'apps/synthesis-service/**'
-      - 'libs/**'
-      - 'build-logic/**'
-      - 'gradle/**'
-      - '*.gradle.kts'
-      - '.dockerignore'
-      - '.github/workflows/images.yml'
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -50,6 +44,30 @@ jobs:
       # arm64(Oracle A1 등) 이미지도 만든다. jar 는 빌드 단계에서 한 번만 만들고 실행 이미지 단계만 에뮬레이션으로 돈다.
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
+
+      # 올리기 전에 이 PC(러너)의 CPU 로 한 번 만들어 띄워 본다. 아래 올리기는 같은 캐시를 써서 다시 만들지 않는다.
+      - name: 띄워 볼 이미지 만들기 (amd64)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/${{ matrix.service }}/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: quicktts-${{ matrix.service }}:smoke
+          cache-from: type=gha,scope=${{ matrix.service }}
+
+      - name: 이미지 띄워 보기
+        env:
+          # 시험용 디스코드 봇 토큰. 없으면 봇 서버는 띄워 보지 않는다.
+          SMOKE_DISCORD_TOKEN: ${{ secrets.SMOKE_DISCORD_TOKEN }}
+        run: scripts/smoke-image.sh ${{ matrix.service }} quicktts-${{ matrix.service }}:smoke
+
+      - name: 띄워 본 로그 남기기
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-${{ matrix.service }}
+          path: smoke-${{ matrix.service }}.log
 
       - name: ghcr.io 로그인
         if: github.event_name != 'pull_request'

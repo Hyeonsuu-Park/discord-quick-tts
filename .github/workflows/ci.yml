@@ -32,6 +32,17 @@ jobs:
           name: test-reports
           path: '**/build/reports/tests/'
 
+  # main 에 들어온 커밋은 빌드·테스트와 매니페스트 검사가 통과해야 이미지를 올린다 (ADR 0072).
+  images:
+    name: 이미지
+    if: github.event_name == 'push'
+    needs: [build, k8s-manifests]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/images.yml
+    secrets: inherit
+
   commit-messages:
     name: 커밋 메시지 컨벤션
     runs-on: ubuntu-latest

@@ -147,7 +147,8 @@
 | [0055](0055-bot-server-container-image.md) | 봇 서버는 Dockerfile 하나로 컨테이너 이미지를 만든다 | 채택 |
 | [0056](0056-dev-mysql-with-docker-compose.md) | 개발 PC 에서도 Docker Compose 로 MySQL 을 띄워 쓸 수 있게 한다 | 채택 |
 | [0057](0057-probes-and-prometheus-on-management-port.md) | 쿠버네티스 프로브와 Prometheus 지표는 따로 연 관리 포트에서 토큰 없이 본다 | 채택 |
-| [0058](0058-images-on-ghcr.md) | 서버 이미지는 GitHub Actions 가 만들어 ghcr.io 에 올린다 | 채택 |
+| [0058](0058-images-on-ghcr.md) | 서버 이미지는 GitHub Actions 가 만들어 ghcr.io 에 올린다 | 일부 대체됨 (ADR 0072) |
+| [0072](0072-images-after-ci-and-smoke-run.md) | 이미지는 CI 를 통과한 main 커밋만 올리고, 올리기 전에 한 번 띄워 본다 | 채택 |
 | [0063](0063-observability-prometheus-grafana-and-tracing.md) | 지표는 kube-prometheus-stack 으로 모으고, 서비스 사이 요청은 OpenTelemetry 로 추적한다 | 채택 |
 | [0064](0064-scale-bot-server-by-shard-groups.md) | 봇 서버를 여러 벌로 늘릴 때는 샤드 묶음마다 한 벌씩 맡긴다 (설계만) | 채택 |
 | [0059](0059-kustomize-manifests-in-deploy.md) | 쿠버네티스 매니페스트는 deploy/k8s 에 Kustomize 로 두고, 봇 서버는 한 벌만 띄운다 | 채택 |
