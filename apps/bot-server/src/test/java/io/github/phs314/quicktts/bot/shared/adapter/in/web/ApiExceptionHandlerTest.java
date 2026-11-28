@@ -17,7 +17,8 @@ class ApiExceptionHandlerTest {
                 ErrorKind.UNAUTHENTICATED, HttpStatus.UNAUTHORIZED,
                 ErrorKind.PERMISSION_DENIED, HttpStatus.FORBIDDEN,
                 ErrorKind.FAILED_PRECONDITION, HttpStatus.CONFLICT,
-                ErrorKind.UNAVAILABLE, HttpStatus.BAD_GATEWAY);
+                ErrorKind.UNAVAILABLE, HttpStatus.BAD_GATEWAY,
+                ErrorKind.RESOURCE_EXHAUSTED, HttpStatus.TOO_MANY_REQUESTS);
 
         assertThat(expected).containsOnlyKeys(ErrorKind.values());
         expected.forEach((kind, status) -> assertThat(ApiExceptionHandler.statusOf(kind)).isEqualTo(status));

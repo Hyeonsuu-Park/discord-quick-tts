@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import io.github.phs314.quicktts.bot.speech.application.exception.SpeechQueueFullException;
 import io.micrometer.core.instrument.Timer;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -19,8 +20,13 @@ import java.util.concurrent.TimeUnit;
  * 다음 문장을 트는 일은 다른 스레드에 넘긴다.
  *
  * <p>문장이 순서에 들어와서 재생을 시작하기까지 기다린 시간을 {@code waitTimer} 로 잰다. 재생을 시작하지 못하고 버려진 문장은 세지 않는다.
+ *
+ * <p>읽고 있는 문장 말고 기다리는 문장은 {@value #MAX_PENDING} 개까지만 받는다. 한 문장이 길어야 몇 초라서,
+ * 그보다 많이 쌓이면 사람이 대화에 쓰는 속도가 아니고 뒤 문장은 몇 분 뒤에야 읽힌다.
  */
 class GuildSpeechQueue extends AudioEventAdapter {
+
+    static final int MAX_PENDING = 20;
 
     private final AudioPlayer player;
     private final Timer waitTimer;
@@ -43,7 +49,13 @@ class GuildSpeechQueue extends AudioEventAdapter {
         return player;
     }
 
+    /**
+     * @throws SpeechQueueFullException 기다리는 문장이 이미 {@value #MAX_PENDING} 개일 때
+     */
     synchronized void enqueue(AudioTrack track) {
+        if (pending.size() >= MAX_PENDING) {
+            throw new SpeechQueueFullException(MAX_PENDING);
+        }
         track.setUserData(System.nanoTime());
         pending.offer(track);
         startNextIfIdle();

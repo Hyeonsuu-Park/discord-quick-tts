@@ -13,6 +13,7 @@ springdoc = "3.1.1"
 junit = "6.0.3"
 assertj = "3.27.7"
 testfx = "4.0.18"
+bucket4j = "8.23.0"
 
 [libraries]
 jda = { module = "net.dv8tion:JDA", version.ref = "jda" }
@@ -24,6 +25,7 @@ lavaplayer = { module = "dev.arbjerg:lavaplayer", version.ref = "lavaplayer" }
 jnativehook = { module = "com.github.kwhat:jnativehook", version.ref = "jnativehook" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 springdoc-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+bucket4j-core = { module = "com.bucket4j:bucket4j_jdk17-core", version.ref = "bucket4j" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }

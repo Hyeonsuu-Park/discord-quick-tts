@@ -1,6 +1,7 @@
 package io.github.phs314.quicktts.bot.speech.adapter.out.discord;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import io.github.phs314.quicktts.bot.speech.application.exception.SpeechQueueFullException;
 import io.micrometer.core.instrument.Timer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.ArrayList;
@@ -38,6 +40,20 @@ class GuildSpeechQueueTest {
 
         verify(player, times(2)).startTrack(second, true);
         verify(player, never()).startTrack(any(), eq(false));
+    }
+
+    @Test
+    void 기다리는_문장이_상한만큼_쌓이면_더_받지_않는다() {
+        AudioTrack playing = mock(AudioTrack.class);
+        when(player.startTrack(playing, true)).thenReturn(true);
+        queue.enqueue(playing);
+        for (int i = 0; i < GuildSpeechQueue.MAX_PENDING; i++) {
+            queue.enqueue(mock(AudioTrack.class));
+        }
+
+        AudioTrack oneMore = mock(AudioTrack.class);
+        assertThatThrownBy(() -> queue.enqueue(oneMore)).isInstanceOf(SpeechQueueFullException.class);
+        verify(player, never()).startTrack(oneMore, true);
     }
 
     @Test

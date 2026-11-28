@@ -100,7 +100,7 @@
 
 | ADR | 제목 | 상태 |
 | --- | --- | --- |
-| [0025](0025-business-exceptions-by-kind.md) | 예상한 실패는 공통 부모와 종류로 나누고, 어댑터마다 한 곳에서 처리한다 | 일부 대체됨 (ADR 0032, ADR 0043, ADR 0044) |
+| [0025](0025-business-exceptions-by-kind.md) | 예상한 실패는 공통 부모와 종류로 나누고, 어댑터마다 한 곳에서 처리한다 | 일부 대체됨 (ADR 0032, ADR 0043, ADR 0044, ADR 0069) |
 
 ### 데이터와 동시성
 
@@ -150,8 +150,9 @@
 | [0063](0063-observability-prometheus-grafana-and-tracing.md) | 지표는 kube-prometheus-stack 으로 모으고, 서비스 사이 요청은 OpenTelemetry 로 추적한다 | 채택 |
 | [0064](0064-scale-bot-server-by-shard-groups.md) | 봇 서버를 여러 벌로 늘릴 때는 샤드 묶음마다 한 벌씩 맡긴다 (설계만) | 채택 |
 | [0059](0059-kustomize-manifests-in-deploy.md) | 쿠버네티스 매니페스트는 deploy/k8s 에 Kustomize 로 두고, 봇 서버는 한 벌만 띄운다 | 채택 |
-| [0067](0067-open-pc-server-with-cloudflare-tunnel.md) | 이 PC 에 띄운 서버는 Cloudflare Tunnel 로 인터넷에 연다 | 일부 대체됨 (ADR 0068) |
+| [0067](0067-open-pc-server-with-cloudflare-tunnel.md) | 이 PC 에 띄운 서버는 Cloudflare Tunnel 로 인터넷에 연다 | 일부 대체됨 (ADR 0068, ADR 0069) |
 | [0068](0068-pc-deploy-with-compose-prod-override.md) | 이 PC 를 배포 서버로 쓸 때는 compose.prod.yaml 을 덮어써서 띄운다 | 채택 |
+| [0069](0069-rate-limits-and-speech-queue-cap.md) | 웹 API 는 사용자·IP 마다 1분 상한을 두고, 디스코드 서버마다 읽을 차례는 20개까지 받는다 | 채택 |
 
 ### 데스크톱 클라이언트와 배포
 

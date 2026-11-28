@@ -61,6 +61,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             case PERMISSION_DENIED -> HttpStatus.FORBIDDEN;
             case FAILED_PRECONDITION -> HttpStatus.CONFLICT;
             case UNAVAILABLE -> HttpStatus.BAD_GATEWAY;
+            case RESOURCE_EXHAUSTED -> HttpStatus.TOO_MANY_REQUESTS;
         };
     }
 }

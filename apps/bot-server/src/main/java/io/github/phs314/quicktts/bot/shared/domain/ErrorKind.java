@@ -19,5 +19,8 @@ public enum ErrorKind {
     FAILED_PRECONDITION,
 
     /** 바깥 서비스(TTS 엔진 등)가 실패함. 우리 쪽에서 남길 로그가 있다. */
-    UNAVAILABLE
+    UNAVAILABLE,
+
+    /** 짧은 시간에 너무 많이 보냄 (요청 수 상한, 재생 순서가 꽉 참). 잠시 뒤에 다시 하면 된다. */
+    RESOURCE_EXHAUSTED
 }
