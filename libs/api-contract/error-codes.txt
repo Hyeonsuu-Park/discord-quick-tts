@@ -1,0 +1,13 @@
+invalid-value
+invalid-pairing-code
+invalid-device-token
+author-not-in-voice-channel
+voice-channel-in-use
+bot-cannot-join-voice-channel
+speech-synthesis-failed
+unknown-voice
+not-bot-owner
+too-many-requests
+speech-queue-full
+invalid-request
+unexpected-failure

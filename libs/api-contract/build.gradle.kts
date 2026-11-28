@@ -7,4 +7,14 @@ plugins {
 dependencies {
     // 응답에서 null 일 수 있는 필드에 @Nullable 을 단다. 봇 서버가 API 약속(openapi.json)에 그대로 옮긴다 (ADR 0076).
     api(libs.jspecify)
+
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.assertj.core)
+    testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+tasks.test {
+    // 오류 코드 목록 파일이 바뀌어도 테스트를 다시 돌린다.
+    inputs.file("error-codes.txt").withPropertyName("errorCodes")
 }
