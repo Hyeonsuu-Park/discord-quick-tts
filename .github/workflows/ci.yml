@@ -74,6 +74,38 @@ jobs:
           done
           exit $failed
 
+  # 나눠 준 옛 앱이 계속 돌도록, main 의 API 약속과 PR 의 API 약속을 비교해 깨지는 변경을 막는다 (ADR 0076).
+  # 약속 파일(libs/api-contract/openapi.json)이 컨트롤러와 같은지는 빌드의 통합 테스트가 본다.
+  api-compatibility:
+    name: API 호환성 검사
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 옛 앱을 깨는 변경이 있는지 보기
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          CONTRACT: libs/api-contract/openapi.json
+          # 일부러 깨는 변경(옛 판 경로 내리기 등)은 이 파일에 한 줄씩 적어 넘긴다. 최소 앱 판을 먼저 올린 뒤에만 쓴다.
+          ALLOWED: libs/api-contract/openapi-breaking-allowed.txt
+        run: |
+          if ! git cat-file -e "$PR_BASE:$CONTRACT" 2>/dev/null; then
+            echo "main 에 아직 API 약속 파일이 없어 비교하지 않습니다."
+            exit 0
+          fi
+          git show "$PR_BASE:$CONTRACT" > /tmp/base-openapi.json
+          go install github.com/oasdiff/oasdiff@v1.38.0
+          ignore=()
+          if [ -f "$ALLOWED" ]; then
+            ignore=(--err-ignore "$ALLOWED")
+          fi
+          "$(go env GOPATH)/bin/oasdiff" breaking /tmp/base-openapi.json "$CONTRACT" \
+            --fail-on ERR --format githubactions "${ignore[@]}"
+          "$(go env GOPATH)/bin/oasdiff" changelog /tmp/base-openapi.json "$CONTRACT"
+
   k8s-manifests:
     name: 쿠버네티스 매니페스트 검사
     runs-on: ubuntu-latest

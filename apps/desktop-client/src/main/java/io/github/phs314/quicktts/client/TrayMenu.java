@@ -82,6 +82,23 @@ class TrayMenu {
         });
     }
 
+    /**
+     * 서버가 이 앱 판을 더 이상 받쳐 주지 않는다고 알리고, 알림을 누르면 가장 최근 Release 페이지를 연다 (ADR 0076).
+     * 트레이 아이콘을 달기 전(첫 연결 중)이면 콘솔에만 남긴다.
+     */
+    void showUnsupportedVersion(String minimumVersion) {
+        EventQueue.invokeLater(() -> {
+            String message = "이 QuickTTS 는 서버가 받쳐 주지 않는 옛 판입니다. "
+                    + minimumVersion + " 이상으로 업데이트해 주세요. 눌러서 내려받으세요.";
+            if (trayIcon == null) {
+                System.err.println(message);
+                return;
+            }
+            trayIcon.addActionListener(e -> openInBrowser(UpdateChecker.LATEST_RELEASE_PAGE));
+            trayIcon.displayMessage("Discord Quick TTS", message, TrayIcon.MessageType.WARNING);
+        });
+    }
+
     void remove() {
         EventQueue.invokeLater(() -> {
             if (trayIcon != null) {

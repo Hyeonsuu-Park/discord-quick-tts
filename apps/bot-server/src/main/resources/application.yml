@@ -102,3 +102,7 @@ quicktts:
     requests-per-minute: ${QUICKTTS_RATE_LIMIT_REQUESTS_PER_MINUTE:60}
     # 기기 등록은 보낸 곳(IP)마다 1분에 몇 번까지
     registrations-per-minute: ${QUICKTTS_RATE_LIMIT_REGISTRATIONS_PER_MINUTE:10}
+  client:
+    # 이 서버가 받쳐 주는 가장 낮은 데스크톱 앱 판(예 0.3.0). 이보다 낮은 앱은 업데이트 안내를 띄운다 (ADR 0076).
+    # 비워 두면 알리지 않는다. 올리기 전에 /actuator/prometheus 의 quicktts_client_requests_total 로 옛 판이 얼마나 남았는지 본다.
+    minimum-version: ${QUICKTTS_MINIMUM_CLIENT_VERSION:}

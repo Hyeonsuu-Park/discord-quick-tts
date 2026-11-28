@@ -31,7 +31,9 @@ public class QuickTtsApp extends Application {
         Platform.setImplicitExit(false);
 
         config = ClientConfig.load();
-        client = new QuickTtsClient(config.serverUrl());
+        // exe 로 실행하면 판(-Dquicktts.version)을 서버에 알리고, 서버가 받쳐 주지 않는 옛 판이면 트레이 알림을 띄운다.
+        client = new QuickTtsClient(config.serverUrl(), System.getProperty("quicktts.version"),
+                trayMenu::showUnsupportedVersion);
         if (!config.isRegistered() && !pairDevice()) {
             Platform.exit();
             return;

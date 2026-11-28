@@ -16,12 +16,15 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
  * 봇 서버 API 를 부른다. 기기 등록, quick chat 전송, 지금 음성 채널 확인을 맡는다.
+ * 요청마다 {@code User-Agent} 로 앱 판을 알리고, 서버가 알린 최소 앱 판보다 낮으면 한 번 알린다 (ADR 0076).
  */
 class QuickTtsClient {
 
@@ -30,11 +33,26 @@ class QuickTtsClient {
             .build();
     private final JsonMapper jsonMapper = JsonMapper.builder().build();
     private final String serverUrl;
+    private final String appVersion;
+    private final String userAgent;
+    private final Consumer<String> onUnsupportedVersion;
+    private final AtomicBoolean unsupportedVersionNotified = new AtomicBoolean();
     /** 바로 앞에 보낸 문장. 다음 문장은 이게 끝난 뒤에 보낸다. */
     private CompletableFuture<Void> previousSend = CompletableFuture.completedFuture(null);
 
     QuickTtsClient(String serverUrl) {
+        this(serverUrl, null, minimum -> { });
+    }
+
+    /**
+     * @param appVersion           이 앱의 판(예 {@code 0.3.0}). Gradle 로 띄운 개발 중에는 null 이다.
+     * @param onUnsupportedVersion 서버가 알린 최소 앱 판보다 이 앱이 낮을 때 그 최소 판을 받는다. 앱이 켜져 있는 동안 한 번만 불린다.
+     */
+    QuickTtsClient(String serverUrl, String appVersion, Consumer<String> onUnsupportedVersion) {
         this.serverUrl = serverUrl;
+        this.appVersion = appVersion;
+        this.userAgent = QuickTtsApi.userAgent(appVersion);
+        this.onUnsupportedVersion = onUnsupportedVersion;
     }
 
     /**
@@ -46,7 +64,8 @@ class QuickTtsClient {
         HttpRequest request = jsonPost(QuickTtsApi.DEVICES_PATH,
                 new DeviceRegistrationRequest(pairingCode, computerName())).build();
         try {
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response =
+                    checkMinimumVersion(httpClient.send(request, HttpResponse.BodyHandlers.ofString()));
             if (response.statusCode() == 201) {
                 return jsonMapper.readValue(response.body(), DeviceRegistrationResponse.class).deviceToken();
             }
@@ -72,6 +91,7 @@ class QuickTtsClient {
         CompletableFuture<Void> sent = previousSend
                 .handle((ignored, previousFailure) -> null)
                 .thenCompose(ignored -> httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString()))
+                .thenApply(this::checkMinimumVersion)
                 .thenAccept(response -> {
                     if (response.statusCode() != 202) {
                         throw sendFailure(response.statusCode(), response.body());
@@ -168,10 +188,12 @@ class QuickTtsClient {
     CompletableFuture<Optional<VoiceChannelResponse>> findMyVoiceChannel(String deviceToken) {
         HttpRequest request = HttpRequest.newBuilder(URI.create(serverUrl + QuickTtsApi.MY_VOICE_CHANNEL_PATH))
                 .header("Authorization", QuickTtsApi.BEARER_PREFIX + deviceToken)
+                .header("User-Agent", userAgent)
                 .timeout(Duration.ofSeconds(3))
                 .GET()
                 .build();
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(this::checkMinimumVersion)
                 .thenApply(response -> switch (response.statusCode()) {
                     case 200 -> Optional.of(jsonMapper.readValue(response.body(), VoiceChannelResponse.class));
                     case 204 -> Optional.<VoiceChannelResponse>empty();
@@ -188,8 +210,23 @@ class QuickTtsClient {
     private HttpRequest.Builder jsonPost(String path, Object body) {
         return HttpRequest.newBuilder(URI.create(serverUrl + path))
                 .header("Content-Type", "application/json")
+                .header("User-Agent", userAgent)
                 .timeout(POST_TIMEOUT)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(body)));
+    }
+
+    /** 응답의 최소 앱 판 헤더를 보고, 이 앱이 그보다 낮으면 처음 한 번만 알린다. 응답은 그대로 돌려준다. */
+    private <T> HttpResponse<T> checkMinimumVersion(HttpResponse<T> response) {
+        response.headers().firstValue(QuickTtsApi.MINIMUM_CLIENT_VERSION_HEADER)
+                .filter(minimum -> isUnsupported(appVersion, minimum))
+                .filter(minimum -> unsupportedVersionNotified.compareAndSet(false, true))
+                .ifPresent(onUnsupportedVersion);
+        return response;
+    }
+
+    /** 판을 아는 앱이 서버의 최소 판보다 낮은지. 개발 중이라 판을 모르면 알리지 않는다. */
+    static boolean isUnsupported(String appVersion, String minimumVersion) {
+        return appVersion != null && UpdateChecker.isNewer(minimumVersion, appVersion);
     }
 
     static class QuickTtsClientException extends RuntimeException {

@@ -21,6 +21,9 @@ final class UpdateChecker {
     /** 초안과 미리 보기(prerelease)를 뺀 가장 최근 Release. */
     private static final URI LATEST_RELEASE = URI.create(
             "https://api.github.com/repos/Hyeonsuu-Park/discord-quick-tts/releases/latest");
+    /** 가장 최근 Release 페이지. 서버가 이 앱 판을 더 이상 받쳐 주지 않을 때 여기로 안내한다. */
+    static final URI LATEST_RELEASE_PAGE = URI.create(
+            "https://github.com/Hyeonsuu-Park/discord-quick-tts/releases/latest");
     private static final Pattern VERSION = Pattern.compile("v?(\\d+)\\.(\\d+)\\.(\\d+)");
     private static final JsonMapper JSON = JsonMapper.builder().build();
 

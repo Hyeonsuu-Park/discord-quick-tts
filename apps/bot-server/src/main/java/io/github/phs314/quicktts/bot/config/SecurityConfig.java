@@ -4,8 +4,11 @@ import io.github.phs314.quicktts.api.QuickTtsApi;
 import io.github.phs314.quicktts.bot.identity.adapter.in.web.DeviceTokenAuthenticationEntryPoint;
 import io.github.phs314.quicktts.bot.identity.adapter.in.web.DeviceTokenAuthenticationFilter;
 import io.github.phs314.quicktts.bot.identity.application.port.in.AuthenticateDeviceUseCase;
+import io.github.phs314.quicktts.bot.shared.adapter.in.web.ClientVersionFilter;
+import io.github.phs314.quicktts.bot.shared.adapter.in.web.ClientVersionProperties;
 import io.github.phs314.quicktts.bot.shared.adapter.in.web.RateLimitFilter;
 import io.github.phs314.quicktts.bot.shared.adapter.in.web.RateLimitProperties;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -26,11 +29,12 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  * 관리 포트({@code management.server.port})를 따로 열면 그 포트로 온 요청은 모두 토큰 없이 연다.
  * 그 포트는 클러스터 안의 프로브와 Prometheus 만 닿는다 (ADR 0057).
  * 기기 토큰으로 사람을 알아낸 다음에 사용량 제한을 센다 (ADR 0069).
+ * 인증보다 먼저 앱 판을 세고 최소 앱 판을 응답에 붙인다 (ADR 0076).
  */
 @Configuration
 @Import(ManagementPortRequestMatcher.class)
 @EnableWebSecurity
-@EnableConfigurationProperties(RateLimitProperties.class)
+@EnableConfigurationProperties({RateLimitProperties.class, ClientVersionProperties.class})
 public class SecurityConfig {
 
     @Bean
@@ -38,7 +42,9 @@ public class SecurityConfig {
             AuthenticateDeviceUseCase authenticateDeviceUseCase,
             @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver,
             ManagementPortRequestMatcher managementPort,
-            RateLimitProperties rateLimitProperties) throws Exception {
+            RateLimitProperties rateLimitProperties,
+            ClientVersionProperties clientVersionProperties,
+            MeterRegistry meterRegistry) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -56,6 +62,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(new DeviceTokenAuthenticationEntryPoint(handlerExceptionResolver)))
                 .addFilterBefore(new DeviceTokenAuthenticationFilter(authenticateDeviceUseCase),
                         UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new ClientVersionFilter(clientVersionProperties, meterRegistry),
+                        DeviceTokenAuthenticationFilter.class)
                 .addFilterAfter(new RateLimitFilter(rateLimitProperties, handlerExceptionResolver),
                         DeviceTokenAuthenticationFilter.class)
                 .build();

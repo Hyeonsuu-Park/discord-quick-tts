@@ -12,6 +12,7 @@ import io.github.phs314.quicktts.bot.config.SecurityConfig;
 import io.github.phs314.quicktts.bot.identity.application.port.in.AuthenticateDeviceUseCase;
 import io.github.phs314.quicktts.bot.identity.application.port.in.RegisterDeviceUseCase;
 import io.github.phs314.quicktts.bot.identity.domain.InvalidPairingCodeException;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -25,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * 기기 등록이 토큰 없이 열려 있는지도 함께 본다. 유스케이스만 Mockito 로 바꾼다.
  */
 @WebMvcTest(DeviceController.class)
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, SimpleMeterRegistry.class})
 class DeviceControllerTest {
 
     @Autowired

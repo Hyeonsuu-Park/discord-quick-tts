@@ -34,6 +34,10 @@ import io.github.phs314.quicktts.bot.speech.domain.vo.ChannelId;
 import io.github.phs314.quicktts.bot.speech.domain.vo.VoiceChannel;
 import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import net.dv8tion.jda.api.JDA;
@@ -48,6 +52,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.convention.TestBean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.cfg.JsonNodeFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * 봇 서버를 통째로 띄우고 데스크톱 클라이언트처럼 HTTP 로 /api/v1 을 불러 응답까지 확인한다.
@@ -63,7 +71,8 @@ import org.springframework.test.web.servlet.client.RestTestClient;
         "spring.datasource.password=",
         // 테스트마다 기기를 새로 연결하므로 사용량 제한은 넉넉하게 둔다. 제한 자체는 RateLimitFilterTest 가 확인한다.
         "quicktts.rate-limit.requests-per-minute=10000",
-        "quicktts.rate-limit.registrations-per-minute=10000"
+        "quicktts.rate-limit.registrations-per-minute=10000",
+        "quicktts.client.minimum-version=0.3.0"
 })
 // 진짜 ShardManager 를 만들면 디스코드에 로그인하므로 빈 껍데기로 바꾸고, 켜질 때 디스코드를 부르는 빈도 함께 바꾼다.
 @MockitoBean(types = {ShardManager.class, DiscordListenerRegistrar.class, BotOwnerPort.class, JoinedGuildPort.class})
@@ -318,6 +327,62 @@ class QuickTtsApiIntegrationTest {
                 .jsonPath("$.paths['" + QuickTtsApi.QUICK_CHAT_PATH + "'].post.parameters").doesNotExist()
                 .jsonPath("$.paths['" + QuickTtsApi.MY_VOICE_CHANNEL_PATH + "'].get").exists()
                 .jsonPath("$.paths['" + QuickTtsApi.DEVICES_PATH + "'].post.security").isEmpty();
+    }
+
+    @Test
+    void API_응답마다_최소_앱_판을_알리고_보낸_앱_판을_센다() {
+        client.get().uri(QuickTtsApi.MY_VOICE_CHANNEL_PATH)
+                .header(HttpHeaders.USER_AGENT, QuickTtsApi.userAgent("0.2.0"))
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectHeader().valueEquals(QuickTtsApi.MINIMUM_CLIENT_VERSION_HEADER, "0.3.0");
+
+        client.get().uri("/actuator/prometheus")
+                .header(HttpHeaders.AUTHORIZATION, QuickTtsApi.BEARER_PREFIX + registerDevice(newUser()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .value(body -> assertThat(body).contains("quicktts_client_requests_total{version=\"0.2.0\"}"));
+    }
+
+    @Test
+    void 상태_확인에는_최소_앱_판을_붙이지_않는다() {
+        client.get().uri(QuickTtsApi.HEALTH_PATH)
+                .exchange()
+                .expectHeader().doesNotExist(QuickTtsApi.MINIMUM_CLIENT_VERSION_HEADER);
+    }
+
+    /**
+     * 컨트롤러에서 만든 API 문서가 저장소의 {@code libs/api-contract/openapi.json} 과 같은지 본다.
+     * CI 는 main 의 이 파일과 PR 의 이 파일을 비교해 나눠 준 앱을 깨는 변경을 막는다 (ADR 0076).
+     * API 를 바꿨으면 {@code ./gradlew :apps:bot-server:test --tests '*QuickTtsApiIntegrationTest*' -PupdateOpenApi} 로
+     * 파일을 다시 만들어 함께 커밋한다.
+     */
+    @Test
+    void API_문서가_저장소의_API_약속_파일과_같다() throws IOException {
+        JsonMapper json = JsonMapper.builder().enable(JsonNodeFeature.WRITE_PROPERTIES_SORTED).build();
+        String body = client.get().uri("/v3/api-docs")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .returnResult().getResponseBody();
+        ObjectNode actual = (ObjectNode) json.readTree(body);
+        // 서버 주소는 테스트마다 바뀌는 포트라 약속에서 뺀다.
+        actual.remove("servers");
+
+        Path snapshot = Path.of(System.getProperty("quicktts.openapi.snapshot", "../../libs/api-contract/openapi.json"));
+        if (Boolean.getBoolean("quicktts.openapi.update")) {
+            Files.writeString(snapshot, json.writerWithDefaultPrettyPrinter().writeValueAsString(actual) + "\n",
+                    StandardCharsets.UTF_8);
+            return;
+        }
+        assertThat(snapshot)
+                .as("API 약속 파일이 없습니다. -PupdateOpenApi 로 만드세요: %s", snapshot)
+                .exists();
+        JsonNode expected = json.readTree(Files.readString(snapshot, StandardCharsets.UTF_8));
+        assertThat(actual)
+                .as("API 가 libs/api-contract/openapi.json 과 다릅니다. 바꾼 것이 맞으면 -PupdateOpenApi 로 다시 만들어 함께 커밋하세요.")
+                .isEqualTo(expected);
     }
 
     /** 디스코드 /연결 로 코드를 받아 클라이언트 첫 실행처럼 등록하고 기기 토큰을 돌려준다. */

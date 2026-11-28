@@ -11,6 +11,7 @@
 | 누가 문장을 몰아 보냄 | [누가 몰아 보낼 때](#누가-몰아-보낼-때) |
 | 토큰이나 비밀번호가 새었음 | [비밀이 새었을 때](#비밀이-새었을-때) |
 | 친구들이 서버에 못 붙음 | [서버 주소가 바뀌었을 때](#서버-주소가-바뀌었을-때) |
+| 옛 앱을 그만 받쳐 주려 함 | [옛 앱 판 내리기](#옛-앱-판-내리기) |
 
 이 PC 배포(compose)의 명령 앞부분은 길어서 아래처럼 줄여 씁니다.
 
@@ -167,3 +168,12 @@ $prod logs cloudflared | grep trycloudflare.com
 ```
 
 새 주소를 쓰는 사람들에게 알리고, 각자 `~/.discord-quick-tts/client.properties` 의 `server-url` 을 바꾼 뒤 앱을 다시 켜게 합니다. 고정 주소는 Cloudflare 계정과 도메인으로 만드는 named tunnel 이 필요합니다.
+
+## 옛 앱 판 내리기
+
+API 를 깨는 방식으로 바꿔야 할 때(옛 `/api/v1` 경로 내리기 등)의 순서입니다([ADR 0076](adr/0076-api-compatibility-and-minimum-client-version.md)).
+
+1. 바뀐 API 를 쓰는 새 앱 판을 Release 로 냅니다. 서버는 옛 경로와 새 경로를 함께 둡니다.
+2. 지금 쓰이는 앱 판을 봅니다. `curl -s http://localhost:9090/api/v1/query --data-urlencode 'query=sum by (version) (increase(quicktts_client_requests_total[7d]))'`
+3. `.env` 에 `QUICKTTS_MINIMUM_CLIENT_VERSION=<새 판>` 을 넣고 `$prod up -d`. 그보다 낮은 앱은 트레이 알림으로 업데이트를 안내받습니다.
+4. 2번의 옛 판 요청이 충분히 줄면 옛 경로를 지우는 PR 을 냅니다. CI 의 API 호환성 검사가 막으면, 막힌 변경마다 `GET /api/v1/me/voice-channel removed the required property ...` 처럼 방법, 경로, 설명을 한 줄로 `libs/api-contract/openapi-breaking-allowed.txt` 에 적어 함께 커밋합니다.
