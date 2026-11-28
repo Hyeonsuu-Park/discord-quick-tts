@@ -4,7 +4,8 @@ import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.application.exception.SpeechSynthesisException;
 import io.github.phs314.quicktts.synthesis.domain.vo.Audio;
 import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
-import java.io.IOException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -13,6 +14,10 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -29,9 +34,17 @@ public class GoogleTranslateEngine implements TtsEngine {
     private static final String ENDPOINT = "https://translate.google.com/translate_tts";
     private static final List<Voice> VOICES = List.of(new Voice(VOICE_ID, "구글 번역 (예전 목소리)"));
 
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(5))
-            .build();
+    static final String CIRCUIT_BREAKER = "google";
+
+    private final Duration timeout;
+    private final CircuitBreaker circuitBreaker;
+    private final HttpClient httpClient;
+
+    public GoogleTranslateEngine(TtsProperties properties, CircuitBreakerRegistry circuitBreakers) {
+        this.timeout = properties.googleTimeout();
+        this.circuitBreaker = circuitBreakers.circuitBreaker(CIRCUIT_BREAKER);
+        this.httpClient = HttpClient.newBuilder().connectTimeout(timeout).build();
+    }
 
     @Override
     public List<Voice> voices() {
@@ -40,20 +53,29 @@ public class GoogleTranslateEngine implements TtsEngine {
 
     @Override
     public Audio synthesize(String text, VoiceId voiceId) {
+        return TtsEngine.throughCircuitBreaker(circuitBreaker, "Google 번역 TTS", () -> request(text));
+    }
+
+    /** 요청의 timeout 은 응답 머리까지만 재므로, 본문까지 받는 전체 시간은 future 로 한 번 더 자른다. */
+    private Audio request(String text) {
         HttpRequest request = HttpRequest.newBuilder(buildUri(text, "ko"))
                 .header("User-Agent", "Mozilla/5.0")
-                .timeout(Duration.ofSeconds(10))
+                .timeout(timeout)
                 .GET()
                 .build();
+        CompletableFuture<HttpResponse<byte[]>> response =
+                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray());
         try {
-            HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-            if (response.statusCode() != 200) {
-                throw new SpeechSynthesisException("Google 번역 TTS 응답 코드가 " + response.statusCode() + " 입니다.");
+            HttpResponse<byte[]> received = response.get(timeout.toNanos(), TimeUnit.NANOSECONDS);
+            if (received.statusCode() != 200) {
+                throw new SpeechSynthesisException("Google 번역 TTS 응답 코드가 " + received.statusCode() + " 입니다.");
             }
-            return new Audio(response.body(), "mp3");
-        } catch (IOException e) {
+            return new Audio(received.body(), "mp3");
+        } catch (ExecutionException | TimeoutException e) {
+            response.cancel(true);
             throw new SpeechSynthesisException("Google 번역 TTS 호출에 실패했습니다.", e);
         } catch (InterruptedException e) {
+            response.cancel(true);
             Thread.currentThread().interrupt();
             throw new SpeechSynthesisException("Google 번역 TTS 호출이 중단되었습니다.", e);
         }

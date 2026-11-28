@@ -49,3 +49,7 @@ quicktts:
     default-voice: ${QUICKTTS_DEFAULT_VOICE:edge:ko-KR-SunHiNeural}
     # Edge 목소리 서버가 확인하는 Edge 브라우저 버전. Edge 목소리가 갑자기 안 되면 최신 버전으로 올린다.
     edge-chromium-version: 143.0.3650.75
+    # 엔진 하나가 음성을 다 보내기까지 기다리는 시간(연결 포함). Edge 가 실패하면 Google 로 한 번 더 만들므로
+    # 서비스 한 번은 둘을 더한 7초 안에 끝난다. 봇 서버(8초), 데스크톱 앱(10초)이 이보다 길어야 한다 (ADR 0070).
+    edge-timeout: 4s
+    google-timeout: 3s

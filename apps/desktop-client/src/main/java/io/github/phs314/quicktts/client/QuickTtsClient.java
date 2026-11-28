@@ -179,10 +179,16 @@ class QuickTtsClient {
                 });
     }
 
+    /**
+     * 보내기는 서버가 음성을 다 만들 때까지 기다린다. 서버는 synthesis 를 8초까지만 기다리므로(ADR 0070)
+     * 이 10초가 그보다 길어야, 앱이 실패를 보여 준 뒤에 서버가 늦게 읽는 일이 없다.
+     */
+    private static final Duration POST_TIMEOUT = Duration.ofSeconds(10);
+
     private HttpRequest.Builder jsonPost(String path, Object body) {
         return HttpRequest.newBuilder(URI.create(serverUrl + path))
                 .header("Content-Type", "application/json")
-                .timeout(Duration.ofSeconds(10))
+                .timeout(POST_TIMEOUT)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonMapper.writeValueAsString(body)));
     }
 

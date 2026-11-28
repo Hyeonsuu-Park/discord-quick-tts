@@ -17,6 +17,9 @@ dependencies {
     // 같은 문장의 음성을 기억해 두는 캐시. 벌마다 따로 기억한다.
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine")
+    // 엔진이 연달아 실패하면 한동안 부르지 않고 바로 다음 엔진으로 넘기는 차단기와 그 지표 (ADR 0070).
+    implementation(libs.resilience4j.circuitbreaker)
+    implementation(libs.resilience4j.micrometer)
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 

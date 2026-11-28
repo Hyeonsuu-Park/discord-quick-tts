@@ -1,9 +1,13 @@
 package io.github.phs314.quicktts.synthesis.adapter.out.tts;
 
+import io.github.phs314.quicktts.synthesis.application.exception.SpeechSynthesisException;
 import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.domain.vo.Audio;
 import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import java.util.List;
+import java.util.function.Supplier;
 import org.springframework.cache.annotation.Cacheable;
 
 /**
@@ -27,5 +31,19 @@ interface TtsEngine {
 
     default boolean offers(VoiceId voiceId) {
         return voices().stream().anyMatch(offered -> offered.id().equals(voiceId));
+    }
+
+    /**
+     * 엔진 호출을 그 엔진의 차단기로 감싼다(ADR 0070). 차단기가 열려 있으면 부르지 않고 바로 실패해서
+     * {@link SpeechSynthesizerAdapter} 가 곧바로 다른 엔진으로 읽게 한다.
+     * 캐시 프록시 안쪽에서 불리므로 캐시에서 꺼낸 음성은 차단기의 성공으로 세지 않는다.
+     */
+    static Audio throughCircuitBreaker(CircuitBreaker circuitBreaker, String engineName, Supplier<Audio> call) {
+        try {
+            return circuitBreaker.executeSupplier(call);
+        } catch (CallNotPermittedException e) {
+            throw new SpeechSynthesisException(
+                    engineName + " 가 연달아 실패해서 잠시 부르지 않습니다.", e);
+        }
     }
 }

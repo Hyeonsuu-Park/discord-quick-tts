@@ -22,11 +22,12 @@ spring:
     serviceclient:
       # 음성을 만드는 synthesis 서비스의 주소와 시간 제한 (ADR 0065).
       # 기본값은 개발 PC 에서 bootRun 으로 함께 띄운 synthesis 서비스(8082)다. compose 와 쿠버네티스는 QUICKTTS_SYNTHESIS_URL 로 바꾼다.
-      # 엔진이 실패하면 서비스 안에서 다른 엔진으로 한 번 더 만들기 때문에 읽기 시간 제한을 넉넉히 둔다.
+      # 시간 제한은 안쪽일수록 짧다: synthesis 엔진 4초(+대신 읽기 3초) < 봇 서버 8초 < 데스크톱 앱 10초 (ADR 0070).
+      # 그래야 앱이 실패를 보여 준 뒤에 서버가 늦게 읽는 일이 없다.
       synthesis:
         base-url: ${QUICKTTS_SYNTHESIS_URL:http://localhost:8082}
-        connect-timeout: 2s
-        read-timeout: 45s
+        connect-timeout: 1s
+        read-timeout: 8s
   jpa:
     # 스키마는 Flyway 가 만들고, JPA 는 엔티티가 테이블과 맞는지만 켜질 때 확인한다.
     hibernate:

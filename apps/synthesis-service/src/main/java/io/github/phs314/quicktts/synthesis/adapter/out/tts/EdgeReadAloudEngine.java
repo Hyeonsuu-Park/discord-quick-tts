@@ -4,6 +4,8 @@ import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.application.exception.SpeechSynthesisException;
 import io.github.phs314.quicktts.synthesis.domain.vo.Audio;
 import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -53,16 +55,19 @@ public class EdgeReadAloudEngine implements TtsEngine {
     private static final DateTimeFormatter JS_DATE = DateTimeFormatter
             .ofPattern("EEE MMM dd yyyy HH:mm:ss 'GMT+0000 (Coordinated Universal Time)'", Locale.US)
             .withZone(ZoneOffset.UTC);
-    private static final Duration TIMEOUT = Duration.ofSeconds(15);
+    static final String CIRCUIT_BREAKER = "edge";
 
-    private final HttpClient httpClient = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(5))
-            .build();
     private final String chromiumVersion;
+    private final Duration timeout;
+    private final CircuitBreaker circuitBreaker;
+    private final HttpClient httpClient;
     private final Clock clock;
 
-    public EdgeReadAloudEngine(TtsProperties properties, Clock clock) {
+    public EdgeReadAloudEngine(TtsProperties properties, CircuitBreakerRegistry circuitBreakers, Clock clock) {
         this.chromiumVersion = properties.edgeChromiumVersion();
+        this.timeout = properties.edgeTimeout();
+        this.circuitBreaker = circuitBreakers.circuitBreaker(CIRCUIT_BREAKER);
+        this.httpClient = HttpClient.newBuilder().connectTimeout(timeout).build();
         this.clock = clock;
     }
 
@@ -73,6 +78,12 @@ public class EdgeReadAloudEngine implements TtsEngine {
 
     @Override
     public Audio synthesize(String text, VoiceId voiceId) {
+        return TtsEngine.throughCircuitBreaker(circuitBreaker, "Edge TTS", () -> request(text, voiceId));
+    }
+
+    /** 연결부터 마지막 음성 조각까지 모두 {@link TtsProperties#edgeTimeout()} 한 번 안에 끝나야 한다. */
+    private Audio request(String text, VoiceId voiceId) {
+        long deadline = System.nanoTime() + timeout.toNanos();
         Instant now = clock.instant();
         AudioCollector collector = new AudioCollector();
         WebSocket webSocket = null;
@@ -83,10 +94,11 @@ public class EdgeReadAloudEngine implements TtsEngine {
                     .header("Pragma", "no-cache")
                     .header("Cache-Control", "no-cache")
                     .buildAsync(connectUri(now), collector)
-                    .get(TIMEOUT.toSeconds(), TimeUnit.SECONDS);
-            webSocket.sendText(configMessage(now), true).join();
-            webSocket.sendText(ssmlMessage(now, voiceName(voiceId), text), true).join();
-            byte[] audio = collector.result().get(TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+                    .get(remaining(deadline), TimeUnit.NANOSECONDS);
+            webSocket.sendText(configMessage(now), true).get(remaining(deadline), TimeUnit.NANOSECONDS);
+            webSocket.sendText(ssmlMessage(now, voiceName(voiceId), text), true)
+                    .get(remaining(deadline), TimeUnit.NANOSECONDS);
+            byte[] audio = collector.result().get(remaining(deadline), TimeUnit.NANOSECONDS);
             if (audio.length == 0) {
                 throw new SpeechSynthesisException("Edge TTS 가 음성을 보내지 않았습니다.");
             }
@@ -101,6 +113,10 @@ public class EdgeReadAloudEngine implements TtsEngine {
                 webSocket.abort();
             }
         }
+    }
+
+    private static long remaining(long deadline) {
+        return Math.max(0, deadline - System.nanoTime());
     }
 
     private URI connectUri(Instant now) {
