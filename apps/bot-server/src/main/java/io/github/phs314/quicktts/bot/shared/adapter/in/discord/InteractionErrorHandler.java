@@ -42,9 +42,18 @@ public class InteractionErrorHandler implements EventListener {
         }
     }
 
+    /**
+     * 이미 응답했으면 후속 메시지로 보낸다. 응답을 미뤄 둔 명령(deferReply)이면 첫 후속 메시지가 "생각하는 중" 자리에 들어가고,
+     * 이미 답을 보낸 명령이면 답을 지우지 않고 안내가 하나 더 붙는다.
+     */
     private static void replyIfNotAnswered(GenericEvent event, String message) {
-        if (event instanceof IReplyCallback callback && !callback.isAcknowledged()) {
+        if (!(event instanceof IReplyCallback callback)) {
+            return;
+        }
+        if (!callback.isAcknowledged()) {
             callback.reply(message).setEphemeral(true).queue();
+        } else {
+            callback.getHook().sendMessage(message).setEphemeral(true).queue();
         }
     }
 }

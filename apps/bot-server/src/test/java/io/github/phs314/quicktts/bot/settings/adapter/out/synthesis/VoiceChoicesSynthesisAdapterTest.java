@@ -60,4 +60,38 @@ class VoiceChoicesSynthesisAdapterTest {
         assertThatThrownBy(() -> adapter.getVoiceChoices())
                 .isInstanceOf(SynthesisServiceUnavailableException.class);
     }
+
+    @Test
+    void 한_번_받은_목록은_다시_묻지_않고_돌려준다() {
+        expectVoices("선희");
+
+        adapter.getVoiceChoices();
+        VoiceChoices again = adapter.getVoiceChoices();
+
+        server.verify();
+        assertThat(again.choices()).extracting(VoiceChoice::label).containsExactly("선희");
+    }
+
+    @Test
+    void 새로_받으면_바뀐_목록을_쓰고_못_받으면_마지막_목록을_쓴다() {
+        expectVoices("선희");
+        expectVoices("인준");
+        server.expect(requestTo("http://synthesis/internal/v1/voices"))
+                .andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
+
+        adapter.getVoiceChoices();
+        adapter.refresh();
+        adapter.refresh();
+
+        server.verify();
+        assertThat(adapter.getVoiceChoices().choices()).extracting(VoiceChoice::label).containsExactly("인준");
+    }
+
+    private void expectVoices(String label) {
+        server.expect(requestTo("http://synthesis/internal/v1/voices"))
+                .andRespond(withSuccess("""
+                        {"voices": [{"id": "edge:ko-KR-SunHiNeural", "label": "%s"}],
+                         "defaultVoiceId": "edge:ko-KR-SunHiNeural"}
+                        """.formatted(label), MediaType.APPLICATION_JSON));
+    }
 }

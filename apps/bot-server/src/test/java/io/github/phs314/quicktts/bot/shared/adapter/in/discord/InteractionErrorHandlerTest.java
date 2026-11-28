@@ -9,7 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.github.phs314.quicktts.bot.shared.domain.InvalidDomainValueException;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.requests.restaction.WebhookMessageCreateAction;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,14 +49,23 @@ class InteractionErrorHandlerTest {
         verify(event).reply(InteractionErrorHandler.UNEXPECTED_FAILURE_REPLY);
     }
 
+    /** 응답을 미뤄 둔 명령(deferReply)이 실패하면 "생각하는 중" 에 머물지 않고 후속 메시지로 안내한다. */
     @Test
-    void 이미_답한_뒤의_실패에는_다시_답하지_않는다() {
+    void 이미_응답한_뒤의_실패는_후속_메시지로_안내한다() {
+        InteractionHook hook = mock(InteractionHook.class);
+        WebhookMessageCreateAction<Message> followUp = mock();
         when(event.isAcknowledged()).thenReturn(true);
+        when(event.getHook()).thenReturn(hook);
+        when(hook.sendMessage(anyString())).thenReturn(followUp);
+        when(followUp.setEphemeral(anyBoolean())).thenReturn(followUp);
 
         new InteractionErrorHandler(e -> {
-            throw new IllegalStateException("답한 뒤의 버그");
+            throw new InvalidDomainValueException("목소리 목록을 받지 못했습니다.");
         }).onEvent(event);
 
         verify(event, never()).reply(anyString());
+        verify(hook).sendMessage("목소리 목록을 받지 못했습니다.");
+        verify(followUp).setEphemeral(true);
+        verify(followUp).queue();
     }
 }
