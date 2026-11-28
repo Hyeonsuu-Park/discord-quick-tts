@@ -1,7 +1,9 @@
 package io.github.phs314.quicktts.synthesis.adapter.out.tts;
 
 import jakarta.validation.constraints.NotBlank;
+import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
 
 /**
@@ -10,6 +12,8 @@ import org.springframework.validation.annotation.Validated;
  *
  * @param defaultVoice        목소리를 고르지 않은 사용자에게 쓰는 목소리
  * @param edgeChromiumVersion Edge 목소리 서버가 확인하는 Edge 브라우저 버전. Edge 목소리가 갑자기 안 되면 최신 버전으로 올린다.
+ * @param edgeTimeout         Edge 가 음성을 다 보내기까지 기다리는 시간(연결 포함)
+ * @param googleTimeout       Google 번역이 음성을 다 보내기까지 기다리는 시간(연결 포함)
  */
 @Validated
 @ConfigurationProperties("quicktts.tts")
@@ -17,5 +21,7 @@ public record TtsProperties(
         @NotBlank(message = "QUICKTTS_DEFAULT_VOICE 가 비어 있습니다. 목소리 식별자를 적거나 줄을 지워 기본 목소리를 쓰세요.")
         String defaultVoice,
         @NotBlank(message = "quicktts.tts.edge-chromium-version 이 비어 있습니다. application.yml 에 Edge 브라우저 버전을 적으세요.")
-        String edgeChromiumVersion) {
+        String edgeChromiumVersion,
+        @DefaultValue("4s") Duration edgeTimeout,
+        @DefaultValue("3s") Duration googleTimeout) {
 }

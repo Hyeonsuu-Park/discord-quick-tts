@@ -97,4 +97,15 @@ class SynthesisApiIntegrationTest {
                     assertThat(e.getResponseBodyAsString()).contains(ApiErrorCode.INVALID_VALUE);
                 });
     }
+
+    /** 엔진 차단기 상태가 Prometheus 지표로 나가서 알림 규칙이 볼 수 있다(ADR 0070). */
+    @Test
+    void 엔진_차단기_상태를_지표로_낸다() {
+        String metrics = RestClient.create("http://localhost:" + port + "/actuator/prometheus")
+                .get().retrieve().body(String.class);
+
+        assertThat(metrics)
+                .contains("resilience4j_circuitbreaker_state{name=\"edge\"")
+                .contains("resilience4j_circuitbreaker_state{name=\"google\"");
+    }
 }

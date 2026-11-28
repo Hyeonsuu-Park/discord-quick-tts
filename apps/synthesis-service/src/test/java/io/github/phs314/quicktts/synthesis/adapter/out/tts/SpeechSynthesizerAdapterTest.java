@@ -10,6 +10,7 @@ import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -91,7 +92,7 @@ class SpeechSynthesizerAdapterTest {
     }
 
     private static TtsProperties defaultVoice(String voice) {
-        return new TtsProperties(voice, "143.0.3650.75");
+        return new TtsProperties(voice, "143.0.3650.75", Duration.ofSeconds(4), Duration.ofSeconds(3));
     }
 
     private static String text(Audio audio) {

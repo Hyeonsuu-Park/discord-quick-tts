@@ -63,8 +63,8 @@
 | [0045](0045-apps-libs-build-logic-layout.md) | 저장소를 apps, libs, build-logic 으로 나눈다 | 일부 대체됨 (ADR 0060, ADR 0065) |
 | [0060](0060-synthesis-as-gradle-module.md) | 따로 띄울 synthesis 와 공유 커널은 contexts/ 아래 Gradle 모듈로 뺀다 | 대체됨 (ADR 0065) |
 | [0061](0061-synthesis-service.md) | synthesis 를 클러스터 안 웹 API 서비스로도 띄운다 | 일부 대체됨 (ADR 0065) |
-| [0062](0062-call-synthesis-over-http-by-config.md) | 봇 서버는 설정으로 synthesis 를 같은 프로세스나 HTTP 로 부른다 | 대체됨 (ADR 0065) |
-| [0065](0065-synthesis-code-lives-in-synthesis-service.md) | 음성 만드는 코드는 synthesis 서비스 안에만 두고, 봇 서버는 언제나 HTTP 로 부른다 | 채택 |
+| [0062](0062-call-synthesis-over-http-by-config.md) | 봇 서버는 설정으로 synthesis 를 같은 프로세스나 HTTP 로 부른다 | 대체됨 (ADR 0065, ADR 0070) |
+| [0065](0065-synthesis-code-lives-in-synthesis-service.md) | 음성 만드는 코드는 synthesis 서비스 안에만 두고, 봇 서버는 언제나 HTTP 로 부른다 | 일부 대체됨 (ADR 0070) |
 | [0047](0047-split-settings-and-synthesis-from-speech.md) | speech 에서 사용자 설정(settings)과 음성 만들기(synthesis)를 떼어 낸다 | 채택 |
 | [0048](0048-rename-device-context-to-identity.md) | device 컨텍스트를 identity 로 부른다 | 채택 |
 
@@ -153,6 +153,7 @@
 | [0067](0067-open-pc-server-with-cloudflare-tunnel.md) | 이 PC 에 띄운 서버는 Cloudflare Tunnel 로 인터넷에 연다 | 일부 대체됨 (ADR 0068, ADR 0069) |
 | [0068](0068-pc-deploy-with-compose-prod-override.md) | 이 PC 를 배포 서버로 쓸 때는 compose.prod.yaml 을 덮어써서 띄운다 | 채택 |
 | [0069](0069-rate-limits-and-speech-queue-cap.md) | 웹 API 는 사용자·IP 마다 1분 상한을 두고, 디스코드 서버마다 읽을 차례는 20개까지 받는다 | 채택 |
+| [0070](0070-timeout-budget-and-engine-circuit-breakers.md) | 시간 제한은 안쪽일수록 짧게 두고, TTS 엔진마다 차단기를 둔다 | 채택 |
 
 ### 데스크톱 클라이언트와 배포
 

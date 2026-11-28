@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 /**
  * 여러 {@link TtsEngine} 의 목소리를 한 목록으로 내놓고, 고른 목소리의 엔진으로 읽는다.
  * 고른 엔진이 실패하면 Google 번역 목소리로 대신 읽어서 아무 소리도 안 나는 일을 줄인다.
+ * 엔진마다 시간 제한과 차단기가 있어서, 막힌 엔진은 기다리지 않고 바로 실패하고 곧바로 대신 읽는다(ADR 0070).
  * 목소리별로 걸린 시간과 성공·실패를 {@value #SYNTHESIS_METRIC}, 대신 읽은 횟수를 {@value #FALLBACK_METRIC} 지표로 센다.
  * 비공식 엔진이 막히면 이 두 숫자가 먼저 바뀐다.
  */
