@@ -1,5 +1,9 @@
 package io.github.phs314.quicktts.bot.identity.adapter.in.web;
 
+import jakarta.servlet.http.HttpServletRequest;
+import io.github.phs314.quicktts.bot.shared.domain.BusinessException;
+import io.github.phs314.quicktts.bot.shared.adapter.in.web.ClientAddress;
+import io.github.phs314.quicktts.bot.shared.adapter.in.AuditLog;
 import io.github.phs314.quicktts.api.DeviceRegistrationRequest;
 import io.github.phs314.quicktts.api.DeviceRegistrationResponse;
 import io.github.phs314.quicktts.api.QuickTtsApi;
@@ -37,9 +41,19 @@ public class DeviceController {
     @ApiResponse(responseCode = "400", description = "invalid-pairing-code (없거나 만료된 코드), invalid-value (코드나 PC 이름 형식)",
             content = @Content(mediaType = "application/problem+json", schema = @Schema(ref = OpenApiConfig.PROBLEM)))
     @ResponseStatus(HttpStatus.CREATED)
-    public DeviceRegistrationResponse register(@RequestBody DeviceRegistrationRequest request) {
-        RegisterDeviceCommand command = DeviceWebMapper.toCommand(request);
-        DeviceToken token = registerDeviceUseCase.register(command);
+    public DeviceRegistrationResponse register(@RequestBody DeviceRegistrationRequest request,
+            HttpServletRequest httpRequest) {
+        String ip = ClientAddress.of(httpRequest);
+        DeviceToken token;
+        try {
+            token = registerDeviceUseCase.register(DeviceWebMapper.toCommand(request));
+        } catch (BusinessException e) {
+            AuditLog.record("device.registration-rejected", "reason", e.code(), "ip", ip);
+            throw e;
+        }
+        // 토큰은 남기지 않는다. 저장된 해시의 앞 12자로 어느 기기인지 DB 에서 찾는다.
+        AuditLog.record("device.registered", "device-name", request.deviceName(),
+                "token-hash", token.hash().value().substring(0, 12), "ip", ip);
         return DeviceWebMapper.toResponse(token);
     }
 }

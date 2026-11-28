@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import io.github.phs314.quicktts.api.QuickTtsApi;
+import io.github.phs314.quicktts.bot.shared.adapter.in.AuditLog;
 import io.github.phs314.quicktts.bot.shared.domain.vo.DiscordUserId;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,11 +34,10 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  */
 public class RateLimitFilter extends OncePerRequestFilter {
 
-    /** Cloudflare 가 실제로 보낸 곳을 적어 주는 헤더. */
-    static final String CLIENT_IP_HEADER = "CF-Connecting-IP";
-
     /** 웹 API 경로. 버전(/api/v1, /api/v2 ...)과 상관없이 센다. */
     private static final String API_PREFIX = "/api/";
+    private static final String USER_KEY_PREFIX = "user:";
+    private static final String REGISTRATION_KEY_PREFIX = "registration:";
 
     private static final Duration IDLE_BUCKET_EXPIRY = Duration.ofMinutes(10);
     private static final long MAX_BUCKETS = 100_000;
@@ -46,6 +46,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
             .expireAfterAccess(IDLE_BUCKET_EXPIRY)
+            .maximumSize(MAX_BUCKETS)
+            .build();
+    /** 몰아 보내는 동안 거절마다 감사 로그가 쌓이지 않게, 같은 키는 1분에 한 줄만 남긴다. */
+    private final Cache<String, Boolean> recentlyAudited = Caffeine.newBuilder()
+            .expireAfterWrite(Duration.ofMinutes(1))
             .maximumSize(MAX_BUCKETS)
             .build();
 
@@ -57,10 +62,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        Optional<Bucket> bucket = bucketOf(request);
-        if (bucket.isPresent()) {
-            ConsumptionProbe probe = bucket.get().tryConsumeAndReturnRemaining(1);
+        Optional<String> key = bucketKeyOf(request);
+        if (key.isPresent()) {
+            ConsumptionProbe probe = buckets.get(key.get(), this::newBucket).tryConsumeAndReturnRemaining(1);
             if (!probe.isConsumed()) {
+                if (recentlyAudited.asMap().putIfAbsent(key.get(), Boolean.TRUE) == null) {
+                    AuditLog.record("request.rate-limited", "key", key.get(), "path", request.getRequestURI(),
+                            "ip", ClientAddress.of(request));
+                }
                 long retryAfterSeconds = Math.max(1, TimeUnit.NANOSECONDS.toSeconds(probe.getNanosToWaitForRefill()) + 1);
                 response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfterSeconds));
                 handlerExceptionResolver.resolveException(request, response, null,
@@ -71,17 +80,21 @@ public class RateLimitFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    private Optional<Bucket> bucketOf(HttpServletRequest request) {
+    private static Optional<String> bucketKeyOf(HttpServletRequest request) {
         Optional<DiscordUserId> user = signedInUser();
         if (user.isPresent() && request.getRequestURI().startsWith(API_PREFIX)) {
-            return Optional.of(buckets.get("user:" + user.get().value(),
-                    key -> perMinute(properties.requestsPerMinute())));
+            return Optional.of(USER_KEY_PREFIX + user.get().value());
         }
         if (HttpMethod.POST.matches(request.getMethod()) && QuickTtsApi.DEVICES_PATH.equals(request.getRequestURI())) {
-            return Optional.of(buckets.get("registration:" + clientAddress(request),
-                    key -> perMinute(properties.registrationsPerMinute())));
+            return Optional.of(REGISTRATION_KEY_PREFIX + ClientAddress.of(request));
         }
         return Optional.empty();
+    }
+
+    private Bucket newBucket(String key) {
+        return perMinute(key.startsWith(USER_KEY_PREFIX)
+                ? properties.requestsPerMinute()
+                : properties.registrationsPerMinute());
     }
 
     private static Optional<DiscordUserId> signedInUser() {
@@ -89,11 +102,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
         return authentication != null && authentication.getPrincipal() instanceof DiscordUserId userId
                 ? Optional.of(userId)
                 : Optional.empty();
-    }
-
-    private static String clientAddress(HttpServletRequest request) {
-        String forwarded = request.getHeader(CLIENT_IP_HEADER);
-        return forwarded == null || forwarded.isBlank() ? request.getRemoteAddr() : forwarded.strip();
     }
 
     /** 1분에 {@code limit} 번. 다 쓰면 1분에 걸쳐 조금씩 다시 찬다. */

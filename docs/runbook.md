@@ -1,6 +1,17 @@
 # 운영 안내서
 
-배포한 서버에 문제가 생겼을 때 이 문서를 위에서부터 따라 합니다. 명령은 저장소 루트의 Git Bash 에서 실행합니다.
+배포한 서버를 운영할 때 할 일과, 문제가 생겼을 때 따라 할 순서입니다. 명령은 저장소 루트의 Git Bash 에서 실행합니다.
+
+| 상황 | 볼 곳 |
+| --- | --- |
+| 디스코드 채널에 알림이 옴 | [알림을 받았을 때](#알림을-받았을-때) |
+| 데이터가 없어지거나 DB 가 망가짐 | [DB 되살리기](#db-되살리기) |
+| 새 판을 올림, 올린 판이 이상함 | [새 판 올리기](#새-판-올리기), [옛 판으로 되돌리기](#옛-판으로-되돌리기) |
+| 누가 무엇을 했는지 알아야 함 | [누가 무엇을 했는지 보기](#누가-무엇을-했는지-보기) |
+| 누가 문장을 몰아 보냄 | [누가 몰아 보낼 때](#누가-몰아-보낼-때) |
+| 토큰이나 비밀번호가 새었음 | [비밀이 새었을 때](#비밀이-새었을-때) |
+| 친구들이 서버에 못 붙음 | [서버 주소가 바뀌었을 때](#서버-주소가-바뀌었을-때) |
+
 이 PC 배포(compose)의 명령 앞부분은 길어서 아래처럼 줄여 씁니다.
 
 ```bash
@@ -101,3 +112,58 @@ $prod ps
 1. `.env` 의 `QUICKTTS_IMAGE_TAG` 를 앞 판의 `main-<커밋>` 으로 바꿉니다.
 2. `$prod up -d`
 3. 마이그레이션은 되돌리지 않습니다. 늘리기와 줄이기를 다른 판에 나누는 규칙(ADR 0073) 덕에 바로 앞 판은 새 스키마에서도 돕니다. `__contract_` 마이그레이션이 들어간 판보다 앞으로 되돌려야 하면 DB 도 그 판 전의 덤프로 되살립니다.
+
+## 새 판 올리기
+
+1. main 에 머지된 커밋의 CI 가 초록인지 봅니다(CI 가 통과해야 이미지가 올라갑니다, [ADR 0072](adr/0072-images-after-ci-and-smoke-run.md)).
+2. GitHub 저장소 > **Packages > quicktts-bot-server** 에서 그 커밋의 `main-<커밋 7자리>` 태그를 확인합니다.
+3. 지금 태그를 적어 둡니다(되돌릴 때 씁니다). `grep QUICKTTS_IMAGE_TAG .env`
+4. `.env` 의 `QUICKTTS_IMAGE_TAG` 를 새 태그로 바꾸고 `$prod up -d`.
+5. `$prod ps` 에서 `bot-server` 가 `healthy` 가 되는지, 디스코드에서 `/도움말` 이 답하는지 봅니다. 안 되면 바로 위 "옛 판으로 되돌리기".
+
+## 누가 무엇을 했는지 보기
+
+봇 서버는 보안에 관련된 행동을 `audit event=` 로 시작하는 한 줄로 남깁니다([ADR 0075](adr/0075-audit-log.md)). 비밀(기기 토큰, 연결 코드)은 남기지 않습니다.
+
+```bash
+$prod logs bot-server | grep "audit event="
+$prod logs bot-server | grep "audit event=device"            # 기기 연결·해제만
+$prod logs bot-server | grep "audit event=.* actor=123456789"  # 한 사람이 한 일
+```
+
+| 사건 | 남기는 때 | 키 |
+| --- | --- | --- |
+| `pairing-code.issued` | `/연결` 로 연결 코드를 받음 | `actor` |
+| `device.registered` | 데스크톱 앱이 연결 코드로 기기를 등록함 | `device-name`, `token-hash`(저장된 해시 앞 12자), `ip` |
+| `device.registration-rejected` | 틀리거나 만료된 연결 코드 | `reason`, `ip` |
+| `device.unlinked` | `/연결해제` | `actor`, `device`, `count` |
+| `device-token.rejected` | 없거나 틀린 기기 토큰으로 API 를 부름 | `path`, `ip`, `token-sent` |
+| `request.rate-limited` | 사용량 제한에 걸림(같은 키는 1분에 한 줄) | `key`, `path`, `ip` |
+| `allowlist.added`, `allowlist.removed` | `/허용목록 추가·삭제` | `actor`, `guild`, `changed` |
+| `allowlist.denied` | 봇 주인이 아닌 사람이 `/허용목록` 을 씀 | `actor`, `subcommand` |
+| `guild.left` | 허용 목록에 없는 서버에서 나감 | `guild`, `guild-name`, `reason` |
+
+컨테이너 로그는 서비스마다 30MB(10MB × 3)까지만 남습니다. 오래된 일을 찾으려면 그 전에 파일로 꺼내 둡니다. `$prod logs --no-color bot-server > bot-server-$(date +%F).log`
+
+## 누가 몰아 보낼 때
+
+1. 위의 `request.rate-limited` 줄에서 `key` 를 봅니다. `user:<디스코드 ID>` 면 그 사람, `registration:<IP>` 면 기기 등록을 몰아 시도하는 곳입니다.
+2. 사용량 제한(1분 60번)이 이미 막고 있으므로 서버는 버팁니다. 계속되면 그 사람이 있는 디스코드 서버를 `/허용목록 삭제` 로 빼서 봇이 나가게 합니다.
+3. 값이 너무 낮거나 높으면 `.env` 의 `QUICKTTS_RATE_LIMIT_REQUESTS_PER_MINUTE`, `QUICKTTS_RATE_LIMIT_REGISTRATIONS_PER_MINUTE` 를 바꾸고 `$prod up -d`.
+
+## 비밀이 새었을 때
+
+- **디스코드 봇 토큰**: [Discord Developer Portal](https://discord.com/developers/applications) > 이 봇 > Bot > **Reset Token**. 새 토큰을 `.env` 의 `DISCORD_TOKEN` 에 넣고 `$prod up -d`. 옛 토큰은 바로 쓸 수 없게 됩니다.
+- **누군가의 기기 토큰**(PC 를 잃어버림 등): 그 사람이 디스코드에서 `/연결해제` 로 그 PC 를 끊습니다. 서버는 해시만 들고 있어서 DB 가 새어도 토큰은 나오지 않습니다.
+- **알림 웹훅 주소**: 디스코드 채널 설정 > 연동 > 웹후크에서 그 웹후크를 지우고 새로 만든 뒤 `.env` 의 `QUICKTTS_ALERT_DISCORD_WEBHOOK_URL` 을 바꾸고 `$prod up -d`.
+- **DB 비밀번호**: `$prod exec mysql mysql -uroot -p` 로 들어가 `ALTER USER 'quicktts'@'%' IDENTIFIED BY '<새 비밀번호>';` 뒤 `.env` 의 `QUICKTTS_PROD_DB_PASSWORD` 를 바꾸고 `$prod up -d`.
+
+## 서버 주소가 바뀌었을 때
+
+지금은 계정 없는 quick tunnel 이라 PC 를 다시 켜거나 `cloudflared` 가 다시 뜨면 주소가 바뀝니다.
+
+```bash
+$prod logs cloudflared | grep trycloudflare.com
+```
+
+새 주소를 쓰는 사람들에게 알리고, 각자 `~/.discord-quick-tts/client.properties` 의 `server-url` 을 바꾼 뒤 앱을 다시 켜게 합니다. 고정 주소는 Cloudflare 계정과 도메인으로 만드는 named tunnel 이 필요합니다.

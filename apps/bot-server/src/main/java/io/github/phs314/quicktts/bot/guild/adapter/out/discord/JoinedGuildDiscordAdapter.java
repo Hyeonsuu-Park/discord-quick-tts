@@ -1,5 +1,6 @@
 package io.github.phs314.quicktts.bot.guild.adapter.out.discord;
 
+import io.github.phs314.quicktts.bot.shared.adapter.in.AuditLog;
 import io.github.phs314.quicktts.bot.guild.application.port.out.JoinedGuildPort;
 import io.github.phs314.quicktts.bot.shared.domain.vo.GuildId;
 import java.util.List;
@@ -7,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,8 +16,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class JoinedGuildDiscordAdapter implements JoinedGuildPort {
-
-    private static final Logger log = LoggerFactory.getLogger(JoinedGuildDiscordAdapter.class);
 
     private final ShardManager shardManager;
 
@@ -33,7 +30,7 @@ public class JoinedGuildDiscordAdapter implements JoinedGuildPort {
         if (guild == null) {
             return;
         }
-        log.info("허용 목록에 없는 디스코드 서버에서 나갑니다: {} ({})", guild.getName(), guild.getId());
+        AuditLog.record("guild.left", "guild", guild.getId(), "guild-name", guild.getName(), "reason", "not-allowed");
         GuildMessageChannel channel = noticeChannel(guild);
         if (channel == null) {
             guild.leave().queue();
