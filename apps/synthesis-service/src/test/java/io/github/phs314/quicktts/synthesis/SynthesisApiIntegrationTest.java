@@ -11,7 +11,9 @@ import io.github.phs314.quicktts.synthesis.contract.SynthesisApi;
 import io.github.phs314.quicktts.synthesis.contract.SynthesizeRequest;
 import io.github.phs314.quicktts.synthesis.contract.VoiceCatalogResponse;
 import io.github.phs314.quicktts.synthesis.contract.VoiceCatalogResponse.VoiceResponse;
+import io.github.phs314.quicktts.synthesis.domain.vo.SpokenText;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,6 +89,17 @@ class SynthesisApiIntegrationTest {
                     assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_GATEWAY);
                     assertThat(e.getResponseBodyAsString()).contains(ApiErrorCode.SPEECH_SYNTHESIS_FAILED);
                 });
+    }
+
+    @Test
+    void 문장이_비었거나_너무_길면_400_과_invalid_value() {
+        for (String text : List.of(" ", "가".repeat(SpokenText.MAX_LENGTH + 1))) {
+            assertThatThrownBy(() -> client.synthesize(new SynthesizeRequest(text, "fake:sunhi")))
+                    .isInstanceOfSatisfying(HttpClientErrorException.class, e -> {
+                        assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+                        assertThat(e.getResponseBodyAsString()).contains(ApiErrorCode.INVALID_VALUE);
+                    });
+        }
     }
 
     @Test

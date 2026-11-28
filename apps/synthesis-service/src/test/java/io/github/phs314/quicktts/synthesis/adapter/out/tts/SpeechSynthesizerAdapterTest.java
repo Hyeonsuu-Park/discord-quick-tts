@@ -3,10 +3,11 @@ package io.github.phs314.quicktts.synthesis.adapter.out.tts;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.application.exception.SpeechSynthesisException;
 import io.github.phs314.quicktts.synthesis.domain.vo.Audio;
+import io.github.phs314.quicktts.synthesis.domain.vo.SpokenText;
 import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
+import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.Test;
 class SpeechSynthesizerAdapterTest {
 
     private static final VoiceId EDGE = new VoiceId("edge:ko-KR-SunHiNeural");
-    private static final String HELLO = "안녕";
+    private static final SpokenText HELLO = new SpokenText("안녕");
 
     private final MeterRegistry meterRegistry = new SimpleMeterRegistry();
 

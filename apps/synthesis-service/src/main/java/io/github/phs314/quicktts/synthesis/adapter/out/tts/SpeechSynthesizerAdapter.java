@@ -1,10 +1,11 @@
 package io.github.phs314.quicktts.synthesis.adapter.out.tts;
 
-import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.application.exception.SpeechSynthesisException;
 import io.github.phs314.quicktts.synthesis.application.port.out.SpeechSynthesizerPort;
 import io.github.phs314.quicktts.synthesis.domain.vo.Audio;
+import io.github.phs314.quicktts.synthesis.domain.vo.SpokenText;
 import io.github.phs314.quicktts.synthesis.domain.vo.Voice;
+import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.util.List;
@@ -54,7 +55,8 @@ public class SpeechSynthesizerAdapter implements SpeechSynthesizerPort {
     }
 
     @Override
-    public Audio synthesize(String text, VoiceId voiceId) {
+    public Audio synthesize(SpokenText spokenText, VoiceId voiceId) {
+        String text = spokenText.value();
         try {
             TtsEngine engine = engineOf(voiceId);
             return timed(voiceId, () -> engine.synthesize(text, voiceId));

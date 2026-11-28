@@ -1,6 +1,5 @@
 package io.github.phs314.quicktts.synthesis.adapter.in.web;
 
-import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import io.github.phs314.quicktts.synthesis.application.port.in.GetVoicesUseCase;
 import io.github.phs314.quicktts.synthesis.application.port.in.SynthesizeSpeechUseCase;
 import io.github.phs314.quicktts.synthesis.application.port.in.command.SynthesizeSpeechCommand;
@@ -10,6 +9,8 @@ import io.github.phs314.quicktts.synthesis.contract.SynthesisApi;
 import io.github.phs314.quicktts.synthesis.contract.SynthesizeRequest;
 import io.github.phs314.quicktts.synthesis.contract.VoiceCatalogResponse;
 import io.github.phs314.quicktts.synthesis.contract.VoiceCatalogResponse.VoiceResponse;
+import io.github.phs314.quicktts.synthesis.domain.vo.SpokenText;
+import io.github.phs314.quicktts.synthesis.domain.vo.VoiceId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class SynthesisController implements SynthesisApi {
     @Override
     public ResponseEntity<byte[]> synthesize(SynthesizeRequest request) {
         AudioDto audio = synthesizeSpeechUseCase.synthesize(
-                new SynthesizeSpeechCommand(request.text(), new VoiceId(request.voiceId())));
+                new SynthesizeSpeechCommand(new SpokenText(request.text()), new VoiceId(request.voiceId())));
         MediaType type = SynthesisApi.MP3.equals(audio.format()) ? MP3 : MediaType.APPLICATION_OCTET_STREAM;
         return ResponseEntity.ok().contentType(type).body(audio.content());
     }
