@@ -85,6 +85,19 @@ class QuickTtsClientTest {
                 .contains("/연결 을 다시 입력");
     }
 
+    @Test
+    void 서버의_최소_판보다_낮은_앱이면_업데이트를_안내한다() {
+        assertThat(QuickTtsClient.isUnsupported("0.2.0", "0.3.0")).isTrue();
+        assertThat(QuickTtsClient.isUnsupported("0.3.0", "0.3.0")).isFalse();
+        assertThat(QuickTtsClient.isUnsupported("0.4.0", "0.3.0")).isFalse();
+    }
+
+    @Test
+    void 판을_모르는_개발_중_앱은_안내하지_않는다() {
+        assertThat(QuickTtsClient.isUnsupported(null, "0.3.0")).isFalse();
+        assertThat(QuickTtsClient.isUnsupported("0.2.0", "이상한 값")).isFalse();
+    }
+
     private static String problem(String code, String detail) {
         return "{\"type\":\"about:blank\",\"title\":\"t\",\"status\":400,\"detail\":\"" + detail
                 + "\",\"instance\":\"/api/v1/quick-chat\",\"" + ApiErrorCode.PROPERTY + "\":\"" + code + "\"}";

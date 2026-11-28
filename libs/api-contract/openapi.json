@@ -1,0 +1,256 @@
+{
+  "components" : {
+    "schemas" : {
+      "DeviceRegistrationRequest" : {
+        "properties" : {
+          "deviceName" : {
+            "type" : "string"
+          },
+          "pairingCode" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "deviceName", "pairingCode" ],
+        "type" : "object"
+      },
+      "DeviceRegistrationResponse" : {
+        "properties" : {
+          "deviceToken" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "deviceToken" ],
+        "type" : "object"
+      },
+      "Problem" : {
+        "description" : "오류 응답. 클라이언트는 status 대신 code 로 안내 문구를 고른다 (ADR 0013).",
+        "properties" : {
+          "code" : {
+            "description" : "오류 코드 (ApiErrorCode). 예: invalid-value, invalid-device-token",
+            "type" : "string"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "instance" : {
+            "type" : "string"
+          },
+          "status" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "QuickChatRequest" : {
+        "properties" : {
+          "content" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "content" ],
+        "type" : "object"
+      },
+      "VoiceChannelResponse" : {
+        "properties" : {
+          "channelName" : {
+            "type" : "string"
+          },
+          "guildIconUrl" : {
+            "type" : [ "string", "null" ]
+          },
+          "guildName" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "channelName", "guildIconUrl", "guildName" ],
+        "type" : "object"
+      }
+    },
+    "securitySchemes" : {
+      "deviceToken" : {
+        "description" : "디스코드 /연결 코드로 기기를 등록하면 받는 기기 토큰",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  },
+  "info" : {
+    "description" : "데스크톱 앱이 문장을 보내고, 읽힐 음성 채널을 묻고, 기기를 연결하는 API.",
+    "title" : "Quick TTS 봇 서버 API",
+    "version" : "v1"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/v1/devices" : {
+      "post" : {
+        "description" : "디스코드 /연결 로 받은 연결 코드를 내고 기기 토큰을 받는다. 토큰 없이 부른다.",
+        "operationId" : "register",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeviceRegistrationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeviceRegistrationResponse"
+                }
+              }
+            },
+            "description" : "등록됨. 기기 토큰은 이때 한 번만 준다."
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "invalid-pairing-code (없거나 만료된 코드), invalid-value (코드나 PC 이름 형식)"
+          }
+        },
+        "security" : [ ],
+        "summary" : "기기 등록",
+        "tags" : [ "기기" ]
+      }
+    },
+    "/api/v1/me/voice-channel" : {
+      "get" : {
+        "description" : "지금 보내면 어느 음성 채널에서 읽힐지 알려 준다.",
+        "operationId" : "myVoiceChannel",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VoiceChannelResponse"
+                }
+              }
+            },
+            "description" : "이 채널에서 읽힘"
+          },
+          "204" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VoiceChannelResponse"
+                }
+              }
+            },
+            "description" : "봇이 있는 디스코드 서버의 음성 채널에 없음"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "invalid-device-token"
+          }
+        },
+        "summary" : "읽힐 음성 채널",
+        "tags" : [ "quick chat" ]
+      }
+    },
+    "/api/v1/quick-chat" : {
+      "post" : {
+        "description" : "보낸 사람이 들어가 있는 음성 채널에서 봇이 문장을 읽는다. 읽기 시작을 기다리지 않고 202 로 답한다.",
+        "operationId" : "quickChat",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/QuickChatRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "202" : {
+            "description" : "읽을 차례에 넣음"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "invalid-value (빈 문장, 너무 긴 문장, 다듬고 나면 읽을 것이 없는 문장)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "invalid-device-token"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "bot-cannot-join-voice-channel"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "author-not-in-voice-channel, voice-channel-in-use"
+          },
+          "502" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "speech-synthesis-failed"
+          }
+        },
+        "summary" : "quick chat 보내기",
+        "tags" : [ "quick chat" ]
+      }
+    }
+  },
+  "security" : [ {
+    "deviceToken" : [ ]
+  } ],
+  "tags" : [ {
+    "description" : "문장 보내기와 읽힐 채널 묻기",
+    "name" : "quick chat"
+  }, {
+    "description" : "PC 를 디스코드 사용자에게 연결",
+    "name" : "기기"
+  } ]
+}

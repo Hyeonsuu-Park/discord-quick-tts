@@ -53,6 +53,18 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+tasks.test {
+    // 웹 API 약속 파일. 통합 테스트가 /v3/api-docs 와 같은지 보고, -PupdateOpenApi 를 붙이면 다시 쓴다 (ADR 0076).
+    val openApiSnapshot = rootProject.layout.projectDirectory.file("libs/api-contract/openapi.json")
+    inputs.files(openApiSnapshot).withPropertyName("openApiSnapshot")
+    systemProperty("quicktts.openapi.snapshot", openApiSnapshot.asFile.path)
+    val updateOpenApi = providers.gradleProperty("updateOpenApi").isPresent
+    systemProperty("quicktts.openapi.update", updateOpenApi)
+    if (updateOpenApi) {
+        outputs.upToDateWhen { false }
+    }
+}
+
 tasks.bootRun {
     // 저장소 루트의 .env 를 읽을 수 있도록 루트에서 실행한다.
     workingDir = rootProject.projectDir
