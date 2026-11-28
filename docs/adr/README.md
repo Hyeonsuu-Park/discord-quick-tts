@@ -135,6 +135,7 @@
 | [0051](0051-text-normalizer.md) | 문장 다듬기 규칙은 speech/domain/normalization 의 TextNormalizer 에 둔다 | 채택 |
 | [0043](0043-play-speech-from-memory.md) | 음성은 임시 파일 없이 메모리에서 바로 재생한다 | 채택 |
 | [0046](0046-discord-shard-manager.md) | 디스코드 연결은 처음부터 ShardManager 로 만든다 | 채택 |
+| [0071](0071-discord-commands-without-waiting-on-synthesis.md) | 디스코드 명령과 봇 서버 켜기는 synthesis 서비스를 기다리지 않는다 | 채택 |
 
 ### 운영
 

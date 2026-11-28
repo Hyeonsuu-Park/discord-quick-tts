@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 /**
  * 디스코드 {@code /목소리} 명령. 목소리를 고르면 내가 보내는 문장을 그 목소리로 읽는다.
  * 목소리를 고르지 않고 치면 지금 목소리와 고를 수 있는 목록을 보여 준다.
+ * 목소리 목록은 synthesis 서비스에서 오므로, 3초 안에 답하지 못할 때를 대비해 먼저 응답을 미뤄 둔다(ADR 0071).
  */
 @Component
 @RequiredArgsConstructor
@@ -57,6 +58,7 @@ public class VoiceCommandListener extends ListenerAdapter implements DiscordSlas
         if (!COMMAND_NAME.equals(event.getName())) {
             return;
         }
+        event.deferReply(true).queue();
         DiscordUserId user = new DiscordUserId(event.getUser().getIdLong());
         OptionMapping chosen = event.getOption(VOICE_OPTION);
 
@@ -72,7 +74,7 @@ public class VoiceCommandListener extends ListenerAdapter implements DiscordSlas
                 reply = "없는 목소리예요. 목록에서 골라 주세요.";
             }
         }
-        event.reply(reply).setEphemeral(true).queue();
+        event.getHook().sendMessage(reply).setEphemeral(true).queue();
     }
 
     private String currentVoiceMessage(DiscordUserId user) {
