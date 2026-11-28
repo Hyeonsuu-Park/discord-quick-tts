@@ -26,8 +26,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -39,8 +37,6 @@ import org.springframework.stereotype.Component;
 public class SpeechPlayerDiscordAdapter implements SpeechPlayerPort {
 
     static final String QUEUE_WAIT_METRIC = "quicktts.speech.queue.wait";
-
-    private static final Logger log = LoggerFactory.getLogger(SpeechPlayerDiscordAdapter.class);
 
     /** 형식을 알아낼 때 LavaPlayer 가 로그와 트랙 정보에 쓰는 이름. 메모리의 음성이라 주소는 없다. */
     private static final AudioReference SPEECH = new AudioReference("quicktts-speech", "Quick TTS");
@@ -61,13 +57,17 @@ public class SpeechPlayerDiscordAdapter implements SpeechPlayerPort {
         playerManager.shutdown();
     }
 
+    /**
+     * @throws BotCannotJoinVoiceChannelException 채널을 찾지 못했거나(방금 지워졌거나 디스코드에 다시 붙는 중) 들어갈 권한이 없을 때.
+     *                                            조용히 넘어가면 앱은 성공을 보는데 소리가 나지 않는다
+     */
     @Override
     public void join(VoiceChannel channel) {
         Guild guild = shardManager.getGuildById(channel.guildId().value());
         AudioChannel audioChannel = guild == null ? null : guild.getChannelById(AudioChannel.class, channel.channelId().value());
         if (audioChannel == null) {
-            log.warn("음성 채널을 찾을 수 없습니다: {}", channel);
-            return;
+            throw new BotCannotJoinVoiceChannelException(channel,
+                    new IllegalStateException(guild == null ? "디스코드 서버를 찾을 수 없습니다." : "음성 채널을 찾을 수 없습니다."));
         }
         AudioManager audioManager = guild.getAudioManager();
         if (audioManager.getSendingHandler() == null) {
